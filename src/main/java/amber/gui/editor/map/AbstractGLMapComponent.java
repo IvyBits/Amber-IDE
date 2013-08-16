@@ -1,7 +1,7 @@
 package amber.gui.editor.map;
 
 import amber.data.map.LevelMap;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import java.awt.Component;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.AWTGLCanvas;
@@ -14,6 +14,10 @@ import org.lwjgl.opengl.PixelFormat;
 public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMapComponent {
 
     protected final MapContext context = new MapContext();
+
+    static {
+        System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
+    }
 
     public AbstractGLMapComponent() throws LWJGLException {
         super(new PixelFormat(8, 16, 0));
