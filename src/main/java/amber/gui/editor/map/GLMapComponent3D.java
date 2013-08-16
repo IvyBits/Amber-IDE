@@ -1,7 +1,7 @@
 package amber.gui.editor.map;
 
 import amber.Amber;
-import amber.Angles;
+import amber.data.math.Angles;
 import amber.data.OS;
 import amber.data.res.Tileset;
 import amber.data.res.Tileset.TileSprite;
@@ -18,8 +18,8 @@ import amber.data.map.TileModel;
 import amber.data.map.codec.Codec;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
-import amber.data.vecmath.Ray;
-import amber.data.vecmath.Vec3d;
+import amber.data.math.vec.Ray;
+import amber.data.math.vec.Vec3d;
 import amber.input.AbstractKeyboard;
 import amber.gl.FrameTimer;
 import amber.gl.GLColor;
@@ -31,10 +31,10 @@ import amber.gl.TrueTypeFont;
 import amber.gl.camera.EulerCamera;
 import amber.gl.model.ModelScene;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gl.tess.DefaultTesselator;
+import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
 import java.awt.Color;
@@ -87,7 +87,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     protected Thread renderer;
     protected boolean running;
     protected Sprite compassRose;
-    protected ITesselator tess = new DefaultTesselator();
+    protected ITesselator tess = new ImmediateTesselator();
 
     public GLMapComponent3D() throws LWJGLException {
     }
@@ -101,7 +101,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
     }
-    
+
     @Override
     public void removeNotify() {
         AbstractKeyboard.destroy(); // Prevent double events
@@ -306,7 +306,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             gleToggleWireframe();
         }
 
-
         cam.applyTranslations();
         glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_DEPTH_TEST);
@@ -328,13 +327,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     compassRose = new Sprite("icon/MapEditor.Compass-Rose.png");
                 }
                 glPushMatrix();
-                {
-                    glTranslatef(getWidth() / 2 + getWidth() / 3.5f, getHeight() / 2 + getHeight() / 3.5f, 0);
-                    glRotatef(cam.yaw() - 90, 0, 0, 1);
-                    float ratio = ((float) getWidth()) / ((float) getHeight()) * .7f;
-                    glScalef(ratio, ratio, ratio);
-                    compassRose.draw(compassRose.getWidth() / 2, -compassRose.getHeight() / 2);
-                }
+                glTranslatef(getWidth() / 2 + getWidth() / 3.5f, getHeight() / 2 + getHeight() / 3.5f, 0);
+                glRotatef(cam.yaw() - 90, 0, 0, 1);
+                float ratio = ((float) getWidth()) / ((float) getHeight()) * .7f;
+                glScalef(ratio, ratio, ratio);
+                compassRose.draw(compassRose.getWidth() / 2, -compassRose.getHeight() / 2);
                 glPopMatrix();
             }
             if (info) {
@@ -596,18 +593,18 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     case EAST:
                         return setTile0(mapX - w + 1, mapY, z, sel[sx][sy], dir, angle);
                     case SOUTH:
-                        return setTile0(mapX- w + 1, mapY- h + 1, z, sel[sx][sy], dir, angle);
+                        return setTile0(mapX - w + 1, mapY - h + 1, z, sel[sx][sy], dir, angle);
                     case WEST:
                         return setTile0(mapX, mapY - h + 1, z, sel[sx][sy], dir, angle);
                 }
             case _90:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(x, mapY, z + sx, sel[sx][h - sy - 1], dir, angle);
+                        return setTile0(x, mapY, z + sx, sel[sx][sy], dir, angle);
                     case EAST:
                         return setTile0(mapX - w + 1, y, z + sy, sel[sx][sy], dir, angle);
                     case SOUTH:
-                        return setTile0(x, mapY-h+1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
                     case WEST:
                         return setTile0(mapX, y, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
@@ -618,7 +615,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     case EAST:
                         return setTile0(mapX - w + 1, mapY, z + sy, sel[sx][sy], dir, angle);
                     case SOUTH:
-                        return setTile0(x - sx , mapY-h+1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x - sx, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
                     case WEST:
                         return setTile0(mapX, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
