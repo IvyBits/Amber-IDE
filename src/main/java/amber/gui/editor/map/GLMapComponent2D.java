@@ -14,16 +14,19 @@ import static amber.gl.GLE.*;
 import amber.gl.Texture;
 import amber.gl.TextureLoader;
 import amber.gl.TrueTypeFont;
-import amber.gl.camera.OrthographicCamera;
+import amber.gl.tess.ITesselator;
+import amber.gl.tess.ImmediateTesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.input.AbstractKeyboard;
 import amber.input.AbstractMouse;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.ScrollPane;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.io.DataOutputStream;
@@ -32,14 +35,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenu;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 import org.lwjgl.opengl.Display;
 
@@ -58,19 +57,29 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
     protected TrueTypeFont font;
     protected float aspectRatio;
     protected boolean showDetails = true;
-    protected OrthographicCamera cam = new OrthographicCamera();
     protected Thread renderer;
     protected boolean running;
-
-    public GLMapComponent2D() throws LWJGLException {
-    }
+    protected ITesselator tess = new ImmediateTesselator();
+    protected ScrollPane scroller = new ScrollPane();
 
     public GLMapComponent2D(LevelMap map) throws LWJGLException {
         super(map);
-        setMinimumSize(new Dimension(50, 50));
-        setPreferredSize(new Dimension(50, 50));
+        setMinimumSize(new Dimension(0, 0));
+        setPreferredSize(new Dimension(map.getWidth() * 32 + 2, map.getLength() * 32 + 2));
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        scroller.add(this);
+        scroller.setMinimumSize(new Dimension(0, 0));
+        scroller.setPreferredSize(new Dimension(0, 0));
+        scroller.getVAdjustable().setUnitIncrement(16);
+        scroller.getHAdjustable().setUnitIncrement(16);
+    }
+
+    @Override
+    public void removeNotify() {
+        AbstractKeyboard.destroy(); // Prevent double events
+        AbstractMouse.destroy();
+        super.removeNotify();
     }
 
     @Override
@@ -92,7 +101,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         glLoadIdentity();
 
         glEnable(GL_COLOR_MATERIAL);
-        glEnable(GL_TEXTURE_2D); // Enable Texture Mapping       
+        glEnable(GL_TEXTURE_2D);
         glDisable(GL_DITHER);
         glDisable(GL_DEPTH_TEST);
 
@@ -131,11 +140,27 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
     //@Override
     protected void pollInput() {
-        float dxy = (float) timer.getDelta() * 2f * 0.1f;
-        cam.processKeyboard(1, dxy, dxy);
+        int delta = (int) ((float) timer.getDelta() * 2f * 0.1f);
 
-        cursorPos.x = (int) (AbstractMouse.getX(this) + cam.x()) / 32;
-        cursorPos.y = (int) (AbstractMouse.getY(this) + cam.y()) / 32;
+        boolean keyUp = AbstractKeyboard.isKeyDown(Keyboard.KEY_UP) || AbstractKeyboard.isKeyDown(Keyboard.KEY_W);
+        boolean keyDown = AbstractKeyboard.isKeyDown(Keyboard.KEY_DOWN) || AbstractKeyboard.isKeyDown(Keyboard.KEY_S);
+        boolean keyLeft = AbstractKeyboard.isKeyDown(Keyboard.KEY_LEFT) || AbstractKeyboard.isKeyDown(Keyboard.KEY_A);
+        boolean keyRight = AbstractKeyboard.isKeyDown(Keyboard.KEY_RIGHT) || AbstractKeyboard.isKeyDown(Keyboard.KEY_D);
+
+        if (keyUp && !keyDown) {
+            scroller.getVAdjustable().setValue(scroller.getVAdjustable().getValue() - delta);
+        } else if (keyDown && !keyUp) {
+            scroller.getVAdjustable().setValue(scroller.getVAdjustable().getValue() + delta);
+        }
+
+        if (keyLeft && !keyRight) {
+            scroller.getHAdjustable().setValue(scroller.getHAdjustable().getValue() - delta);
+        } else if (keyRight && !keyLeft) {
+            scroller.getHAdjustable().setValue(scroller.getHAdjustable().getValue() + delta);
+        }
+
+        cursorPos.x = (int) (AbstractMouse.getX(this)) / 32;
+        cursorPos.y = (int) (AbstractMouse.getY(this)) / 32;
 
         if (AbstractMouse.isButtonDown(0)) {
             LevelMap pre = context.map.clone();
@@ -211,15 +236,15 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        cam.applyTranslations();
-
+        glPushMatrix();
+        glTranslatef(1, 0, 0);
         glEnable(GL_TEXTURE_RECTANGLE_ARB);
         List<Layer> layers = context.map.getLayers();
         for (int i = 0; i != layers.size(); i++) {
             drawLayer(layers.get(i));
         }
         drawGrid();
+        glPopMatrix();
 
         if (showDetails) {
             glPushMatrix();
@@ -258,53 +283,13 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
                         if (textureCache.containsKey(sheet)) {
                             txt = textureCache.get(sheet);
                         } else {
-                            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA));
+                            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_2D, GL_RGBA));
                         }
                         if (txt.getID() != bound) {
                             glBindTexture(txt.getTarget(), bound = txt.getID());
                         }
 
-                        Point start = sprite.getStart();
-                        Dimension size = sprite.getSize();
-
-                        // This coordinate offsetting is a horrible, hacky way to solve
-                        // the issue of texture borders bleeding.
-                        float tx = start.x + .5f;
-                        float ty = start.y + .5f;
-                        float th = size.height - 1;
-                        float tw = size.width - 1;
-
-                        Vector2f v0 = new Vector2f(tx, ty + th);
-                        Vector2f v1 = new Vector2f(tx, ty);
-                        Vector2f v2 = new Vector2f(tx + tw, ty);
-                        Vector2f v3 = new Vector2f(tx + tw, ty + th);
-
-                        int dx = x * 32;
-                        int dy = y * 32;
-
-                        glBegin(GL_TRIANGLES);
-                        {
-                            //0
-                            glTexCoord2f(v0.x, v0.y);
-                            glVertex2f(dx, dy);
-                            //1
-                            glTexCoord2f(v1.x, v1.y);
-                            glVertex2f(dx, dy + 32);
-                            //2
-                            glTexCoord2f(v2.x, v2.y);
-                            glVertex2f(dx + 32, dy + 32);
-
-                            //3 
-                            glTexCoord2f(v3.x, v3.y);
-                            glVertex2f(dx + 32, dy);
-                            //2
-                            glTexCoord2f(v2.x, v2.y);
-                            glVertex2f(dx + 32, dy + 32);
-                            //0
-                            glTexCoord2f(v0.x, v0.y);
-                            glVertex2f(dx, dy);
-                        }
-                        glEnd();
+                        tess.drawTile2D(t, x, y);
                     }
                 }
             }
@@ -421,6 +406,11 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
             return tile != null ? tile.getSprite() : Tileset.TileSprite.NULL_SPRITE;
         }
         return null;
+    }
+
+    @Override
+    public Component getComponent() {
+        return scroller;
     }
 
     public JMenu[] getContextMenus() {

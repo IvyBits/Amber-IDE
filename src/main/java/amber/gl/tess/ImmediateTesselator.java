@@ -1,13 +1,9 @@
 package amber.gl.tess;
 
 import amber.data.math.Angles;
-import amber.data.map.Direction;
 import static amber.data.map.Direction.*;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
-import amber.data.map.Tile3D.Angle;
-import amber.data.res.Tileset;
-import amber.gl.GLColor;
 import java.awt.Dimension;
 import java.awt.Point;
 import static org.lwjgl.opengl.GL11.*;
@@ -15,7 +11,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 /**
  * Renders tiles in immediate mode.
- * 
+ *
  * @author Tudor
  */
 public class ImmediateTesselator implements ITesselator {
@@ -45,12 +41,11 @@ public class ImmediateTesselator implements ITesselator {
 
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
-        // This coordinate offsetting is a horrible, hacky way to solve
-        // the issue of texture borders bleeding.
-        float tx = start.x + .5f;
-        float ty = start.y + .5f;
-        float th = size.height - 1;
-        float tw = size.width - 1;
+
+        float tx = start.x;
+        float ty = start.y;
+        float th = size.height;
+        float tw = size.width;
 
         glBegin(GL_QUADS);
         {
@@ -64,28 +59,43 @@ public class ImmediateTesselator implements ITesselator {
             glVertex3f(0, 0, 1);
         }
         glEnd();
-
-        glPushAttrib(GL_CURRENT_BIT);
-        GLColor.GREEN.bind();
-        glBegin(GL_LINES);
-        {
-            glVertex3f(ix.x, 0, 0);
-            glVertex3f(ix.x, 3, 0);
-        }
-        glEnd();
-        glPopAttrib();
         glPopMatrix();
     }
 
     public void drawTile2D(Tile tile, int x, int y) {
-        // TODO
-    }
+        Point start = tile.getSprite().getStart();
+        Dimension size = tile.getSprite().getSize();
 
-    public Vector2f[] tileVertices2D(int x, int y) {
-        return new Vector2f[0];
-    }
+        float tx = start.x;
+        float ty = start.y;
+        float th = size.height;
+        float tw = size.width;
 
-    public Vector2f[] tileTexture2D(Tileset.TileSprite sprite) {
-        return  new Vector2f[0];
+        int dx = x * 32;
+        int dy = y * 32;
+
+        glBegin(GL_TRIANGLES);
+        {
+            //0
+            glTexCoord2f(tx, ty + th);
+            glVertex2f(dx, dy);
+            //1
+            glTexCoord2f(tx, ty);
+            glVertex2f(dx, dy + 32);
+            //2
+            glTexCoord2f(tx + tw, ty);
+            glVertex2f(dx + 32, dy + 32);
+
+            //3 
+            glTexCoord2f(tx + tw, ty + th);
+            glVertex2f(dx + 32, dy);
+            //2
+            glTexCoord2f(tx + tw, ty);
+            glVertex2f(dx + 32, dy + 32);
+            //0
+            glTexCoord2f(tx, ty + th);
+            glVertex2f(dx, dy);
+        }
+        glEnd();
     }
 }
