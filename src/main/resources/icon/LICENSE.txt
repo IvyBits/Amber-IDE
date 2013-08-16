@@ -1,0 +1,9 @@
+The following icons are dual licensed under the Creative Common Attribution-ShareAlike 3.0 License 
+and the GNU Lesser General Public License v2.1 License:
+
+    MapEditor.Brush.png
+    MapEditor.Compass.png
+    MapEditor.Grid.png
+    MapEditor.Pencil.png
+
+Other icons are properties of their respective authors.
