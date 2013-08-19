@@ -96,7 +96,7 @@ public class IDE extends javax.swing.JFrame {
             editor = FileViewerPanel.fileViewerPanelFor(file);
             for (JMenu menu : editor.getContextMenus()) {
                 System.out.println("adding menu " + menu);
-                menuBar.add(menu);
+                menuBar.add(menu, menuBar.getComponentCount()-1); // Help menu should always be last
                 menuBar.revalidate();
             }
         } catch (Exception ex) {
@@ -169,8 +169,6 @@ public class IDE extends javax.swing.JFrame {
         newTilesetItem = new javax.swing.JMenuItem();
         newAudioItem = new javax.swing.JMenuItem();
         newModelItem = new javax.swing.JMenuItem();
-        editMenu = new javax.swing.JMenu();
-        toolsMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         aboutItem = new javax.swing.JMenuItem();
 
@@ -346,12 +344,6 @@ public class IDE extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
-        editMenu.setText(bundle.getString("IDE.editMenu.text")); // NOI18N
-        menuBar.add(editMenu);
-
-        toolsMenu.setText(bundle.getString("IDE.toolsMenu.text")); // NOI18N
-        menuBar.add(toolsMenu);
-
         helpMenu.setText(bundle.getString("IDE.helpMenu.text")); // NOI18N
 
         aboutItem.setText(bundle.getString("IDE.aboutItem.text")); // NOI18N
@@ -446,7 +438,6 @@ public class IDE extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItem;
     private amber.swing.tabs.CloseableTabbedPane activeFilesTabbedPane;
-    private javax.swing.JMenu editMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JSeparator footerSeparator;
     private javax.swing.JSeparator headerSeparator;
@@ -481,7 +472,6 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem saveItem;
     private javax.swing.JMenuItem synchItem;
-    private javax.swing.JMenu toolsMenu;
     private amber.swing.tree.filesystem.FileSystemTree treeView;
     // End of variables declaration//GEN-END:variables
 }
