@@ -4,10 +4,19 @@ import amber.data.math.Angles;
 import static amber.data.map.Direction.*;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
+import amber.data.map.TileModel;
+import amber.data.res.Tileset;
+import amber.gl.Texture;
+import amber.gl.TextureLoader;
+import amber.gl.model.ModelScene;
+import amber.gl.model.obj.WavefrontObject;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.WeakHashMap;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
+import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 
 /**
  * Renders tiles in immediate mode.
@@ -16,7 +25,15 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class ImmediateTesselator implements ITesselator {
 
-    public void drawTile3D(Tile3D tile, int x, int y, int z) {
+    protected WeakHashMap<Tileset, Texture> textureCache = new WeakHashMap<Tileset, Texture>();
+    protected WeakHashMap<WavefrontObject, ModelScene> modelCache = new WeakHashMap<WavefrontObject, ModelScene>();
+    protected int bound;
+
+    public void drawTile3D(Tile3D tile, float x, float y, float z) {
+        Texture txt = getTexture(tile);
+        if (txt.getID() != bound) {
+            glBindTexture(txt.getTarget(), bound = txt.getID());
+        }
         glPushMatrix();
         float[] tr = new float[]{x, z, y, 0};
 
@@ -62,7 +79,11 @@ public class ImmediateTesselator implements ITesselator {
         glPopMatrix();
     }
 
-    public void drawTile2D(Tile tile, int x, int y) {
+    public void drawTile2D(Tile tile, float x, float y) {
+        Texture txt = getTexture(tile);
+        if (txt.getID() != bound) {
+            glBindTexture(txt.getTarget(), bound = txt.getID());
+        }
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
 
@@ -71,8 +92,8 @@ public class ImmediateTesselator implements ITesselator {
         float th = size.height;
         float tw = size.width;
 
-        int dx = x * 32;
-        int dy = y * 32;
+        float dx = x * 32;
+        float dy = y * 32;
 
         glBegin(GL_TRIANGLES);
         {
@@ -97,5 +118,74 @@ public class ImmediateTesselator implements ITesselator {
             glVertex2f(dx, dy);
         }
         glEnd();
+    }
+
+    public void startTileBatch() {
+        glPushMatrix();
+        glPushAttrib(GL_CURRENT_BIT);
+        glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    }
+
+    public void endTileBatch() {
+        bound = -1;
+        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glPopAttrib();
+        glPopMatrix();
+    }
+
+    public void startModelBatch() {
+        glPushMatrix();
+    }
+
+    public void drawModel3D(TileModel model, float x, float y, float z) {
+        ModelScene scene = getModel(model);
+        if (scene != null) {
+            glPushMatrix();
+            glPushAttrib(GL_CURRENT_BIT | GL_TRANSFORM_BIT);
+            glTranslatef(x, z, y);
+            scene.draw();
+            glTranslatef(-x, -z, -y);
+            glPopAttrib();
+            glPopMatrix();
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+    }
+
+    public void endModelBatch() {
+        glPopMatrix();
+    }
+
+    public void invalidate() {
+        textureCache.clear();
+        modelCache.clear();
+    }
+
+    protected Texture getTexture(Tile t) {
+        Tileset.TileSprite sprite = t.getSprite();
+        Tileset sheet = sprite.getTileset();
+        Texture txt;
+        if (textureCache.containsKey(sheet)) {
+            txt = textureCache.get(sheet);
+        } else {
+            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_2D, GL_RGBA));
+        }
+        return txt;
+    }
+
+    protected ModelScene getModel(TileModel t) {
+        WavefrontObject m = t.getModel();
+        ModelScene scene = null;
+        if (m != null) {
+            if (modelCache.containsKey(m)) {
+                scene = modelCache.get(m);
+            } else {
+                try {
+                    modelCache.put(m, scene = new ModelScene(m));
+                } catch (IOException ex) {
+                }
+            }
+        }
+        return scene;
     }
 }
