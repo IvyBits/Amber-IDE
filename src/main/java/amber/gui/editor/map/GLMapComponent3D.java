@@ -28,7 +28,6 @@ import amber.gl.camera.EulerCamera;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.misc.ErrorHandler;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
 import java.awt.Color;
@@ -54,6 +53,13 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
 import static amber.input.AbstractKeyboard.*;
 import static amber.input.AbstractMouse.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.ScrollPane;
+import org.lwjgl.opengl.GLContext;
 
 /**
  *
@@ -73,6 +79,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     protected TrueTypeFont font;
     protected Sprite compassRose;
     protected ITesselator tess = new ImmediateTesselator();
+    protected Panel display = new Panel(new BorderLayout());
 
     public GLMapComponent3D(LevelMap map) throws LWJGLException {
         super(map);
@@ -82,24 +89,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
-    }
-
-    @Override
-    public void removeNotify() {
-        AbstractKeyboard.destroy(); // Prevent double events
-        AbstractMouse.destroy();
-        super.removeNotify();
+        display.add(this);
     }
 
     @Override
     public void initGL() {
-        try {
-            AbstractKeyboard.create(AbstractKeyboard.AWT);
-            AbstractMouse.create(AbstractMouse.AWT);
-        } catch (LWJGLException ex) {
-            ErrorHandler.alert(ex);
-        }
-
         gleClearColor(Color.WHITE);
         font = new TrueTypeFont(new Font("Courier", Font.PLAIN, 15), true);
 
@@ -228,6 +222,20 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
      */
     @Override
     public void paintGL() {
+        if (!GLContext.getCapabilities().GL_ARB_texture_rectangle) {
+            running = false;
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    display.remove(GLMapComponent3D.this);
+                    ScrollPane scroller = new ScrollPane();
+                    scroller.setMinimumSize(new Dimension(0, 0));
+                    scroller.add(new Label("ARB_TEXTURE_RECTANGLE not supported. Try updating your graphics drivers.", Label.CENTER));
+                    display.add(scroller);
+                    display.validate();
+                }
+            });
+            return;
+        }
         super.paintGL();
         float aspect = (float) getWidth() / (float) getHeight();
         if (aspect != cam.aspectRatio()) {
@@ -451,19 +459,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         boolean modified = false;
         if (context.tileSelection != null) {
             Tileset.TileSprite[][] sel = context.tileSelection.clone();
-            switch (dir) {
-                case NORTH:
-                    sel = rotateMatrixRight(sel);
-                case EAST:
-                    sel = rotateMatrixRight(sel);
-                case SOUTH:
-                    sel = rotateMatrixRight(sel);
-            }
             int w = sel.length;
             int h = sel[0].length;
             for (int sx = 0; sx != w; sx++) {
                 for (int sy = 0; sy != h; sy++) {
-                    boolean tiled = setAngledTile(sx + x, sy + y, x, y, (int) cursorPos.y, sx, sy, h, w, dir, angle, sel);
+                    boolean tiled = setAngledTile(x, y, (int) cursorPos.y, sx, sy, h, w, dir, angle, sel);
                     if (!modified) {
                         modified = tiled;
                     }
@@ -473,40 +473,41 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         return modified;
     }
 
-    private final boolean setAngledTile(int mapX, int mapY, int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, TileSprite[][] sel) {
+    protected final boolean setAngledTile(int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, TileSprite[][] sel) {
+        // It works, that's all you need to know.
         switch (angle) {
             case _180:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(mapX, mapY, z, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy, y + sx, z, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, mapY, z, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, sy + y, z, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(mapX - w + 1, mapY - h + 1, z, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy - h + 1, y + sx - w + 1, z, sel[w - sx - 1][sy], dir, angle);
                     case WEST:
-                        return setTile0(mapX, mapY - h + 1, z, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x, sy + y - h + 1, z, sel[sx][sy], dir, angle);
                 }
             case _90:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(x, mapY, z + sx, sel[sx][sy], dir, angle);
+                        return setTile0(x, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, y, z + sy, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(x, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case WEST:
-                        return setTile0(mapX, y, z + sy, sel[sx][h - sy - 1], dir, angle);
+                        return setTile0(sx + x, y, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
             case _45:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(mapX, mapY, z + sx, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, mapY, z + sy, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, sy + y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(x - sx, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x - sy, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case WEST:
-                        return setTile0(mapX, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
+                        return setTile0(sx + x, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
         }
         return false;
@@ -523,16 +524,9 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         return modified;
     }
 
-    private Tileset.TileSprite[][] rotateMatrixRight(Tileset.TileSprite[][] matrix) {
-        int w = matrix.length;
-        int h = matrix[0].length;
-        Tileset.TileSprite[][] ret = new Tileset.TileSprite[h][w];
-        for (int i = 0; i < h; ++i) {
-            for (int j = 0; j < w; ++j) {
-                ret[i][j] = matrix[w - j - 1][i];
-            }
-        }
-        return ret;
+    @Override
+    public Component getComponent() {
+        return display;
     }
     protected boolean info = true, compass = true, wireframe = false;
 
