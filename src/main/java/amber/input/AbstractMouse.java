@@ -13,7 +13,7 @@ public class AbstractMouse {
 
     public static final int NATIVE = 0;
     public static final int AWT = 1;
-    private static int type;
+    private static int type = -1;
 
     public static void create(int type) throws LWJGLException {
         switch (type) {
@@ -28,7 +28,6 @@ public class AbstractMouse {
     }
 
     public static void destroy() {
-        ensureCreated();
         switch (type) {
             case NATIVE:
                 Mouse.destroy();
