@@ -321,9 +321,9 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         while (tileIterator.hasNext()) {
             SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
             while (matrixIterator.hasNext()) {
-                Tile t = (Tile) matrixIterator.next();
+                Tile3D t = (Tile3D) matrixIterator.next();
                 if (t != null) {
-                    tess.drawTile3D((Tile3D) t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
+                    tess.drawTile3D(t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
                 }
             }
         }
