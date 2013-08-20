@@ -27,7 +27,6 @@ public class MapContext {
     public int drawType;
     public int drawMode;
     public int layer;
-    public boolean drawGrid = true;
     public Stack<LevelMap> undoStack = new Stack<LevelMap>();
     public Stack<LevelMap> redoStack = new Stack<LevelMap>();
     public WavefrontObject EXT_modelSelection;

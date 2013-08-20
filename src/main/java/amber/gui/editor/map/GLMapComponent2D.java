@@ -225,7 +225,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
     protected void drawGrid() {
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
-        if (context.drawGrid) {
+        if (grid) {
             glBegin(GL_LINES);
             {
                 GLColor.GRAY.bind();
@@ -328,12 +328,17 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
     public Component getComponent() {
         return display;
     }
-    protected boolean info = true, wireframe = false;
+    protected boolean info = true, wireframe = false, grid = true;
 
     public JMenu[] getContextMenus() {
         return new JMenu[]{new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
                     info = !info;
+                    repaint();
+                }
+            }).addCheckbox("Grid", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    grid = !grid;
                     repaint();
                 }
             }).addCheckbox("Wireframe", false, new AbstractAction() {

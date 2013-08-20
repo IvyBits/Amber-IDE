@@ -221,8 +221,6 @@ public class MapEditorPanel extends FileViewerPanel {
         mapBack = new javax.swing.JPanel();
         scenePanel = new javax.swing.JPanel();
         toolBar = new javax.swing.JToolBar();
-        showGridButton = new javax.swing.JToggleButton();
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         brushButton = new javax.swing.JToggleButton();
         eraseButton = new javax.swing.JToggleButton();
         fillButton = new javax.swing.JToggleButton();
@@ -332,23 +330,6 @@ public class MapEditorPanel extends FileViewerPanel {
         toolBar.setPreferredSize(new java.awt.Dimension(26, 26));
         toolBar.setRequestFocusEnabled(false);
 
-        showGridButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Grid.png"))); // NOI18N
-        showGridButton.setSelected(true);
-        showGridButton.setToolTipText("Show grid...");
-        showGridButton.setFocusable(false);
-        showGridButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        showGridButton.setMaximumSize(new java.awt.Dimension(26, 26));
-        showGridButton.setMinimumSize(new java.awt.Dimension(26, 26));
-        showGridButton.setPreferredSize(new java.awt.Dimension(26, 26));
-        showGridButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        showGridButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showGridButtonActionPerformed(evt);
-            }
-        });
-        toolBar.add(showGridButton);
-        toolBar.add(jSeparator1);
-
         brushButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Brush.png"))); // NOI18N
         brushButton.setSelected(true);
         brushButton.setToolTipText("Brush tool...");
@@ -447,10 +428,6 @@ public class MapEditorPanel extends FileViewerPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void showGridButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showGridButtonActionPerformed
-        renderer.getMapContext().drawGrid = !renderer.getMapContext().drawGrid;
-    }//GEN-LAST:event_showGridButtonActionPerformed
-
     private void fillButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fillButtonActionPerformed
         renderer.getMapContext().drawMode = MapContext.MODE_FILL;
     }//GEN-LAST:event_fillButtonActionPerformed
@@ -479,7 +456,6 @@ public class MapEditorPanel extends FileViewerPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JPanel mapBack;
     private amber.swing.misc.ThinSplitPane mapResourcesSplitPane;
@@ -488,7 +464,6 @@ public class MapEditorPanel extends FileViewerPanel {
     private javax.swing.JTabbedPane resourcesTabbedPane;
     private javax.swing.JPanel scenePanel;
     private javax.swing.JToggleButton selectButton;
-    private javax.swing.JToggleButton showGridButton;
     private javax.swing.JTable table;
     private amber.swing.misc.ThinSplitPane thinSplitPane1;
     private javax.swing.JPanel tilePanel;
