@@ -187,7 +187,6 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
         if (info) {
             glPushMatrix();
-            System.out.println(display.getHAdjustable().getValue() + ", " + display.getVAdjustable().getValue());
             glLoadIdentity();
             glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Ensure we're not in wireframe mode
@@ -209,18 +208,17 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
     protected void drawLayer(Layer layer) {
         tess.startTileBatch();
-        SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
-        for (int x = 0; x < layer.getWidth(); x++) {
-            for (int y = 0; y < layer.getLength(); y++) {
-                SparseVector.SparseVectorIterator iterator = tileVector.iterator();
-                while (iterator.hasNext()) {
-                    Tile t = ((SparseMatrix<Tile>) iterator.next()).get(x, y);
-                    if (t != null) {
-                        tess.drawTile2D(t, x, y);
-                    }
+        SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
+        while (tileIterator.hasNext()) {
+            SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
+            while (matrixIterator.hasNext()) {
+                Tile t = (Tile) matrixIterator.next();
+                if (t != null) {
+                    tess.drawTile2D(t, matrixIterator.realX(), matrixIterator.realY());
                 }
             }
         }
+
         glBindTexture(GL_TEXTURE_2D, 0);
         tess.endTileBatch();
     }
