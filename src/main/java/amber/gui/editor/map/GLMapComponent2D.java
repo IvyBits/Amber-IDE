@@ -187,9 +187,11 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
         if (info) {
             glPushMatrix();
+            System.out.println(display.getHAdjustable().getValue() + ", " + display.getVAdjustable().getValue());
             glLoadIdentity();
             glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Ensure we're not in wireframe mode
+            glTranslatef(display.getHAdjustable().getValue(), -display.getVAdjustable().getValue(), 0); // Translate to top-left corner
             GLColor.BLACK.bind();
             font.drawString(0, getHeight() - font.getHeight(), "FPS: " + timer.fps() + "\n"
                     + (!AbstractMouse.isGrabbed() ? "Cursor: (" + (int) cursorPos.x + ", " + (int) cursorPos.y + ")" : ""), 1f, 1f, TrueTypeFont.ALIGN_LEFT);
@@ -256,7 +258,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         glPopAttrib();
     }
 
-        protected boolean floodFillAt(int x, int y) {
+    protected boolean floodFillAt(int x, int y) {
         boolean modified = false;
         if (isInBounds(x, y)) {
             Tileset.TileSprite target = spriteAt(x, y);
@@ -295,7 +297,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         }
         return modified;
     }
-    
+
     protected boolean setTileAt(int x, int y) {
         boolean modified = false;
         if (context.tileSelection != null) {
