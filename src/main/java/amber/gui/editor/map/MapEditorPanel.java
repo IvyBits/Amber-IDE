@@ -54,6 +54,8 @@ public class MapEditorPanel extends FileViewerPanel {
         cardinalityButton.setVisible(renderer.getMapContext().EXT_cardinalSupported);
         tilePanel.setLayout(new BorderLayout());
         tilechooser = new TileSelector(renderer.getMapContext());
+
+        resourcesTabbedPane.validate();
         if (Amber.getResourceManager().getTilesets().size() > 0) {
             tilePanel.add(tilechooser);
             tilechooser.synchronize(); // don't add label in first place
@@ -81,23 +83,27 @@ public class MapEditorPanel extends FileViewerPanel {
                 }
             });
         }
-        modelchooser = new ModelSelector(renderer.getMapContext());
-        if (Amber.getResourceManager().getModels().size() > 0) {
-            modelPanel.add(modelchooser);
-            modelchooser.synchronize();
+        if (!renderer.getMapContext().EXT_modelSelectionSupported) {
+            resourcesTabbedPane.remove(1); // Models tab
         } else {
-            LabelBuilder builder = new LabelBuilder();
-            builder.append("No models found -- ");
-            builder.setForeground(new Color(80, 100, 200));
-            builder.action("add one.", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ResourceDialog res = new ResourceDialog(Amber.getUI());
-                    res.setPanel(ResourceDialog.MODEL_PANEL);
-                    res.setVisible(true);
-                }
-            });
-            modelPanel.add(builder.create(), BorderLayout.CENTER);
+            modelchooser = new ModelSelector(renderer.getMapContext());
+            if (Amber.getResourceManager().getModels().size() > 0) {
+                modelPanel.add(modelchooser);
+                modelchooser.synchronize();
+            } else {
+                LabelBuilder builder = new LabelBuilder();
+                builder.append("No models found -- ");
+                builder.setForeground(new Color(80, 100, 200));
+                builder.action("add one.", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ResourceDialog res = new ResourceDialog(Amber.getUI());
+                        res.setPanel(ResourceDialog.MODEL_PANEL);
+                        res.setVisible(true);
+                    }
+                });
+                modelPanel.add(builder.create(), BorderLayout.CENTER);
+            }
         }
         Amber.getResourceManager().addResourceListener(new IResourceListener() {
             public void tilesetImported(Resource<Tileset> sheet) {
