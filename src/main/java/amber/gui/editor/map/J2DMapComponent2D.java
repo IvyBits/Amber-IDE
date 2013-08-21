@@ -26,8 +26,8 @@ import static amber.gui.editor.map.MapContext.MODE_FILL;
 /**
  * @author xiaomao
  */
-
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
+
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
@@ -131,7 +131,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         Dimension size = sprite.getSize();
 
                         int dx = x * 32;
-                        int dy = y * 32;
+                        int dy = (getHeight() - y * 32) - 32;
 
                         g.drawImage(texture, dx, dy, dx + 32, dy + 32, start.x, start.y, start.x + size.width, start.y + size.height, null);
                     }
@@ -139,19 +139,23 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         }
     }
-
     static final Stroke stroke2 = new BasicStroke(2);
     static final Stroke stroke3 = new BasicStroke(3);
+
     protected void drawGrid(Graphics2D g) {
         Color oldColor = g.getColor();
         g.setColor(Color.GRAY);
 
         Stroke oldStroke = g.getStroke();
 
-        for (int x = 0; x <= context.map.getWidth(); x++)
+        g.translate(0, getHeight() - context.map.getLength() * 32);
+
+        for (int x = 0; x <= context.map.getWidth(); x++) {
             g.drawLine(x * 32, 0, x * 32, context.map.getLength() * 32);
-        for (int y = 0; y <= context.map.getLength(); y++)
+        }
+        for (int y = 0; y <= context.map.getLength(); y++) {
             g.drawLine(0, y * 32, context.map.getWidth() * 32, y * 32);
+        }
 
         g.setColor(Color.BLACK);
         g.setStroke(stroke3);
@@ -161,16 +165,18 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.drawLine(0, context.map.getLength() * 32, context.map.getWidth() * 32, context.map.getWidth() * 32);
 
         g.setStroke(stroke2);
-        if (cursorPos != null && context.tileSelection != null && context.tileSelection.length > 0 && context.tileSelection[0].length > 0)
-            g.drawRect(cursorPos.x * 32, cursorPos.y * 32, context.tileSelection.length * 32, context.tileSelection[0].length * 32);
+        if (cursorPos != null) {
+            Dimension size = currentTool().getDrawRectangleSize();
+            g.drawRect(cursorPos.x * 32, getHeight() - cursorPos.y * 32, size.width * 32, size.height * 32);
+        }
 
         g.setColor(oldColor);
         g.setStroke(oldStroke);
     }
-
     protected FrameTimer timer = new FrameTimer();
 
     protected void onKeyPress(KeyEvent e) {
+        System.out.println("dokey: " + e);
         int delta = timer.getDelta() / 5;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_W:
@@ -189,31 +195,47 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             case KeyEvent.VK_RIGHT:
                 display.getHorizontalScrollBar().setValue(display.getHorizontalScrollBar().getValue() + delta);
                 break;
+            case KeyEvent.VK_Z:
+                if (e.isControlDown() && !context.undoStack.empty()) {
+                    context.redoStack.push(context.map.clone());
+                    context.map = context.undoStack.pop();
+                }
+                break;
+            case KeyEvent.VK_Y:
+                if (e.isControlDown() && !context.redoStack.empty()) {
+                    context.undoStack.push(context.map.clone());
+                    context.map = context.redoStack.pop();
+                }
+                break;
+            default:
+                currentTool().doKey(AWTInputMap.map(e));
+                break;
         }
-        currentTool().doKey(AWTInputMap.map(e));
     }
 
     protected void onWheelMove(MouseWheelEvent e) {
-        display.getVerticalScrollBar().setValue(display.getVerticalScrollBar().getValue() - e.getUnitsToScroll());
+        display.getVerticalScrollBar().setValue((display.getVerticalScrollBar().getValue() - e.getUnitsToScroll()) * 16);
     }
 
     protected void onMouseDown(MouseEvent e) {
+        requestFocusInWindow();
         if (e.getButton() == 0) {
             LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
 
-            if (tool != null && tool.apply(cursorPos.x, cursorPos.y))
+            if (tool != null && tool.apply(cursorPos.x, cursorPos.y - 1)) {
                 context.undoStack.push(pre);
+            }
         }
     }
 
     protected void onMouseMove(MouseEvent e) {
-        cursorPos.setLocation(e.getX() / 32, e.getY() / 32);
+        cursorPos.setLocation(e.getX() / 32, context.map.getLength() - e.getY() / 32);
     }
-
     protected Tool2D brushTool = new Brush2D(context);
     protected Tool2D eraseTool = new Eraser2D(context);
     protected Tool2D fillTool = new Fill2D(context);
+
     private Tool2D currentTool() {
         switch (context.drawMode) {
             case MODE_BRUSH:
