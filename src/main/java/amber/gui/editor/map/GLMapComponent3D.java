@@ -2,7 +2,6 @@ package amber.gui.editor.map;
 
 import amber.Amber;
 import amber.data.math.Angles;
-import amber.data.OS;
 import amber.data.res.Tileset;
 import amber.data.res.Tileset.TileSprite;
 import amber.data.map.Direction;
@@ -15,7 +14,6 @@ import amber.data.map.Tile3D;
 import amber.data.map.Tile3D.Angle;
 import static amber.data.map.Tile3D.Angle.*;
 import amber.data.map.TileModel;
-import amber.data.map.codec.Codec;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.data.math.vec.Ray;
@@ -25,16 +23,11 @@ import amber.gl.FrameTimer;
 import amber.gl.GLColor;
 import static amber.gl.GLE.*;
 import amber.gl.Sprite;
-import amber.gl.Texture;
-import amber.gl.TextureLoader;
 import amber.gl.TrueTypeFont;
 import amber.gl.camera.EulerCamera;
-import amber.gl.model.ModelScene;
-import amber.gl.model.obj.WavefrontObject;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.misc.ErrorHandler;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
 import java.awt.Color;
@@ -46,25 +39,27 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.WeakHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
-import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
 import static amber.input.AbstractKeyboard.*;
 import static amber.input.AbstractMouse.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.ScrollPane;
+import org.lwjgl.opengl.GLContext;
 
 /**
  *
@@ -81,16 +76,10 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             .setRotation(50, 135, 0)
             .setFarClippingPane(1000f)
             .build();
-    protected WeakHashMap<Tileset, Texture> textureCache = new WeakHashMap<Tileset, Texture>();
-    protected WeakHashMap<WavefrontObject, ModelScene> modelCache = new WeakHashMap<WavefrontObject, ModelScene>();
     protected TrueTypeFont font;
-    protected Thread renderer;
-    protected boolean running;
     protected Sprite compassRose;
     protected ITesselator tess = new ImmediateTesselator();
-
-    public GLMapComponent3D() throws LWJGLException {
-    }
+    protected Panel display = new Panel(new BorderLayout());
 
     public GLMapComponent3D(LevelMap map) throws LWJGLException {
         super(map);
@@ -100,24 +89,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
-    }
-
-    @Override
-    public void removeNotify() {
-        AbstractKeyboard.destroy(); // Prevent double events
-        AbstractMouse.destroy();
-        super.removeNotify();
+        display.add(this);
     }
 
     @Override
     public void initGL() {
-        try {
-            AbstractKeyboard.create(AbstractKeyboard.AWT);
-            AbstractMouse.create(AbstractMouse.AWT);
-        } catch (LWJGLException ex) {
-            ErrorHandler.alert(ex);
-        }
-
         gleClearColor(Color.WHITE);
         font = new TrueTypeFont(new Font("Courier", Font.PLAIN, 15), true);
 
@@ -140,33 +116,21 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
 
         timer.start();
 
-        (renderer = new Thread() {
-            @Override
-            public void run() {
-                running = true;
-                while (running) {
-                    if (isShowing() && isFocusOwner()) {
-                        repaint();
-                        Display.sync(120);
-                    } else {
-                        OS.sleep(300); // Prevent useless CPU cycles when not showing
-                    }
-                }
-            }
-        }).start();
-
         addHierarchyListener(new HierarchyListener() {
             public void hierarchyChanged(HierarchyEvent e) {
                 // Hierarchy change can signify the AWTGLCanvas destroying the original GL context,
                 // so we have to clear the now invalid texture cache.
-                textureCache.clear();
-                modelCache.clear();
+                tess.invalidate();
                 compassRose = null;
+                AbstractKeyboard.destroy(); // Prevent double events
+                AbstractMouse.destroy();
             }
         });
     }
 
+    @Override
     protected void pollInput() {
+        super.pollInput();
         if (isGrabbed()) {
             cam.processMouse(1, 80, -80);
         }
@@ -229,56 +193,27 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
             }
 
-            while (AbstractKeyboard.next()) {
-                if (getEventKeyState()) {
-                    switch (getEventKey()) {
-                        case Keyboard.KEY_MULTIPLY:
-                            currentAngle = currentAngle == _45 ? _90 : (currentAngle == _180 ? _45 : currentAngle);
-                            System.out.println(currentAngle);
-                            break;
-                        case Keyboard.KEY_DIVIDE:
-                            currentAngle = currentAngle == _45 ? _180 : (currentAngle == _90 ? _45 : currentAngle);
-                            System.out.println(currentAngle);
-                            break;
-                        case Keyboard.KEY_SUBTRACT:
-                            if (cursorPos.y > 0) {
-                                cursorPos.y--;
-                            }
-                            break;
-                        case Keyboard.KEY_ADD:
-                            cursorPos.y++;
-                            break;
-                        case Keyboard.KEY_Z:
-                            if (isKeyDown(Keyboard.KEY_RCONTROL) || isKeyDown(Keyboard.KEY_LCONTROL) && !context.undoStack.empty()) {
-                                context.redoStack.push(context.map.clone());
-                                context.map = context.undoStack.pop();
-                            }
-                            break;
-                        case Keyboard.KEY_Y:
-                            if (isKeyDown(Keyboard.KEY_RCONTROL) || isKeyDown(Keyboard.KEY_LCONTROL) && !context.redoStack.empty()) {
-                                context.undoStack.push(context.map.clone());
-                                context.map = context.redoStack.pop();
-                            }
-                            break;
-                        case Keyboard.KEY_S:
-                            if (isKeyDown(Keyboard.KEY_RCONTROL) || isKeyDown(Keyboard.KEY_LCONTROL)) {
-                                new Thread() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            FileOutputStream fos = new FileOutputStream(context.outputFile);
-                                            Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                                            fos.close();
-                                        } catch (Exception ex) {
-                                            ErrorHandler.alert(ex);
-                                        }
-                                    }
-                                }.start();
-                            }
-                    }
-                }
-            }
             AbstractMouse.poll();
+        }
+    }
+
+    @Override
+    protected void doKey(int keycode) {
+        switch (keycode) {
+            case Keyboard.KEY_MULTIPLY:
+                currentAngle = currentAngle == _45 ? _90 : (currentAngle == _180 ? _45 : currentAngle);
+                break;
+            case Keyboard.KEY_DIVIDE:
+                currentAngle = currentAngle == _45 ? _180 : (currentAngle == _90 ? _45 : currentAngle);
+                break;
+            case Keyboard.KEY_SUBTRACT:
+                if (cursorPos.y > 0) {
+                    cursorPos.y--;
+                }
+                break;
+            case Keyboard.KEY_ADD:
+                cursorPos.y++;
+                break;
         }
     }
 
@@ -287,7 +222,21 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
      */
     @Override
     public void paintGL() {
-        pollInput();
+        if (!GLContext.getCapabilities().GL_ARB_texture_rectangle) {
+            running = false;
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    display.remove(GLMapComponent3D.this);
+                    ScrollPane scroller = new ScrollPane();
+                    scroller.setMinimumSize(new Dimension(0, 0));
+                    scroller.add(new Label("ARB_TEXTURE_RECTANGLE not supported. Try updating your graphics drivers.", Label.CENTER));
+                    display.add(scroller);
+                    display.validate();
+                }
+            });
+            return;
+        }
+        super.paintGL();
         float aspect = (float) getWidth() / (float) getHeight();
         if (aspect != cam.aspectRatio()) {
             glViewport(0, 0, getWidth(), getHeight());
@@ -349,21 +298,9 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
 
         if (context.drawType == EXT_TYPE_MODEL && context.EXT_modelSelection != null && !AbstractMouse.isGrabbed()) {
-            ModelScene scene;
-            if (modelCache.containsKey(context.EXT_modelSelection)) {
-                scene = modelCache.get(context.EXT_modelSelection);
-            } else {
-                try {
-                    modelCache.put(context.EXT_modelSelection, scene = new ModelScene(context.EXT_modelSelection));
-                } catch (IOException ex) {
-                    return;
-                }
-            }
             glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glTranslatef(cursorPos.x, cursorPos.y, cursorPos.z);
-            scene.draw();
-            glTranslatef(-cursorPos.x, -cursorPos.y, -cursorPos.z);
+            tess.drawModel3D(new TileModel(context.EXT_modelSelection), cursorPos.x, cursorPos.z, cursorPos.y);
             glPopAttrib();
         }
 
@@ -376,38 +313,23 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     }
 
     protected void drawLayer(Layer layer) {
-        int bound = -1;
         SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
         SparseVector<SparseMatrix<TileModel>> modelVector = layer instanceof Layer3D ? ((Layer3D) layer).modelMatrix()
                 : new SparseVector<SparseMatrix<TileModel>>();
-
+        tess.startTileBatch();
         SparseVector.SparseVectorIterator tileIterator = tileVector.iterator();
         while (tileIterator.hasNext()) {
-            SparseMatrix<Tile> matrix = (SparseMatrix<Tile>) tileIterator.next();
-            SparseMatrix.SparseMatrixIterator matrixIterator = matrix.iterator();
-            int z = tileIterator.realIndex();
+            SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
             while (matrixIterator.hasNext()) {
-                Tile t = (Tile) matrixIterator.next();
+                Tile3D t = (Tile3D) matrixIterator.next();
                 if (t != null) {
-                    Tileset sheet = t.getSprite().getTileset();
-                    Texture txt;
-                    if (textureCache.containsKey(sheet)) {
-                        txt = textureCache.get(sheet);
-                    } else {
-                        textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA));
-                    }
-                    if (txt.getID() != bound) {
-                        glBindTexture(txt.getTarget(), bound = txt.getID());
-                    }
-
-                    tess.drawTile3D((Tile3D) t, matrixIterator.realX(), matrixIterator.realY(), z);
+                    tess.drawTile3D(t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
                 }
             }
         }
-        glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+        tess.endTileBatch();
 
+        tess.startModelBatch();
         SparseVector.SparseVectorIterator modelIterator = modelVector.iterator();
         while (modelIterator.hasNext() && modelVector.size() > 0) {
             SparseMatrix<TileModel> matrix = (SparseMatrix<TileModel>) modelIterator.next();
@@ -416,41 +338,16 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             while (matrixIterator.hasNext()) {
                 TileModel t = (TileModel) matrixIterator.next();
                 if (t != null) {
-                    WavefrontObject m = t.getModel();
-                    if (m != null) {
-                        ModelScene scene = null;
-                        if (modelCache.containsKey(m)) {
-                            scene = modelCache.get(m);
-                        } else {
-                            try {
-                                modelCache.put(m, scene = new ModelScene(m));
-                            } catch (IOException ex) {
-                            }
-                        }
-
-                        if (scene != null) {
-                            int x = matrixIterator.realX();
-                            int y = matrixIterator.realY();
-                            glPushMatrix();
-                            glPushAttrib(GL_CURRENT_BIT | GL_TRANSFORM_BIT);
-                            glTranslatef(x, z, y);
-                            scene.draw();
-                            glTranslatef(-x, -z, -y);
-                            glPopAttrib();
-                            glPopMatrix();
-                            glBindTexture(GL_TEXTURE_2D, 0);
-                        }
-                    }
+                    tess.drawModel3D(t, matrixIterator.realX(), matrixIterator.realY(), z);
                 }
             }
         }
-
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
+        tess.endModelBatch();
     }
 
     protected void drawGrid() {
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
-        if (context.drawGrid) {
+        if (grid) {
             glBegin(GL_LINES);
             {
                 GLColor.GRAY.bind();
@@ -562,19 +459,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         boolean modified = false;
         if (context.tileSelection != null) {
             Tileset.TileSprite[][] sel = context.tileSelection.clone();
-            switch (dir) {
-                case NORTH:
-                    sel = rotateMatrixRight(sel);
-                case EAST:
-                    sel = rotateMatrixRight(sel);
-                case SOUTH:
-                    sel = rotateMatrixRight(sel);
-            }
             int w = sel.length;
             int h = sel[0].length;
             for (int sx = 0; sx != w; sx++) {
                 for (int sy = 0; sy != h; sy++) {
-                    boolean tiled = setAngledTile(sx + x, sy + y, x, y, (int) cursorPos.y, sx, sy, h, w, dir, angle, sel);
+                    boolean tiled = setAngledTile(x, y, (int) cursorPos.y, sx, sy, h, w, dir, angle, sel);
                     if (!modified) {
                         modified = tiled;
                     }
@@ -584,40 +473,41 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         return modified;
     }
 
-    private final boolean setAngledTile(int mapX, int mapY, int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, TileSprite[][] sel) {
+    protected final boolean setAngledTile(int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, TileSprite[][] sel) {
+        // It works, that's all you need to know.
         switch (angle) {
             case _180:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(mapX, mapY, z, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy, y + sx, z, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, mapY, z, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, sy + y, z, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(mapX - w + 1, mapY - h + 1, z, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy - h + 1, y + sx - w + 1, z, sel[w - sx - 1][sy], dir, angle);
                     case WEST:
-                        return setTile0(mapX, mapY - h + 1, z, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x, sy + y - h + 1, z, sel[sx][sy], dir, angle);
                 }
             case _90:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(x, mapY, z + sx, sel[sx][sy], dir, angle);
+                        return setTile0(x, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, y, z + sy, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(x, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case WEST:
-                        return setTile0(mapX, y, z + sy, sel[sx][h - sy - 1], dir, angle);
+                        return setTile0(sx + x, y, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
             case _45:
                 switch (dir) {
                     case NORTH:
-                        return setTile0(mapX, mapY, z + sx, sel[sx][sy], dir, angle);
+                        return setTile0(x + sy, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
-                        return setTile0(mapX - w + 1, mapY, z + sy, sel[sx][sy], dir, angle);
+                        return setTile0(sx + x - w + 1, sy + y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case SOUTH:
-                        return setTile0(x - sx, mapY - h + 1, z + sx, sel[w - sx - 1][sy], dir, angle);
+                        return setTile0(x - sy, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
                     case WEST:
-                        return setTile0(mapX, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
+                        return setTile0(sx + x, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
         }
         return false;
@@ -634,23 +524,21 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         return modified;
     }
 
-    private Tileset.TileSprite[][] rotateMatrixRight(Tileset.TileSprite[][] matrix) {
-        int w = matrix.length;
-        int h = matrix[0].length;
-        Tileset.TileSprite[][] ret = new Tileset.TileSprite[h][w];
-        for (int i = 0; i < h; ++i) {
-            for (int j = 0; j < w; ++j) {
-                ret[i][j] = matrix[w - j - 1][i];
-            }
-        }
-        return ret;
+    @Override
+    public Component getComponent() {
+        return display;
     }
-    protected boolean info = true, compass = true, wireframe = false;
+    protected boolean info = true, compass = true, wireframe = false, grid = true;
 
     public JMenu[] getContextMenus() {
         return new JMenu[]{new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
                     info = !info;
+                    repaint();
+                }
+            }).addCheckbox("Grid", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    grid = !grid;
                     repaint();
                 }
             }).addCheckbox("Compass", true, new AbstractAction() {

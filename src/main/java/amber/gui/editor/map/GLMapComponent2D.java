@@ -1,49 +1,43 @@
 package amber.gui.editor.map;
 
-import amber.data.OS;
 import amber.data.res.Tileset;
 import amber.data.map.Layer;
 import amber.data.map.LevelMap;
 import amber.data.map.Tile;
-import amber.data.map.codec.Codec;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
 import amber.gl.GLColor;
 import static amber.gl.GLE.*;
 import amber.gl.Texture;
-import amber.gl.TextureLoader;
 import amber.gl.TrueTypeFont;
-import amber.gl.camera.OrthographicCamera;
+import amber.gl.tess.ITesselator;
+import amber.gl.tess.ImmediateTesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.editor.map.tool._2d.*;
 import amber.input.AbstractKeyboard;
 import amber.input.AbstractMouse;
+import amber.swing.MenuBuilder;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Point;
+import java.awt.Label;
+import java.awt.ScrollPane;
+import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
-import org.lwjgl.opengl.Display;
 
 import static org.lwjgl.opengl.GL11.*;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -57,32 +51,29 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
     protected WeakHashMap<Tileset, Texture> textureCache = new WeakHashMap<Tileset, Texture>();
     protected TrueTypeFont font;
     protected float aspectRatio;
-    protected boolean showDetails = true;
-    protected OrthographicCamera cam = new OrthographicCamera();
-    protected Thread renderer;
-    protected boolean running;
-
-    public GLMapComponent2D() throws LWJGLException {
-    }
+    protected ITesselator tess = new ImmediateTesselator();
+    protected ScrollPane display = new ScrollPane();
+    protected Tool2D brushTool = new Brush2D(context);
+    protected Tool2D eraseTool = new Eraser2D(context);
+    protected Tool2D fillTool = new Fill2D(context);
 
     public GLMapComponent2D(LevelMap map) throws LWJGLException {
         super(map);
-        setMinimumSize(new Dimension(50, 50));
-        setPreferredSize(new Dimension(50, 50));
+        setMinimumSize(new Dimension(0, 0));
+        setPreferredSize(new Dimension(map.getWidth() * 32 + 2, map.getLength() * 32 + 2));
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+
+        display.add(this);
+
+        display.setMinimumSize(new Dimension(0, 0));
+        display.setPreferredSize(new Dimension(0, 0));
+        display.getVAdjustable().setUnitIncrement(16);
+        display.getHAdjustable().setUnitIncrement(16);
     }
 
     @Override
     public void initGL() {
-        System.out.println("GL " + glGetString(GL_VERSION));
-        try {
-            AbstractKeyboard.create(AbstractKeyboard.AWT);
-            AbstractMouse.create(AbstractMouse.AWT);
-        } catch (LWJGLException ex) {
-            ErrorHandler.alert(ex);
-        }
-
         gleClearColor(Color.WHITE);
         font = new TrueTypeFont(new Font("Courier", Font.PLAIN, 15), true);
 
@@ -91,115 +82,78 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
-        glEnable(GL_COLOR_MATERIAL);
-        glEnable(GL_TEXTURE_2D); // Enable Texture Mapping       
-        glDisable(GL_DITHER);
-        glDisable(GL_DEPTH_TEST);
-
-        glEnable(GL_NORMALIZE); // calculated normals when scaling      
-        glEnable(GL_BLEND); // Enabled blending
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // selects blending method
-        glEnable(GL_ALPHA_TEST); // allows alpha channels or transperancy
-        glAlphaFunc(GL_GREATER, 0.1f); // sets aplha function
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.1f);
 
         timer.start();
-
-        (renderer = new Thread() {
-            @Override
-            public void run() {
-                running = true;
-                while (running) {
-                    if (isShowing() && isFocusOwner()) {
-                        timer.updateFPS();
-                        repaint();
-                        Display.sync(120);
-                    } else {
-                        OS.sleep(300); // Prevent useless CPU cycles when not showing
-                    }
-                }
-            }
-        }).start();
 
         addHierarchyListener(new HierarchyListener() {
             public void hierarchyChanged(HierarchyEvent e) {
                 // Hierarchy change can signify the AWTGLCanvas destroying the original GL context,
                 // so we have to clear the now invalid texture cache.
-                textureCache.clear();
+                tess.invalidate();
+                AbstractKeyboard.destroy(); // Prevent double events
+                AbstractMouse.destroy();
             }
         });
     }
 
-    //@Override
+    @Override
     protected void pollInput() {
-        float dxy = (float) timer.getDelta() * 2f * 0.1f;
-        cam.processKeyboard(1, dxy, dxy);
+        super.pollInput();
+        int delta = (int) ((float) timer.getDelta() * 2f * 0.1f);
 
-        cursorPos.x = (int) (AbstractMouse.getX(this) + cam.x()) / 32;
-        cursorPos.y = (int) (AbstractMouse.getY(this) + cam.y()) / 32;
+        boolean keyUp = AbstractKeyboard.isKeyDown(Keyboard.KEY_UP) || AbstractKeyboard.isKeyDown(Keyboard.KEY_W);
+        boolean keyDown = AbstractKeyboard.isKeyDown(Keyboard.KEY_DOWN) || AbstractKeyboard.isKeyDown(Keyboard.KEY_S);
+        boolean keyLeft = AbstractKeyboard.isKeyDown(Keyboard.KEY_LEFT) || AbstractKeyboard.isKeyDown(Keyboard.KEY_A);
+        boolean keyRight = AbstractKeyboard.isKeyDown(Keyboard.KEY_RIGHT) || AbstractKeyboard.isKeyDown(Keyboard.KEY_D);
+
+        if (keyUp && !keyDown) {
+            display.getVAdjustable().setValue(display.getVAdjustable().getValue() - delta);
+        } else if (keyDown && !keyUp) {
+            display.getVAdjustable().setValue(display.getVAdjustable().getValue() + delta);
+        }
+
+        if (keyLeft && !keyRight) {
+            display.getHAdjustable().setValue(display.getHAdjustable().getValue() - delta);
+        } else if (keyRight && !keyLeft) {
+            display.getHAdjustable().setValue(display.getHAdjustable().getValue() + delta);
+        }
+
+        cursorPos.set((int) (AbstractMouse.getX(this)) / 32, (int) (AbstractMouse.getY(this)) / 32);
 
         if (AbstractMouse.isButtonDown(0)) {
             LevelMap pre = context.map.clone();
-            switch (context.drawMode) {
-                case MODE_BRUSH:
-                    if (setTileAt((int) cursorPos.x, (int) cursorPos.y)) {
-                        context.undoStack.push(pre);
-                    }
-                    break;
-                case MODE_FILL:
-                    if (floodFillAt((int) cursorPos.x, (int) cursorPos.y)) {
-                        context.undoStack.push(pre);
-                    }
-                    break;
-            }
-        }
-        while (AbstractKeyboard.next()) {
-            if (AbstractKeyboard.getEventKeyState()) {
-                switch (AbstractKeyboard.getEventKey()) {
-                    case Keyboard.KEY_P:
-                        gleToggleWireframe();
-                        break;
-                    case Keyboard.KEY_I:
-                        showDetails = !showDetails;
-                        break;
-                    case Keyboard.KEY_Z:
-                        if (AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL)
-                                || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !context.undoStack.empty()) {
-                            context.redoStack.push(context.map.clone());
-                            context.map = context.undoStack.pop();
-                        }
-                        break;
-                    case Keyboard.KEY_Y:
-                        if (AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL)
-                                || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)
-                                && !context.redoStack.empty()) {
-                            context.undoStack.push(context.map.clone());
-                            context.map = context.redoStack.pop();
-                        }
-                        break;
-                    case Keyboard.KEY_S:
-                        if (AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        FileOutputStream fos = new FileOutputStream(context.outputFile);
-                                        Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                                        fos.close();
-                                    } catch (Exception ex) {
-                                        ErrorHandler.alert(ex);
-                                    }
-                                }
-                            }.start();
-                        }
-                }
+            Tool2D tool = currentTool();
+
+            if (tool != null && tool.apply((int) cursorPos.x, (int) cursorPos.y)) {
+                context.undoStack.push(pre);
             }
         }
         AbstractMouse.poll();
     }
+    
+    @Override
+    protected void doKey(int keycode) {
+        currentTool().doKey(keycode);
+    }
 
     @Override
     protected void paintGL() {
-        pollInput();
+        if (!GLContext.getCapabilities().GL_ARB_texture_rectangle) {
+            running = false;
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    display.remove(GLMapComponent2D.this);
+                    display.add(new Label("ARB_TEXTURE_RECTANGLE not supported. Try updating your graphics drivers.", Label.CENTER));
+                    display.validate();
+                }
+            });
+            return;
+        }
+        super.paintGL();
         float aspect = (float) getWidth() / (float) getHeight();
         if (aspect != aspectRatio) {
             glViewport(0, 0, getWidth(), getHeight());
@@ -212,21 +166,29 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         glLoadIdentity();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        cam.applyTranslations();
+        if (wireframe) {
+            if (glGetInteger(GL_POLYGON_MODE) == GL_FILL) {
+                gleToggleWireframe();
+            }
+        } else if (glGetInteger(GL_POLYGON_MODE) == GL_LINE) {
+            gleToggleWireframe();
+        }
 
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
+        glPushMatrix();
+        glTranslatef(1, 0, 0);
         List<Layer> layers = context.map.getLayers();
         for (int i = 0; i != layers.size(); i++) {
             drawLayer(layers.get(i));
         }
         drawGrid();
+        glPopMatrix();
 
-        if (showDetails) {
+        if (info) {
             glPushMatrix();
             glLoadIdentity();
-            glDisable(GL_TEXTURE_RECTANGLE_ARB);
             glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Ensure we're not in wireframe mode
+            glTranslatef(display.getHAdjustable().getValue(), -display.getVAdjustable().getValue(), 0); // Translate to top-left corner
             GLColor.BLACK.bind();
             font.drawString(0, getHeight() - font.getHeight(), "FPS: " + timer.fps() + "\n"
                     + (!AbstractMouse.isGrabbed() ? "Cursor: (" + (int) cursorPos.x + ", " + (int) cursorPos.y + ")" : ""), 1f, 1f, TrueTypeFont.ALIGN_LEFT);
@@ -239,83 +201,29 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
+        timer.updateFPS();
     }
 
     protected void drawLayer(Layer layer) {
-        int bound = -1;
-        SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
-        for (int x = 0; x < layer.getWidth(); x++) {
-            for (int y = 0; y < layer.getLength(); y++) {
-                SparseVector.SparseVectorIterator iterator = tileVector.iterator();
-                while (iterator.hasNext()) {
-                    SparseMatrix<Tile> matrix = (SparseMatrix<Tile>) iterator.next();
-                    Tile t = matrix.get(x, y);
-
-                    if (t != null) {
-                        Tileset.TileSprite sprite = t.getSprite();
-                        Tileset sheet = sprite.getTileset();
-                        Texture txt;
-                        if (textureCache.containsKey(sheet)) {
-                            txt = textureCache.get(sheet);
-                        } else {
-                            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA));
-                        }
-                        if (txt.getID() != bound) {
-                            glBindTexture(txt.getTarget(), bound = txt.getID());
-                        }
-
-                        Point start = sprite.getStart();
-                        Dimension size = sprite.getSize();
-
-                        // This coordinate offsetting is a horrible, hacky way to solve
-                        // the issue of texture borders bleeding.
-                        float tx = start.x + .5f;
-                        float ty = start.y + .5f;
-                        float th = size.height - 1;
-                        float tw = size.width - 1;
-
-                        Vector2f v0 = new Vector2f(tx, ty + th);
-                        Vector2f v1 = new Vector2f(tx, ty);
-                        Vector2f v2 = new Vector2f(tx + tw, ty);
-                        Vector2f v3 = new Vector2f(tx + tw, ty + th);
-
-                        int dx = x * 32;
-                        int dy = y * 32;
-
-                        glBegin(GL_TRIANGLES);
-                        {
-                            //0
-                            glTexCoord2f(v0.x, v0.y);
-                            glVertex2f(dx, dy);
-                            //1
-                            glTexCoord2f(v1.x, v1.y);
-                            glVertex2f(dx, dy + 32);
-                            //2
-                            glTexCoord2f(v2.x, v2.y);
-                            glVertex2f(dx + 32, dy + 32);
-
-                            //3 
-                            glTexCoord2f(v3.x, v3.y);
-                            glVertex2f(dx + 32, dy);
-                            //2
-                            glTexCoord2f(v2.x, v2.y);
-                            glVertex2f(dx + 32, dy + 32);
-                            //0
-                            glTexCoord2f(v0.x, v0.y);
-                            glVertex2f(dx, dy);
-                        }
-                        glEnd();
-                    }
+        tess.startTileBatch();
+        SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
+        while (tileIterator.hasNext()) {
+            SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
+            while (matrixIterator.hasNext()) {
+                Tile t = (Tile) matrixIterator.next();
+                if (t != null) {
+                    tess.drawTile2D(t, matrixIterator.realX(), matrixIterator.realY());
                 }
             }
         }
-        glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+
         glBindTexture(GL_TEXTURE_2D, 0);
+        tess.endTileBatch();
     }
 
     protected void drawGrid() {
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
-        if (context.drawGrid) {
+        if (grid) {
             glBegin(GL_LINES);
             {
                 GLColor.GRAY.bind();
@@ -340,90 +248,47 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         }
         glEnd();
         glLineWidth(2);
-        if (cursorPos != null && context.tileSelection != null && context.tileSelection.length > 0 && context.tileSelection[0].length > 0) {
-            gleRect2d(cursorPos.x * 32, cursorPos.y * 32, context.tileSelection.length * 32, context.tileSelection[0].length * 32);
+        if (cursorPos != null) {
+            Dimension size = currentTool().getDrawRectangleSize();
+            gleRect2d(cursorPos.x * 32, cursorPos.y * 32, size.width * 32, size.height * 32);
         }
         glPopAttrib();
     }
 
-    /**
-     * Handles errors that were thrown during a paint
-     *
-     * @param exception The exception that was thrown
-     */
-    protected void exceptionOccurred(LWJGLException exception) {
-        exception.printStackTrace();
-    }
-
-    protected boolean floodFillAt(int x, int y) {
-        boolean modified = false;
-        if (isInBounds(x, y)) {
-            Tileset.TileSprite target = spriteAt(x, y);
-            Stack<Point> stack = new Stack<Point>() {
-                Set<Point> visited = new HashSet<Point>();
-
-                @Override
-                public Point push(Point t) {
-                    return visited.add(t) ? super.push(t) : t;
-                }
-            };
-
-            stack.push(new Point(x, y));
-            while (!stack.empty()) {
-                Point p = stack.pop();
-                if (spriteAt(p.x, p.y) != target) {
-                    continue;
-                }
-
-                if (setTileAt(p.x, p.y)) {
-                    modified = true;
-                }
-                if (target == spriteAt(p.x - 1, p.y)) {
-                    stack.push(new Point(p.x - 1, p.y));
-                }
-                if (target == spriteAt(p.x + 1, p.y)) {
-                    stack.push(new Point(p.x + 1, p.y));
-                }
-                if (target == spriteAt(p.x, p.y - 1)) {
-                    stack.push(new Point(p.x, p.y - 1));
-                }
-                if (target == spriteAt(p.x, p.y + 1)) {
-                    stack.push(new Point(p.x, p.y + 1));
-                }
-            }
-        }
-        return modified;
-    }
-
-    protected boolean setTileAt(int x, int y) {
-        boolean modified = false;
-        if (context.tileSelection != null) {
-            Layer lay = context.map.getLayer(context.layer);
-            for (int cx = 0; cx != context.tileSelection.length; cx++) {
-                for (int cy = 0; cy != context.tileSelection[0].length; cy++) {
-                    int mapX = cx + x, mapY = cy + y;
-                    if (isInBounds(mapX, mapY)) {
-                        // We need to flip the array horizontally, so inverse the y
-                        Tile t = new Tile(context.tileSelection[cx][context.tileSelection[0].length - cy - 1]);
-                        Tile r = lay.getTile(mapX, mapY, 0);
-                        modified = r == null || !t.getSprite().equals(r.getSprite());
-                        lay.setTile(mapX, mapY, 0, t);
-                    }
-                }
-            }
-        }
-        return modified;
-    }
-
-    protected Tileset.TileSprite spriteAt(int x, int y) {
-        if (isInBounds(x, y)) {
-            Tile tile = context.map.getLayer(context.layer).getTile(x, y, 0);
-            return tile != null ? tile.getSprite() : Tileset.TileSprite.NULL_SPRITE;
+    private Tool2D currentTool() {
+        switch (context.drawMode) {
+            case MODE_BRUSH:
+                return brushTool;
+            case MODE_FILL:
+                return fillTool;
+            case MODE_ERASE:
+                return eraseTool;
         }
         return null;
     }
+    
+    @Override
+    public Component getComponent() {
+        return display;
+    }
+    protected boolean info = true, wireframe = false, grid = true;
 
     public JMenu[] getContextMenus() {
-        return new JMenu[0];
+        return new JMenu[]{new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    info = !info;
+                    repaint();
+                }
+            }).addCheckbox("Grid", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    grid = !grid;
+                    repaint();
+                }
+            }).addCheckbox("Wireframe", false, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    wireframe = !wireframe;
+                    repaint();
+                }
+            }).create()};
     }
 }

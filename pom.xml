@@ -6,6 +6,12 @@
     <artifactId>Amber-IDE</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    
+    <properties>
+        <lwjglGroupId>org.lwjgl.lwjgl</lwjglGroupId>
+        <lwjglVersion>2.9.0</lwjglVersion>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>  
 
     <name>Amber-IDE</name>
     <url>http://amberide.tk</url>
@@ -43,9 +49,6 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     
     <dependencies>   
         <dependency>
@@ -63,11 +66,21 @@
             <groupId>org.lwjgl.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
             <version>2.9.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>${lwjglGroupId}</groupId>
+                    <artifactId>lwjgl-platform</artifactId>
+                </exclusion>       
+                <exclusion>
+                    <groupId>net.java.jinput</groupId>
+                    <artifactId>jinput</artifactId>
+                </exclusion>     
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.lwjgl.lwjgl</groupId>
+            <groupId>${lwjglGroupId}</groupId>
             <artifactId>lwjgl_util</artifactId>
-            <version>2.9.0</version>
+            <version>${lwjglVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>

@@ -1,6 +1,5 @@
 package amber.input;
 
-import static amber.input.AbstractMouse.isCreated;
 import amber.input.awt.AWTKeyboard;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -13,7 +12,7 @@ public final class AbstractKeyboard {
 
     public static final int NATIVE = 0;
     public static final int AWT = 1;
-    private static int type;
+    private static int type = -1;
 
     public static void create(int type) throws LWJGLException {
         switch (type) {
@@ -28,7 +27,6 @@ public final class AbstractKeyboard {
     }
 
     public static void destroy() {
-        ensureCreated();
         switch (type) {
             case NATIVE:
                 Keyboard.destroy();

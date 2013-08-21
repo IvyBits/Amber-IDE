@@ -1,26 +1,39 @@
 package amber.gl.tess;
 
 import amber.data.math.Angles;
-import amber.data.map.Direction;
 import static amber.data.map.Direction.*;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
-import amber.data.map.Tile3D.Angle;
+import amber.data.map.TileModel;
 import amber.data.res.Tileset;
-import amber.gl.GLColor;
+import amber.gl.Texture;
+import amber.gl.TextureLoader;
+import amber.gl.model.ModelScene;
+import amber.gl.model.obj.WavefrontObject;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.WeakHashMap;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
+import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 
 /**
  * Renders tiles in immediate mode.
- * 
+ *
  * @author Tudor
  */
 public class ImmediateTesselator implements ITesselator {
 
-    public void drawTile3D(Tile3D tile, int x, int y, int z) {
+    protected WeakHashMap<Tileset, Texture> textureCache = new WeakHashMap<Tileset, Texture>();
+    protected WeakHashMap<WavefrontObject, ModelScene> modelCache = new WeakHashMap<WavefrontObject, ModelScene>();
+    protected int bound;
+
+    public void drawTile3D(Tile3D tile, float x, float y, float z) {
+        Texture txt = getTexture(tile);
+        if (txt.getID() != bound) {
+            glBindTexture(txt.getTarget(), bound = txt.getID());
+        }
         glPushMatrix();
         float[] tr = new float[]{x, z, y, 0};
 
@@ -45,12 +58,11 @@ public class ImmediateTesselator implements ITesselator {
 
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
-        // This coordinate offsetting is a horrible, hacky way to solve
-        // the issue of texture borders bleeding.
-        float tx = start.x + .5f;
-        float ty = start.y + .5f;
-        float th = size.height - 1;
-        float tw = size.width - 1;
+
+        float tx = start.x;
+        float ty = start.y;
+        float th = size.height;
+        float tw = size.width;
 
         glBegin(GL_QUADS);
         {
@@ -64,28 +76,116 @@ public class ImmediateTesselator implements ITesselator {
             glVertex3f(0, 0, 1);
         }
         glEnd();
+        glPopMatrix();
+    }
 
-        glPushAttrib(GL_CURRENT_BIT);
-        GLColor.GREEN.bind();
-        glBegin(GL_LINES);
+    public void drawTile2D(Tile tile, float x, float y) {
+        Texture txt = getTexture(tile);
+        if (txt.getID() != bound) {
+            glBindTexture(txt.getTarget(), bound = txt.getID());
+        }
+        Point start = tile.getSprite().getStart();
+        Dimension size = tile.getSprite().getSize();
+
+        float tx = start.x;
+        float ty = start.y;
+        float th = size.height;
+        float tw = size.width;
+
+        float dx = x * 32;
+        float dy = y * 32;
+
+        glBegin(GL_TRIANGLES);
         {
-            glVertex3f(ix.x, 0, 0);
-            glVertex3f(ix.x, 3, 0);
+            //0
+            glTexCoord2f(tx, ty + th);
+            glVertex2f(dx, dy);
+            //1
+            glTexCoord2f(tx, ty);
+            glVertex2f(dx, dy + 32);
+            //2
+            glTexCoord2f(tx + tw, ty);
+            glVertex2f(dx + 32, dy + 32);
+
+            //3 
+            glTexCoord2f(tx + tw, ty + th);
+            glVertex2f(dx + 32, dy);
+            //2
+            glTexCoord2f(tx + tw, ty);
+            glVertex2f(dx + 32, dy + 32);
+            //0
+            glTexCoord2f(tx, ty + th);
+            glVertex2f(dx, dy);
         }
         glEnd();
+    }
+
+    public void startTileBatch() {
+        glPushMatrix();
+        glPushAttrib(GL_CURRENT_BIT);
+        glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    }
+
+    public void endTileBatch() {
+        bound = -1;
+        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+        glBindTexture(GL_TEXTURE_2D, 0);
         glPopAttrib();
         glPopMatrix();
     }
 
-    public void drawTile2D(Tile tile, int x, int y) {
-        // TODO
+    public void startModelBatch() {
+        glPushMatrix();
     }
 
-    public Vector2f[] tileVertices2D(int x, int y) {
-        return new Vector2f[0];
+    public void drawModel3D(TileModel model, float x, float y, float z) {
+        ModelScene scene = getModel(model);
+        if (scene != null) {
+            glPushMatrix();
+            glPushAttrib(GL_CURRENT_BIT | GL_TRANSFORM_BIT);
+            glTranslatef(x, z, y);
+            scene.draw();
+            glTranslatef(-x, -z, -y);
+            glPopAttrib();
+            glPopMatrix();
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 
-    public Vector2f[] tileTexture2D(Tileset.TileSprite sprite) {
-        return  new Vector2f[0];
+    public void endModelBatch() {
+        glPopMatrix();
+    }
+
+    public void invalidate() {
+        textureCache.clear();
+        modelCache.clear();
+    }
+
+    protected Texture getTexture(Tile t) {
+        Tileset.TileSprite sprite = t.getSprite();
+        Tileset sheet = sprite.getTileset();
+        Texture txt;
+        if (textureCache.containsKey(sheet)) {
+            txt = textureCache.get(sheet);
+        } else {
+            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_2D, GL_RGBA));
+        }
+        return txt;
+    }
+
+    protected ModelScene getModel(TileModel t) {
+        WavefrontObject m = t.getModel();
+        ModelScene scene = null;
+        if (m != null) {
+            if (modelCache.containsKey(m)) {
+                scene = modelCache.get(m);
+            } else {
+                try {
+                    modelCache.put(m, scene = new ModelScene(m));
+                } catch (IOException ex) {
+                }
+            }
+        }
+        return scene;
     }
 }

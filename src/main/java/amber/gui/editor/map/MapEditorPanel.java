@@ -54,6 +54,8 @@ public class MapEditorPanel extends FileViewerPanel {
         cardinalityButton.setVisible(renderer.getMapContext().EXT_cardinalSupported);
         tilePanel.setLayout(new BorderLayout());
         tilechooser = new TileSelector(renderer.getMapContext());
+
+        resourcesTabbedPane.validate();
         if (Amber.getResourceManager().getTilesets().size() > 0) {
             tilePanel.add(tilechooser);
             tilechooser.synchronize(); // don't add label in first place
@@ -81,23 +83,27 @@ public class MapEditorPanel extends FileViewerPanel {
                 }
             });
         }
-        modelchooser = new ModelSelector(renderer.getMapContext());
-        if (Amber.getResourceManager().getModels().size() > 0) {
-            modelPanel.add(modelchooser);
-            modelchooser.synchronize();
+        if (!renderer.getMapContext().EXT_modelSelectionSupported) {
+            resourcesTabbedPane.remove(1); // Models tab
         } else {
-            LabelBuilder builder = new LabelBuilder();
-            builder.append("No models found -- ");
-            builder.setForeground(new Color(80, 100, 200));
-            builder.action("add one.", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ResourceDialog res = new ResourceDialog(Amber.getUI());
-                    res.setPanel(ResourceDialog.MODEL_PANEL);
-                    res.setVisible(true);
-                }
-            });
-            modelPanel.add(builder.create(), BorderLayout.CENTER);
+            modelchooser = new ModelSelector(renderer.getMapContext());
+            if (Amber.getResourceManager().getModels().size() > 0) {
+                modelPanel.add(modelchooser);
+                modelchooser.synchronize();
+            } else {
+                LabelBuilder builder = new LabelBuilder();
+                builder.append("No models found -- ");
+                builder.setForeground(new Color(80, 100, 200));
+                builder.action("add one.", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ResourceDialog res = new ResourceDialog(Amber.getUI());
+                        res.setPanel(ResourceDialog.MODEL_PANEL);
+                        res.setVisible(true);
+                    }
+                });
+                modelPanel.add(builder.create(), BorderLayout.CENTER);
+            }
         }
         Amber.getResourceManager().addResourceListener(new IResourceListener() {
             public void tilesetImported(Resource<Tileset> sheet) {
@@ -221,11 +227,11 @@ public class MapEditorPanel extends FileViewerPanel {
         mapBack = new javax.swing.JPanel();
         scenePanel = new javax.swing.JPanel();
         toolBar = new javax.swing.JToolBar();
-        showGridButton = new javax.swing.JToggleButton();
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         brushButton = new javax.swing.JToggleButton();
         eraseButton = new javax.swing.JToggleButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
         fillButton = new javax.swing.JToggleButton();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
         selectButton = new javax.swing.JToggleButton();
         cardinalityButton = new javax.swing.JToggleButton();
         mapScene = new javax.swing.JPanel();
@@ -332,23 +338,6 @@ public class MapEditorPanel extends FileViewerPanel {
         toolBar.setPreferredSize(new java.awt.Dimension(26, 26));
         toolBar.setRequestFocusEnabled(false);
 
-        showGridButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Grid.png"))); // NOI18N
-        showGridButton.setSelected(true);
-        showGridButton.setToolTipText("Show grid...");
-        showGridButton.setFocusable(false);
-        showGridButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        showGridButton.setMaximumSize(new java.awt.Dimension(26, 26));
-        showGridButton.setMinimumSize(new java.awt.Dimension(26, 26));
-        showGridButton.setPreferredSize(new java.awt.Dimension(26, 26));
-        showGridButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        showGridButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showGridButtonActionPerformed(evt);
-            }
-        });
-        toolBar.add(showGridButton);
-        toolBar.add(jSeparator1);
-
         brushButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Brush.png"))); // NOI18N
         brushButton.setSelected(true);
         brushButton.setToolTipText("Brush tool...");
@@ -373,7 +362,13 @@ public class MapEditorPanel extends FileViewerPanel {
         eraseButton.setMinimumSize(new java.awt.Dimension(26, 26));
         eraseButton.setPreferredSize(new java.awt.Dimension(26, 26));
         eraseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        eraseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eraseButtonActionPerformed(evt);
+            }
+        });
         toolBar.add(eraseButton);
+        toolBar.add(jSeparator1);
 
         fillButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Fill.png"))); // NOI18N
         fillButton.setToolTipText("Fill tool...");
@@ -389,6 +384,7 @@ public class MapEditorPanel extends FileViewerPanel {
             }
         });
         toolBar.add(fillButton);
+        toolBar.add(jSeparator2);
 
         selectButton.setText("Select");
         selectButton.setFocusable(false);
@@ -447,10 +443,6 @@ public class MapEditorPanel extends FileViewerPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void showGridButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showGridButtonActionPerformed
-        renderer.getMapContext().drawGrid = !renderer.getMapContext().drawGrid;
-    }//GEN-LAST:event_showGridButtonActionPerformed
-
     private void fillButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fillButtonActionPerformed
         renderer.getMapContext().drawMode = MapContext.MODE_FILL;
     }//GEN-LAST:event_fillButtonActionPerformed
@@ -468,6 +460,11 @@ public class MapEditorPanel extends FileViewerPanel {
     private void selectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectButtonActionPerformed
         renderer.getMapContext().drawMode = MapContext.MODE_SELECT;
     }//GEN-LAST:event_selectButtonActionPerformed
+
+    private void eraseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eraseButtonActionPerformed
+        renderer.getMapContext().drawMode = MapContext.MODE_ERASE;
+    }//GEN-LAST:event_eraseButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton brushButton;
     private javax.swing.JToggleButton cardinalityButton;
@@ -480,6 +477,7 @@ public class MapEditorPanel extends FileViewerPanel {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JTable jTable1;
     private javax.swing.JPanel mapBack;
     private amber.swing.misc.ThinSplitPane mapResourcesSplitPane;
@@ -488,7 +486,6 @@ public class MapEditorPanel extends FileViewerPanel {
     private javax.swing.JTabbedPane resourcesTabbedPane;
     private javax.swing.JPanel scenePanel;
     private javax.swing.JToggleButton selectButton;
-    private javax.swing.JToggleButton showGridButton;
     private javax.swing.JTable table;
     private amber.swing.misc.ThinSplitPane thinSplitPane1;
     private javax.swing.JPanel tilePanel;
