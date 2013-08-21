@@ -8,8 +8,11 @@
     <packaging>jar</packaging>
     
     <properties>
-        <lwjglGroupId>org.lwjgl.lwjgl</lwjglGroupId>
-        <lwjglVersion>2.9.0</lwjglVersion>
+        <lwjgl.version>2.9.0</lwjgl.version>
+        <jruby.version>1.7.0.RC1</jruby.version>
+        <xom.version>1.2.5</xom.version>
+        <jorbis.version>0.0.17-2</jorbis.version>
+        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>  
 
@@ -34,7 +37,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>                            
-                            <mainClass>amber.Amber</mainClass>                     
+                            <mainClass>amber.Amber</mainClass>                 
                         </manifest>
                     </archive>
                 </configuration>
@@ -65,10 +68,10 @@
         <dependency>
             <groupId>org.lwjgl.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>2.9.0</version>
+            <version>${lwjgl.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>${lwjglGroupId}</groupId>
+                    <groupId>org.lwjgl.lwjgl</groupId>
                     <artifactId>lwjgl-platform</artifactId>
                 </exclusion>       
                 <exclusion>
@@ -78,24 +81,24 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>${lwjglGroupId}</groupId>
+            <groupId>org.lwjgl.lwjgl</groupId>
             <artifactId>lwjgl_util</artifactId>
-            <version>${lwjglVersion}</version>
+            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>
             <artifactId>jorbis</artifactId>
-            <version>0.0.17-2</version>
+            <version>${jorbis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-core</artifactId>
-            <version>1.7.0.RC1</version>
+            <version>${jruby.version}</version>
         </dependency>
         <dependency>
             <groupId>xom</groupId>
             <artifactId>xom</artifactId>
-            <version>1.2.5</version>
+            <version>${xom.version}</version>
         </dependency>
     </dependencies>   
 </project>

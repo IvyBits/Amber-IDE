@@ -5,7 +5,7 @@ import amber.al.Audio;
 import amber.al.AudioIO;
 import amber.data.state.Scope;
 import amber.data.state.State;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.AudioPlayerPanel;
 import amber.swing.UIUtil;
 import java.awt.GridBagLayout;

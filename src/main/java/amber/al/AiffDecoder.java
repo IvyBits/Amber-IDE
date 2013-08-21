@@ -31,7 +31,7 @@
  */
 package amber.al;
 
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

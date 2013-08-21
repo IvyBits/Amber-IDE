@@ -1,6 +1,6 @@
 package amber.al;
 
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import com.jcraft.jogg.Packet;
 import com.jcraft.jogg.Page;
 import com.jcraft.jogg.StreamState;

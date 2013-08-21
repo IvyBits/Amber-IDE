@@ -4,7 +4,7 @@ import amber.al.Audio;
 import amber.data.Workspace;
 import amber.data.io.FileIO;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

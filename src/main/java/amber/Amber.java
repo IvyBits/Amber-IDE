@@ -14,7 +14,7 @@ import amber.gl.Natives;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.TipOfTheDay;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
@@ -103,7 +103,7 @@ public class Amber {
 
     private static void restoreLastWorkspace() throws Exception {
         IState lastProject = states.getState(Scope.GLOBAL, "LastProjectDirectory");
-        if (workspace == null && lastProject != null) {
+        if (workspace == null && lastProject != null && lastProject.get() != null) {
             File root = new File((String) lastProject.get());
             System.out.println("Loaded project " + root);
             if (root.exists()) {
@@ -121,6 +121,7 @@ public class Amber {
         states.clearStates(Scope.PROJECT);
         states.loadStates(Scope.PROJECT);
         main.setTreeViewRoot(root);
+        main.setTitle(String.format("Amber IDE (%s)", root.getAbsolutePath()));
         Storage.recentProjects.put(workspace.getRootDirectory().getAbsolutePath(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
     }
 

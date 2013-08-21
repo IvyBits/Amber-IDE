@@ -4,7 +4,7 @@ import amber.Amber;
 import amber.data.map.Layer;
 import amber.data.map.LevelMap;
 import amber.data.map.codec.Codec;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.swing.Dialogs;
 
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package amber.data.vecmath;
+package amber.data.math.vec;
 
 import org.lwjgl.util.vector.Vector3f;
 

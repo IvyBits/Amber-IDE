@@ -8,18 +8,13 @@ import java.awt.color.ColorSpace;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.opengl.GL12;
 
 /**
  * A utility class to load textures for OpenGL. This source is based on a
@@ -112,9 +107,9 @@ public class TextureLoader {
         ByteBuffer textureBuffer = convertImageData(img, texture);
 
         if (target == GL_TEXTURE_2D) {
-            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        }
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }  
 
         // produce a texture from the byte buffer
         glTexImage2D(target,

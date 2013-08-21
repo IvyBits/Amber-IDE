@@ -1,4 +1,4 @@
-package amber.gui.exc;
+package amber.gui.misc;
 
 import javax.swing.*;
 import java.io.ByteArrayOutputStream;

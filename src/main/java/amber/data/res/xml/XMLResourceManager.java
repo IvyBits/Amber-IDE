@@ -8,7 +8,7 @@ import amber.data.res.AbstractResourceManager;
 import amber.data.res.Resource;
 import amber.data.res.Tileset;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
