@@ -13,13 +13,14 @@ import java.util.Stack;
  */
 public class MapContext {
 
-    public static final int TYPE_TILE = 0, 
+    public static final int TYPE_TILE = 0,
             TYPE_FLAG = 1,
             EXT_TYPE_MODEL = 2;
     public static final int MODE_BRUSH = 0,
-            MODE_FILL = 1, 
-            MODE_SELECT = 2, 
-            MODE_MOVE = 3;
+            MODE_FILL = 1,
+            MODE_SELECT = 2,
+            MODE_MOVE = 3,
+            MODE_ERASE = 4;
     public LevelMap map;
     public File outputFile;
     public Tileset.TileSprite[][] tileSelection;

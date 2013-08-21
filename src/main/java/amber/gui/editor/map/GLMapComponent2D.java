@@ -14,6 +14,7 @@ import amber.gl.TrueTypeFont;
 import amber.gl.tess.ITesselator;
 import amber.gl.tess.ImmediateTesselator;
 import static amber.gui.editor.map.MapContext.*;
+import amber.gui.editor.map.tool._2d.*;
 import amber.input.AbstractKeyboard;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
@@ -24,15 +25,11 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Label;
-import java.awt.Point;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 import java.util.WeakHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -56,6 +53,9 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
     protected float aspectRatio;
     protected ITesselator tess = new ImmediateTesselator();
     protected ScrollPane display = new ScrollPane();
+    protected Tool2D brushTool = new Brush2D(context);
+    protected Tool2D eraseTool = new Eraser2D(context);
+    protected Tool2D fillTool = new Fill2D(context);
 
     public GLMapComponent2D(LevelMap map) throws LWJGLException {
         super(map);
@@ -126,20 +126,18 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
         if (AbstractMouse.isButtonDown(0)) {
             LevelMap pre = context.map.clone();
-            switch (context.drawMode) {
-                case MODE_BRUSH:
-                    if (setTileAt((int) cursorPos.x, (int) cursorPos.y)) {
-                        context.undoStack.push(pre);
-                    }
-                    break;
-                case MODE_FILL:
-                    if (floodFillAt((int) cursorPos.x, (int) cursorPos.y)) {
-                        context.undoStack.push(pre);
-                    }
-                    break;
+            Tool2D tool = currentTool();
+
+            if (tool != null && tool.apply((int) cursorPos.x, (int) cursorPos.y)) {
+                context.undoStack.push(pre);
             }
         }
         AbstractMouse.poll();
+    }
+    
+    @Override
+    protected void doKey(int keycode) {
+        currentTool().doKey(keycode);
     }
 
     @Override
@@ -250,80 +248,25 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
         }
         glEnd();
         glLineWidth(2);
-        if (cursorPos != null && context.tileSelection != null && context.tileSelection.length > 0 && context.tileSelection[0].length > 0) {
-            gleRect2d(cursorPos.x * 32, cursorPos.y * 32, context.tileSelection.length * 32, context.tileSelection[0].length * 32);
+        if (cursorPos != null) {
+            Dimension size = currentTool().getDrawRectangleSize();
+            gleRect2d(cursorPos.x * 32, cursorPos.y * 32, size.width * 32, size.height * 32);
         }
         glPopAttrib();
     }
 
-    protected boolean floodFillAt(int x, int y) {
-        boolean modified = false;
-        if (isInBounds(x, y)) {
-            Tileset.TileSprite target = spriteAt(x, y);
-            Stack<Point> stack = new Stack<Point>() {
-                Set<Point> visited = new HashSet<Point>();
-
-                @Override
-                public Point push(Point t) {
-                    return visited.add(t) ? super.push(t) : t;
-                }
-            };
-
-            stack.push(new Point(x, y));
-            while (!stack.empty()) {
-                Point p = stack.pop();
-                if (spriteAt(p.x, p.y) != target) {
-                    continue;
-                }
-
-                if (setTileAt(p.x, p.y)) {
-                    modified = true;
-                }
-                if (target == spriteAt(p.x - 1, p.y)) {
-                    stack.push(new Point(p.x - 1, p.y));
-                }
-                if (target == spriteAt(p.x + 1, p.y)) {
-                    stack.push(new Point(p.x + 1, p.y));
-                }
-                if (target == spriteAt(p.x, p.y - 1)) {
-                    stack.push(new Point(p.x, p.y - 1));
-                }
-                if (target == spriteAt(p.x, p.y + 1)) {
-                    stack.push(new Point(p.x, p.y + 1));
-                }
-            }
-        }
-        return modified;
-    }
-
-    protected boolean setTileAt(int x, int y) {
-        boolean modified = false;
-        if (context.tileSelection != null) {
-            Layer lay = context.map.getLayer(context.layer);
-            for (int cx = 0; cx != context.tileSelection.length; cx++) {
-                for (int cy = 0; cy != context.tileSelection[0].length; cy++) {
-                    int mapX = cx + x, mapY = cy + y;
-                    if (isInBounds(mapX, mapY)) {
-                        // We need to flip the array horizontally, so inverse the y
-                        Tile t = new Tile(context.tileSelection[cx][context.tileSelection[0].length - cy - 1]);
-                        Tile r = lay.getTile(mapX, mapY, 0);
-                        modified = r == null || !t.getSprite().equals(r.getSprite());
-                        lay.setTile(mapX, mapY, 0, t);
-                    }
-                }
-            }
-        }
-        return modified;
-    }
-
-    protected Tileset.TileSprite spriteAt(int x, int y) {
-        if (isInBounds(x, y)) {
-            Tile tile = context.map.getLayer(context.layer).getTile(x, y, 0);
-            return tile != null ? tile.getSprite() : Tileset.TileSprite.NULL_SPRITE;
+    private Tool2D currentTool() {
+        switch (context.drawMode) {
+            case MODE_BRUSH:
+                return brushTool;
+            case MODE_FILL:
+                return fillTool;
+            case MODE_ERASE:
+                return eraseTool;
         }
         return null;
     }
-
+    
     @Override
     public Component getComponent() {
         return display;
