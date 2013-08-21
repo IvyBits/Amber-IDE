@@ -67,15 +67,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
+                //onMouseMove(mouseEvent);
                 onMouseDown(mouseEvent);
-                repaint();
-            }
-        });
-
-        addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                onWheelMove(e);
                 repaint();
             }
         });
@@ -167,7 +160,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.setStroke(stroke2);
         if (cursorPos != null) {
             Dimension size = currentTool().getDrawRectangleSize();
-            g.drawRect(cursorPos.x * 32, getHeight() - cursorPos.y * 32, size.width * 32, size.height * 32);
+            if (size.height > 0 && size.width > 0)
+                g.drawRect(cursorPos.x * 32, getHeight() + 32 - cursorPos.y * 32 - size.height * 32, size.width * 32, size.height * 32);
         }
 
         g.setColor(oldColor);
@@ -176,7 +170,6 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected FrameTimer timer = new FrameTimer();
 
     protected void onKeyPress(KeyEvent e) {
-        System.out.println("dokey: " + e);
         int delta = timer.getDelta() / 5;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_W:
@@ -213,13 +206,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         }
     }
 
-    protected void onWheelMove(MouseWheelEvent e) {
-        display.getVerticalScrollBar().setValue((display.getVerticalScrollBar().getValue() - e.getUnitsToScroll()) * 16);
-    }
-
     protected void onMouseDown(MouseEvent e) {
         requestFocusInWindow();
-        if (e.getButton() == 0) {
+        if (e.getButton() == MouseEvent.BUTTON1 || e.getID() == MouseEvent.MOUSE_DRAGGED) {
             LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
 
