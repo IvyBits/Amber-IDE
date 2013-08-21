@@ -49,7 +49,7 @@ public class MapEditorPanel extends FileViewerPanel {
         super(mapFile);
         initComponents();
         map = Codec.CODECS.get(Codec.CURRENT_VERSION).loadMap(new DataInputStream(new FileInputStream(mapFile)));
-        renderer = map.getType() == LevelMap.Type._2D ? new GLMapComponent2D(map) : new GLMapComponent3D(map);
+        renderer = map.getType() == LevelMap.Type._2D ? new J2DMapComponent2D(map) : new GLMapComponent3D(map);
         renderer.getMapContext().outputFile = mapFile;
         cardinalityButton.setVisible(renderer.getMapContext().EXT_cardinalSupported);
         tilePanel.setLayout(new BorderLayout());

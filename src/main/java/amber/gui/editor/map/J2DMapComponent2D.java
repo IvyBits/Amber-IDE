@@ -27,18 +27,19 @@ import static amber.gui.editor.map.MapContext.MODE_FILL;
  * @author xiaomao
  */
 
-public class GDIMapComponent2D extends JComponent implements IMapComponent {
+public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
-    //protected ITesselator tess = new GDIMapTesselator();
 
-    public GDIMapComponent2D() {
+    public J2DMapComponent2D() {
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
         display.getVerticalScrollBar().setUnitIncrement(16);
         display.getHorizontalScrollBar().setUnitIncrement(16);
+
+        setBackground(Color.WHITE);
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -80,9 +81,11 @@ public class GDIMapComponent2D extends JComponent implements IMapComponent {
         });
     }
 
-    public GDIMapComponent2D(LevelMap map) {
+    public J2DMapComponent2D(LevelMap map) {
         this();
         context.map = map;
+
+        setPreferredSize(new Dimension(map.getWidth() * 32 + 1, map.getLength() * 32 + 1));
     }
 
     @Override
@@ -92,7 +95,7 @@ public class GDIMapComponent2D extends JComponent implements IMapComponent {
 
     @Override
     public Component getComponent() {
-        return this;
+        return display;
     }
 
     @Override
