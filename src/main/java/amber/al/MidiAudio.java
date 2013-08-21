@@ -1,6 +1,6 @@
 package amber.al;
 
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import java.io.InputStream;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;

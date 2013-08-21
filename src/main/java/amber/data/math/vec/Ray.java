@@ -1,4 +1,4 @@
-package amber.data.vecmath;
+package amber.data.math.vec;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

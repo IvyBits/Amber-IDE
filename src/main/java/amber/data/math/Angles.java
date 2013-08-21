@@ -1,4 +1,4 @@
-package amber;
+package amber.data.math;
 
 import org.lwjgl.util.vector.Vector2f;
 
@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class Angles {
 
-    public static Vector2f circleIntercept(float theta, int originX, int originY, int len) {
+    public static Vector2f circleIntercept(float theta, float originX, float originY, int len) {
         theta = theta % 360;
         double rad = Math.toRadians(theta % 90);
         if (theta % 90 / 45 >= 1) {

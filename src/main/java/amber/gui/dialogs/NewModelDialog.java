@@ -6,7 +6,7 @@ import amber.data.state.State;
 import amber.gl.Natives;
 import amber.gl.model.obj.WavefrontObject;
 import amber.gui.editor.map.ModelSelector;
-import amber.gui.exc.ErrorHandler;
+import amber.gui.misc.ErrorHandler;
 import amber.swing.UIUtil;
 import java.io.File;
 import java.io.FileNotFoundException;

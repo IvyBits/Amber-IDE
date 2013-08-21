@@ -1,6 +1,5 @@
 package amber.gui.misc;
 
-import amber.gui.exc.ErrorHandler;
 import amber.swing.UIUtil;
 import java.io.File;
 import java.io.IOException;
