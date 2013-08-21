@@ -99,6 +99,7 @@ public class StartPagePanel extends javax.swing.JPanel {
         recentProjectsTable.setFillsViewportHeight(true);
         recentProjectsTable.setMaximumSize(new java.awt.Dimension(2147483647, 2147483647));
         recentProjectsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        recentProjectsTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(recentProjectsTable);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
