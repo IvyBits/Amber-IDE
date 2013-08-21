@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import org.lwjgl.input.Keyboard;
 
-final class AWTInputMap {
+public class AWTInputMap {
 
     private static final HashMap<Integer, Integer> keyMap = new HashMap<Integer, Integer>();
 
