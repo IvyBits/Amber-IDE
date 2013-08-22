@@ -59,6 +59,7 @@ import java.awt.EventQueue;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.ScrollPane;
+import javax.swing.UIManager;
 import org.lwjgl.opengl.GLContext;
 
 /**
@@ -94,8 +95,8 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
 
     @Override
     public void initGL() {
-        gleClearColor(Color.WHITE);
-        font = new TrueTypeFont(new Font("Courier", Font.PLAIN, 15), true);
+        gleClearColor(UIManager.getColor("MapEditor.background"));
+        font = new TrueTypeFont(UIManager.getFont("MapEditor.font"), true);
 
         cam.applyOptimalStates();
         cam.applyPerspectiveMatrix();
