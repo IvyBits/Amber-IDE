@@ -40,6 +40,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
     protected Font infoFont = new Font("Courier", Font.PLAIN, 15);
+    protected boolean moved = false;
 
     public J2DMapComponent2D(LevelMap map) {
         setFocusable(true);
@@ -58,29 +59,27 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         });
 
-        MouseAdapter adpt = new MouseAdapter() {
+        MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
-                onMouseMove(mouseEvent);
                 onMouseDown(mouseEvent);
-                repaint();
             }
 
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
                 onMouseMove(mouseEvent);
-                repaint();
+                if (moved)
+                    repaint();
             }
 
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 onMouseDown(mouseEvent);
-                repaint();
             }
         };
 
-        addMouseMotionListener(adpt);
-        addMouseListener(adpt);
+        addMouseMotionListener(adapter);
+        addMouseListener(adapter);
 
         display.addMouseWheelListener(new MouseWheelListener() {
             @Override
@@ -166,7 +165,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
         int y1 = context.map.getLength() - y2_;
         int y2 = context.map.getLength() - y1_;
-        //System.out.printf("(%4d, %4d) (%4d, %4d)\n", x1, y1, x2, y2);
+
         for (int x = x1; x < x2; x++) {
             for (int y = y1; y < y2; y++) {
                 SparseVector.SparseVectorIterator iterator = tileVector.iterator();
@@ -221,7 +220,6 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             Dimension size = currentTool().getDrawRectangleSize();
             if (size.height > 0 && size.width > 0)
                 g.drawRect(cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u, size.width * u, size.height * u);
-            //System.out.printf("%d, %d\n", cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u);
         }
 
         g.setColor(oldColor);
@@ -231,6 +229,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected void onKeyPress(KeyEvent e) {
         int delta = timer.getDelta() / 5;
+        if (delta > 200)
+            delta = 200;
         if (e.getModifiersEx() == 0) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_W:
@@ -286,18 +286,24 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected void onMouseDown(MouseEvent e) {
         requestFocusInWindow();
-        if (SwingUtilities.isLeftMouseButton(e) || e.getID() == MouseEvent.MOUSE_DRAGGED) {
+        onMouseMove(e);
+        if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED) ||
+                (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
             LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
 
             if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
                 context.undoStack.push(pre);
             }
+            repaint();
         }
     }
 
     protected void onMouseMove(MouseEvent e) {
-        cursorPos.setLocation(e.getX() / u, context.map.getLength() - e.getY() / u - 1);
+        int x = e.getX() / u, y = context.map.getLength() - e.getY() / u - 1;
+        moved = cursorPos.x != x || cursorPos.y != y;
+        if (moved)
+            cursorPos.setLocation(x, y);
     }
 
     protected Tool2D brushTool = new Brush2D(context);
