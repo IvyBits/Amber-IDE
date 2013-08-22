@@ -143,10 +143,10 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.setBackground(Color.WHITE);
 
         Rectangle clip = g.getClipBounds();
-        int x1 = Math.max(0, clip.x / 32 - 1);
-        int x2 = Math.min(x1 + clip.width / 32 + 3, context.map.getWidth());
-        int y1 = Math.max(0, clip.y / 32 - 1);
-        int y2 = Math.min(y1 + clip.height / 32 + 3, context.map.getLength());
+        int x1 = Math.max(0, clip.x / u - 1);
+        int x2 = Math.min(x1 + clip.width / u + 3, context.map.getWidth());
+        int y1 = Math.max(0, clip.y / u - 1);
+        int y2 = Math.min(y1 + clip.height / u + 3, context.map.getLength());
 
         List<Layer> layers = context.map.getLayers();
         for (int i = 0; i != layers.size(); i++) {
@@ -166,7 +166,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
         int y1 = context.map.getLength() - y2_;
         int y2 = context.map.getLength() - y1_;
-        System.out.printf("(%4d, %4d) (%4d, %4d)\n", x1, y1, x2, y2);
+        //System.out.printf("(%4d, %4d) (%4d, %4d)\n", x1, y1, x2, y2);
         for (int x = x1; x < x2; x++) {
             for (int y = y1; y < y2; y++) {
                 SparseVector.SparseVectorIterator iterator = tileVector.iterator();
@@ -182,10 +182,10 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         Point start = sprite.getStart();
                         Dimension size = sprite.getSize();
 
-                        int dx = x * 32;
-                        int dy = context.map.getLength() * 32 - y * 32;
+                        int dx = x * u;
+                        int dy = context.map.getLength() * u - y * u - u;
 
-                        g.drawImage(texture, dx, dy, dx + 32, dy + 32, start.x, start.y, start.x + size.width, start.y + size.height, null);
+                        g.drawImage(texture, dx, dy, dx + u, dy + u, start.x, start.y, start.x + size.width, start.y + size.height, null);
                     }
                 }
             }
@@ -202,10 +202,10 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         if (grid) {
             for (int x = x1; x <= x2; x++) {
-                g.drawLine(x * 32, 0, x * 32, context.map.getLength() * 32);
+                g.drawLine(x * u, 0, x * u, context.map.getLength() * u);
             }
             for (int y = y1; y <= y2; y++) {
-                g.drawLine(0, y * 32, context.map.getWidth() * 32, y * 32);
+                g.drawLine(0, y * u, context.map.getWidth() * u, y * u);
             }
         }
 
@@ -220,7 +220,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         if (cursorPos != null) {
             Dimension size = currentTool().getDrawRectangleSize();
             if (size.height > 0 && size.width > 0)
-                g.drawRect(cursorPos.x * 32, context.map.getLength() * 32 - cursorPos.y * 32 - size.height * 32, size.width * 32, size.height * 32);
+                g.drawRect(cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u, size.width * u, size.height * u);
+            //System.out.printf("%d, %d\n", cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u);
         }
 
         g.setColor(oldColor);
@@ -296,7 +297,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     }
 
     protected void onMouseMove(MouseEvent e) {
-        cursorPos.setLocation(e.getX() / u, e.getY() / u);
+        cursorPos.setLocation(e.getX() / u, context.map.getLength() - e.getY() / u - 1);
     }
 
     protected Tool2D brushTool = new Brush2D(context);
