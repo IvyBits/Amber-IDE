@@ -28,6 +28,14 @@ import amber.gl.camera.EulerCamera;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
 import static amber.gui.editor.map.MapContext.*;
+import amber.gui.editor.map.tool._2d.Brush2D;
+import amber.gui.editor.map.tool._2d.Eraser2D;
+import amber.gui.editor.map.tool._2d.Fill2D;
+import amber.gui.editor.map.tool._2d.Tool2D;
+import amber.gui.editor.map.tool._3d.Brush3D;
+import amber.gui.editor.map.tool._3d.Eraser3D;
+import amber.gui.editor.map.tool._3d.Fill3D;
+import amber.gui.editor.map.tool._3d.Tool3D;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
 import java.awt.Color;
@@ -157,36 +165,8 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     AbstractMouse.setGrabbed(true);
                 } else {
                     LevelMap pre = context.map.clone();
-                    switch (context.drawType) {
-                        case TYPE_TILE:
-                            switch (context.drawMode) {
-                                case MODE_BRUSH:
-                                    if (setTileAt((int) cursorPos.x, (int) cursorPos.z, context.EXT_cardinal ? cam.getFacingDirection() : Direction.NORTH, currentAngle)) {
-                                        context.undoStack.push(pre);
-                                    }
-                                    break;
-                                case MODE_FILL:
-                                    if (floodFillAt((int) cursorPos.x, (int) cursorPos.z, context.EXT_cardinal ? cam.getFacingDirection() : Direction.NORTH, currentAngle)) {
-                                        context.undoStack.push(pre);
-                                    }
-                                    break;
-                            }
-                            break;
-                        case EXT_TYPE_MODEL:
-                            if (context.EXT_modelSelection != null) {
-                                Layer l = context.map.getLayer(context.layer);
-                                if (l instanceof Layer3D) {
-                                    Layer3D l3d = (Layer3D) l;
-                                    int mapX = (int) cursorPos.x;
-                                    int mapY = (int) cursorPos.z;
-                                    TileModel p = l3d.getModel(mapX, mapY, (int) cursorPos.y);
-                                    if (isInBounds(mapX, mapY) && p == null || p.getModel() != context.EXT_modelSelection) {
-                                        context.undoStack.push(pre);
-                                        l3d.setModel(mapX, mapY, (int) cursorPos.y, new TileModel(context.EXT_modelSelection));
-                                    }
-                                }
-                            }
-                            break;
+                    if (currentTool().apply((int) cursorPos.x, (int) cursorPos.z, (int) cursorPos.y)) {
+                        context.undoStack.push(pre);
                     }
                 }
             } else if (isButtonDown(1)) {
@@ -268,7 +248,14 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
 
         drawGrid();
-        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+
+        glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
+        GLColor.BLACK.bind();
+        glLineWidth(2);
+        if (!AbstractMouse.isGrabbed()) {
+            currentTool().draw((int) cursorPos.x, (int) cursorPos.y, (int) cursorPos.z);
+        }
+        glPopAttrib();
 
         if (info || compass) {
             glePushOrthogonalMode(0, getWidth(), 0, getHeight());
@@ -296,13 +283,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 glPopAttrib();
             }
             glePushFrustrumMode();
-        }
-
-        if (context.drawType == EXT_TYPE_MODEL && context.EXT_modelSelection != null && !AbstractMouse.isGrabbed()) {
-            glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            tess.drawModel3D(new TileModel(context.EXT_modelSelection), cursorPos.x, cursorPos.z, cursorPos.y);
-            glPopAttrib();
         }
 
         try {
@@ -371,163 +351,27 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             gleLine(0, cursorPos.y, context.map.getLength(), context.map.getWidth(), cursorPos.y, context.map.getWidth());
         }
         glEnd();
-        glLineWidth(2);
-        if (!AbstractMouse.isGrabbed() && context.drawType == TYPE_TILE && cursorPos != null && context.tileSelection != null) {
-            glPushMatrix();
-            float[] tr = new float[]{cursorPos.x, cursorPos.y, cursorPos.z, 0};
-
-            switch (cam.getFacingDirection()) {
-                case SOUTH:
-                    tr[0]++;
-                    tr[2]++;
-                    tr[3] = 180;
-                    break;
-                case WEST:
-                    tr[2]++;
-                    tr[3] = 90;
-                    break;
-                case EAST:
-                    tr[0]++;
-                    tr[3] = 270;
-                    break;
-            }
-            glTranslatef(tr[0], tr[1], tr[2]);
-            glRotatef(tr[3], 0, 1, 0);
-            Vector2f ix = Angles.circleIntercept(currentAngle.intValue(), 0, 0, context.tileSelection[0].length);
-            glBegin(GL_LINE_LOOP);
-            {
-                int w = context.tileSelection.length;
-                glVertex3f(0, 0, 0);
-                glVertex3f(ix.x, ix.y, 0);
-                glVertex3f(ix.x, ix.y, w);
-                glVertex3f(0, 0, w);
-            }
-            glEnd();
-            glPopMatrix();
-        }
         glPopAttrib();
-    }
-
-    protected boolean floodFillAt(int x, int y, Direction dir, Angle angle) {
-        boolean modified = false;
-        if (isInBounds(x, y)) {
-            Tileset.TileSprite target = spriteAt(x, y);
-            Stack<Point> stack = new Stack<Point>() {
-                Set<Point> visited = new HashSet<Point>();
-
-                @Override
-                public Point push(Point t) {
-                    return visited.add(t) ? super.push(t) : t;
-                }
-            };
-
-            stack.push(new Point(x, y));
-            while (!stack.empty()) {
-                Point p = stack.pop();
-                if (spriteAt(p.x, p.y) != target) {
-                    continue;
-                }
-                if (setTileAt(p.x, p.y, dir, angle)) {
-                    modified = true;
-                }
-
-                if (target == spriteAt(p.x - 1, p.y)) {
-                    stack.push(new Point(p.x - 1, p.y));
-                }
-                if (target == spriteAt(p.x + 1, p.y)) {
-                    stack.push(new Point(p.x + 1, p.y));
-                }
-                if (target == spriteAt(p.x, p.y - 1)) {
-                    stack.push(new Point(p.x, p.y - 1));
-                }
-                if (target == spriteAt(p.x, p.y + 1)) {
-                    stack.push(new Point(p.x, p.y + 1));
-                }
-            }
-        }
-        return modified;
-    }
-
-    private Tileset.TileSprite spriteAt(int x, int y) {
-        if (isInBounds(x, y)) {
-            Tile tile = context.map.getLayer(context.layer).getTile(x, y, (int) cursorPos.y);
-            return tile != null ? tile.getSprite() : TileSprite.NULL_SPRITE;
-        }
-        return null;
-    }
-
-    protected boolean setTileAt(int x, int y, Direction dir, Angle angle) {
-        boolean modified = false;
-        if (context.tileSelection != null) {
-            Tileset.TileSprite[][] sel = context.tileSelection.clone();
-            int w = sel.length;
-            int h = sel[0].length;
-            for (int sx = 0; sx != w; sx++) {
-                for (int sy = 0; sy != h; sy++) {
-                    boolean tiled = setAngledTile(x, y, (int) cursorPos.y, sx, sy, h, w, dir, angle, sel);
-                    if (!modified) {
-                        modified = tiled;
-                    }
-                }
-            }
-        }
-        return modified;
-    }
-
-    protected final boolean setAngledTile(int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, TileSprite[][] sel) {
-        // It works, that's all you need to know.
-        switch (angle) {
-            case _180:
-                switch (dir) {
-                    case NORTH:
-                        return setTile0(x + sy, y + sx, z, sel[sx][h - sy - 1], dir, angle);
-                    case EAST:
-                        return setTile0(sx + x - w + 1, sy + y, z, sel[w - sx - 1][h - sy - 1], dir, angle);
-                    case SOUTH:
-                        return setTile0(x + sy - h + 1, y + sx - w + 1, z, sel[w - sx - 1][sy], dir, angle);
-                    case WEST:
-                        return setTile0(sx + x, sy + y - h + 1, z, sel[sx][sy], dir, angle);
-                }
-            case _90:
-                switch (dir) {
-                    case NORTH:
-                        return setTile0(x, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
-                    case EAST:
-                        return setTile0(sx + x - w + 1, y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
-                    case SOUTH:
-                        return setTile0(x, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
-                    case WEST:
-                        return setTile0(sx + x, y, z + sy, sel[sx][h - sy - 1], dir, angle);
-                }
-            case _45:
-                switch (dir) {
-                    case NORTH:
-                        return setTile0(x + sy, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
-                    case EAST:
-                        return setTile0(sx + x - w + 1, sy + y, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
-                    case SOUTH:
-                        return setTile0(x - sy, y + sx - w + 1, z + sy, sel[w - sx - 1][h - sy - 1], dir, angle);
-                    case WEST:
-                        return setTile0(sx + x, y - sy, z + sy, sel[sx][h - sy - 1], dir, angle);
-                }
-        }
-        return false;
-    }
-
-    private final boolean setTile0(int x, int y, int z, TileSprite tile, Direction dir, Angle angle) {
-        Layer lay = context.map.getLayer(context.layer);
-        boolean modified = false;
-        if (isInBounds(x, y)) {
-            Tile r = lay.getTile(x, y, z);
-            modified = r == null || !tile.equals(r.getSprite());
-            lay.setTile(x, y, z, new Tile3D(tile, dir, angle));
-        }
-        return modified;
     }
 
     @Override
     public Component getComponent() {
         return display;
+    }
+    protected Tool3D brushTool = new Brush3D(context, cam);
+    protected Tool3D eraseTool = new Eraser3D(context, cam);
+    protected Tool3D fillTool = new Fill3D(context, cam);
+
+    private Tool3D currentTool() {
+        switch (context.drawMode) {
+            case MODE_BRUSH:
+                return brushTool;
+            case MODE_FILL:
+                return fillTool;
+            case MODE_ERASE:
+                return eraseTool;
+        }
+        return null;
     }
     protected boolean info = true, compass = true, wireframe = false, grid = true;
 
