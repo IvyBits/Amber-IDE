@@ -4,6 +4,7 @@ import amber.data.state.LazyState;
 import amber.data.state.Scope;
 import amber.data.state.node.IState;
 import amber.gui.dialogs.AboutDialog;
+import amber.gui.dialogs.JFontChooser;
 import amber.gui.dialogs.NewProjectDialog;
 import amber.gui.dialogs.ResourceDialog;
 import amber.gui.editor.FileViewerPanel;
@@ -13,6 +14,7 @@ import amber.gui.editor.tool.ToolPanel;
 import amber.gui.misc.FileTreeExplorer;
 import amber.gui.misc.StartPagePanel;
 import amber.swing.Dialogs;
+import amber.swing.UIUtil;
 import amber.swing.tabs.CloseableTabbedPane;
 import amber.swing.tabs.TabCloseListener;
 import amber.swing.tree.SmartExpander;
@@ -20,6 +22,7 @@ import amber.swing.tree.Trees;
 import amber.tool.ToolDefinition;
 import amber.tool.ToolManifest;
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.*;
 import java.io.File;
@@ -169,6 +172,8 @@ public class IDE extends javax.swing.JFrame {
         newTilesetItem = new javax.swing.JMenuItem();
         newAudioItem = new javax.swing.JMenuItem();
         newModelItem = new javax.swing.JMenuItem();
+        settingsMenu = new javax.swing.JMenu();
+        fontItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         aboutItem = new javax.swing.JMenuItem();
 
@@ -344,6 +349,18 @@ public class IDE extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
+        settingsMenu.setText(bundle.getString("IDE.settingsMenu.text")); // NOI18N
+
+        fontItem.setText(bundle.getString("IDE.fontItem.text")); // NOI18N
+        fontItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontItemActionPerformed(evt);
+            }
+        });
+        settingsMenu.add(fontItem);
+
+        menuBar.add(settingsMenu);
+
         helpMenu.setText(bundle.getString("IDE.helpMenu.text")); // NOI18N
 
         aboutItem.setText(bundle.getString("IDE.aboutItem.text")); // NOI18N
@@ -435,10 +452,22 @@ public class IDE extends javax.swing.JFrame {
     private void openItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openItemActionPerformed
         openButtonActionPerformed(evt);
     }//GEN-LAST:event_openItemActionPerformed
+
+    private void fontItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItemActionPerformed
+        JFontChooser chooser = new JFontChooser();
+        chooser.setFont(Settings.getUIFont());
+        if (chooser.showDialog(this) == JFontChooser.OK_OPTION) {
+            Settings.font = chooser.getSelectedFont().getName();
+            UIUtil.setUIFont(Settings.getUIFont());
+            SwingUtilities.updateComponentTreeUI(this);
+        }
+    }//GEN-LAST:event_fontItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItem;
     private amber.swing.tabs.CloseableTabbedPane activeFilesTabbedPane;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenuItem fontItem;
     private javax.swing.JSeparator footerSeparator;
     private javax.swing.JSeparator headerSeparator;
     private javax.swing.JMenu helpMenu;
@@ -471,6 +500,7 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveAsItem;
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem saveItem;
+    private javax.swing.JMenu settingsMenu;
     private javax.swing.JMenuItem synchItem;
     private amber.swing.tree.filesystem.FileSystemTree treeView;
     // End of variables declaration//GEN-END:variables
