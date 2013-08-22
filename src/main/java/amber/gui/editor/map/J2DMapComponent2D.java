@@ -12,6 +12,7 @@ import amber.gui.editor.map.tool._2d.Eraser2D;
 import amber.gui.editor.map.tool._2d.Fill2D;
 import amber.gui.editor.map.tool._2d.Tool2D;
 import amber.input.awt.AWTInputMap;
+import amber.swing.MenuBuilder;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,19 +92,36 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         return display;
     }
 
+    protected boolean info = true, grid = true;
     @Override
     public JMenu[] getContextMenus() {
-        return new JMenu[0];
+        return new JMenu[] {
+            new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    info ^= true;
+                    repaint();
+                }
+            }).addCheckbox("Grid", true, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    grid ^= true;
+                    repaint();
+                }
+            }).create()
+        };
     }
 
     @Override
     public void paintComponent(Graphics g_) {
         Graphics2D g = (Graphics2D) g_;
+        g.setBackground(Color.WHITE);
         List<Layer> layers = context.map.getLayers();
         for (int i = 0; i != layers.size(); i++) {
             drawLayer(g, layers.get(i));
         }
         drawGrid(g);
+
+        if (info)
+            g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
     }
 
     protected void drawLayer(Graphics2D g, Layer layer) {
@@ -143,11 +161,13 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         g.translate(0, getHeight() - context.map.getLength() * 32);
 
-        for (int x = 0; x <= context.map.getWidth(); x++) {
-            g.drawLine(x * 32, 0, x * 32, context.map.getLength() * 32);
-        }
-        for (int y = 0; y <= context.map.getLength(); y++) {
-            g.drawLine(0, y * 32, context.map.getWidth() * 32, y * 32);
+        if (grid) {
+            for (int x = 0; x <= context.map.getWidth(); x++) {
+                g.drawLine(x * 32, 0, x * 32, context.map.getLength() * 32);
+            }
+            for (int y = 0; y <= context.map.getLength(); y++) {
+                g.drawLine(0, y * 32, context.map.getWidth() * 32, y * 32);
+            }
         }
 
         g.setColor(Color.BLACK);
