@@ -84,10 +84,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         display.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                System.out.println(e);
                 if (e.isControlDown()) {
                     double delta = e.getPreciseWheelRotation();
-                    u -= delta;
+                    u = Math.max(1, (int) (u - delta));
                     repaint();
                     updateSize();
                     e.consume();
@@ -277,6 +276,25 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                             }
                         }
                     }.start();
+                    break;
+                case KeyEvent.VK_0:
+                case KeyEvent.VK_NUMPAD0:
+                    u = 32;
+                    repaint();
+                    updateSize();
+                    break;
+                case KeyEvent.VK_EQUALS:
+                case KeyEvent.VK_PLUS:
+                case KeyEvent.VK_ADD:
+                    u += 4;
+                    repaint();
+                    updateSize();
+                    break;
+                case KeyEvent.VK_MINUS:
+                case KeyEvent.VK_SUBTRACT:
+                    u = Math.max(1, u - 4);
+                    repaint();
+                    updateSize();
                     break;
             }
         } else {
