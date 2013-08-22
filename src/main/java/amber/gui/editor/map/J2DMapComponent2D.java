@@ -8,6 +8,7 @@ import amber.data.res.Tileset;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
+import static amber.gui.editor.map.MapContext.*;
 import amber.gui.editor.map.tool._2d.Brush2D;
 import amber.gui.editor.map.tool._2d.Eraser2D;
 import amber.gui.editor.map.tool._2d.Fill2D;
@@ -23,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
+import javax.swing.*;
 
 import static amber.gui.editor.map.MapContext.MODE_BRUSH;
 import static amber.gui.editor.map.MapContext.MODE_ERASE;
@@ -33,11 +35,13 @@ import static amber.gui.editor.map.MapContext.MODE_FILL;
  */
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
+    private static int u = 32;
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
+    protected Font infoFont = new Font("Courier", Font.PLAIN, 15);
 
-    public J2DMapComponent2D() {
+    public J2DMapComponent2D(LevelMap map) {
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
@@ -54,7 +58,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         });
 
-        addMouseMotionListener(new MouseMotionAdapter() {
+        MouseAdapter adpt = new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
                 onMouseMove(mouseEvent);
@@ -67,25 +71,42 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 onMouseMove(mouseEvent);
                 repaint();
             }
-        });
 
-        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                //onMouseMove(mouseEvent);
                 onMouseDown(mouseEvent);
                 repaint();
+            }
+        };
+
+        addMouseMotionListener(adpt);
+        addMouseListener(adpt);
+
+        display.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                System.out.println(e);
+                if (e.isControlDown()) {
+                    double delta = e.getPreciseWheelRotation();
+                    u -= delta;
+                    repaint();
+                    updateSize();
+                    e.consume();
+                }
             }
         });
 
         setComponentPopupMenu(getContextMenus()[0].getPopupMenu());
+    
+        context.map = map;
+        updateSize();
     }
 
-    public J2DMapComponent2D(LevelMap map) {
-        this();
-        context.map = map;
-
-        setPreferredSize(new Dimension(map.getWidth() * 32 + 1, map.getLength() * 32 + 1));
+    private void updateSize() {
+        Dimension size = new Dimension(context.map.getWidth() * u + 1, context.map.getLength() * u + 1);
+        setPreferredSize(size);
+        setSize(new Dimension(context.map.getWidth() * u + 1, context.map.getLength() * u + 1));
+        display.validate();
     }
 
     @Override
@@ -97,11 +118,11 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     public Component getComponent() {
         return display;
     }
-
     protected boolean info = true, grid = true;
+
     @Override
     public JMenu[] getContextMenus() {
-        return new JMenu[] {
+        return new JMenu[]{
             new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
                     info ^= true;
@@ -133,8 +154,12 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         }
         drawGrid(g, x1, y1, x2, y2);
 
-        if (info)
+        if (info) {
+            g.setColor(Color.BLACK);
+            g.setFont(infoFont);
+            g.translate(0, -(getHeight() - context.map.getLength() * u));
             g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
+        }
     }
 
     protected void drawLayer(Graphics2D g, Layer layer, int x1, int y1_, int x2, int y2_) {
@@ -158,7 +183,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         Dimension size = sprite.getSize();
 
                         int dx = x * 32;
-                        int dy = context.map.getLength() * 32 - y * 32 - 32;
+                        int dy = context.map.getLength() * 32 - y * 32;
 
                         g.drawImage(texture, dx, dy, dx + 32, dy + 32, start.x, start.y, start.x + size.width, start.y + size.height, null);
                     }
@@ -186,16 +211,16 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         g.setColor(Color.BLACK);
         g.setStroke(stroke3);
-        g.drawLine(0, 0, context.map.getWidth() * 32, 0);
-        g.drawLine(0, 0, 0, context.map.getLength() * 32);
-        g.drawLine(context.map.getWidth() * 32, 0, context.map.getWidth() * 32, context.map.getLength() * 32);
-        g.drawLine(0, context.map.getLength() * 32, context.map.getWidth() * 32, context.map.getWidth() * 32);
+        g.drawLine(0, 0, context.map.getWidth() * u, 0);
+        g.drawLine(0, 0, 0, context.map.getLength() * u);
+        g.drawLine(context.map.getWidth() * u, 0, context.map.getWidth() * u, context.map.getLength() * u);
+        g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getWidth() * u);
 
         g.setStroke(stroke2);
         if (cursorPos != null) {
             Dimension size = currentTool().getDrawRectangleSize();
             if (size.height > 0 && size.width > 0)
-                g.drawRect(cursorPos.x * 32, context.map.getLength() * 32 + 32 - cursorPos.y * 32 - size.height * 32, size.width * 32, size.height * 32);
+                g.drawRect(cursorPos.x * 32, context.map.getLength() * 32 - cursorPos.y * 32 - size.height * 32, size.width * 32, size.height * 32);
         }
 
         g.setColor(oldColor);
@@ -264,14 +289,14 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
 
-            if (tool != null && tool.apply(cursorPos.x, cursorPos.y - 1)) {
+            if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
                 context.undoStack.push(pre);
             }
         }
     }
 
     protected void onMouseMove(MouseEvent e) {
-        cursorPos.setLocation(e.getX() / 32, context.map.getLength() - e.getY() / 32);
+        cursorPos.setLocation(e.getX() / u, e.getY() / u);
     }
 
     protected Tool2D brushTool = new Brush2D(context);
