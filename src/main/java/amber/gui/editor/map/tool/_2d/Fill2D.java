@@ -18,7 +18,7 @@ public class Fill2D extends Brush2D {
         super(context);
     }
 
-    protected boolean floodFillAt(int x, int y) {
+    public boolean apply(int x, int y) {
         boolean modified = false;
         if (isInBounds(x, y)) {
             Tileset.TileSprite target = spriteAt(x, y);

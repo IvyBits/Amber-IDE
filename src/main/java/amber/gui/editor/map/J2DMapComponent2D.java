@@ -39,7 +39,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
-    protected Font infoFont = new Font("Courier", Font.PLAIN, 15);
+    protected Font infoFont = UIManager.getFont("MapEditor.font");
+    protected Color background = UIManager.getColor("MapEditor.background");
     protected boolean moved = false;
 
     public J2DMapComponent2D(LevelMap map) {
@@ -68,8 +69,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
                 onMouseMove(mouseEvent);
-                if (moved)
+                if (moved) {
                     repaint();
+                }
             }
 
             @Override
@@ -95,7 +97,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         });
 
         setComponentPopupMenu(getContextMenus()[0].getPopupMenu());
-    
+
         context.map = map;
         updateSize();
     }
@@ -138,7 +140,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     @Override
     public void paintComponent(Graphics g_) {
         Graphics2D g = (Graphics2D) g_;
-        g.setBackground(Color.WHITE);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         Rectangle clip = g.getClipBounds();
         int x1 = Math.max(0, clip.x / u - 1);
@@ -217,8 +220,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.setStroke(stroke2);
         if (cursorPos != null) {
             Dimension size = currentTool().getDrawRectangleSize();
-            if (size.height > 0 && size.width > 0)
+            if (size.height > 0 && size.width > 0) {
                 g.drawRect(cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u, size.width * u, size.height * u);
+            }
         }
 
         g.setColor(oldColor);
@@ -228,8 +232,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected void onKeyPress(KeyEvent e) {
         int delta = timer.getDelta() / 5;
-        if (delta > 200)
+        if (delta > 200) {
             delta = 200;
+        }
         if (e.getModifiersEx() == 0) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_W:
@@ -305,8 +310,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected void onMouseDown(MouseEvent e) {
         requestFocusInWindow();
         onMouseMove(e);
-        if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED) ||
-                (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
+        if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED)
+                || (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
             LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
 
@@ -320,10 +325,10 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected void onMouseMove(MouseEvent e) {
         int x = e.getX() / u, y = context.map.getLength() - e.getY() / u - 1;
         moved = cursorPos.x != x || cursorPos.y != y;
-        if (moved)
+        if (moved) {
             cursorPos.setLocation(x, y);
+        }
     }
-
     protected Tool2D brushTool = new Brush2D(context);
     protected Tool2D eraseTool = new Eraser2D(context);
     protected Tool2D fillTool = new Fill2D(context);

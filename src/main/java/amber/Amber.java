@@ -11,6 +11,7 @@ import amber.data.state.node.IState;
 import amber.data.state.node.SimpleState;
 import amber.data.state.xml.XMLStateManager;
 import amber.gl.Natives;
+import amber.gui.AmberUIManager;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
@@ -52,6 +53,7 @@ public class Amber {
             Storage.init();
             //setupLogging();
             UIUtil.makeNative();
+            AmberUIManager.setup();
             try {
                 ErrorHandler.init();
             } catch (Exception e) {
