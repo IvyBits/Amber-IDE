@@ -35,7 +35,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="quitButton" min="-2" pref="104" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
+                  <Component id="textAreaScrollpane" alignment="1" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="errIcon" min="-2" pref="76" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -44,7 +44,7 @@
                               <Component id="localizedMessage" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane2" max="32767" attributes="0"/>
+                          <Component id="errorScrollpane" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -60,7 +60,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="errIcon" min="-2" pref="76" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="jScrollPane2" min="-2" max="-2" attributes="0"/>
+                      <Component id="errorScrollpane" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="localizedMessage" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -72,7 +72,7 @@
                   <Component id="continueButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="172" max="-2" attributes="0"/>
+              <Component id="textAreaScrollpane" min="-2" pref="172" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="footer" min="-2" max="-2" attributes="0"/>
           </Group>
@@ -80,7 +80,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+    <Container class="javax.swing.JScrollPane" name="textAreaScrollpane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
@@ -152,7 +152,7 @@
         </Property>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+    <Container class="javax.swing.JScrollPane" name="errorScrollpane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="null"/>
@@ -165,7 +165,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTextArea" name="jTextArea1">
+        <Component class="javax.swing.JTextArea" name="errorArea">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="columns" type="int" value="20"/>

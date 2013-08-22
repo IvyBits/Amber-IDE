@@ -116,6 +116,7 @@ public class ErrorHandler extends javax.swing.JDialog {
     public ErrorHandler(JFrame parent, Throwable t, Thread th) {
         super(parent, true);
         initComponents();
+        detailsButtonActionPerformed(null); // Hide stacktrace area
 
         err = th;
         thorn = t;
@@ -145,7 +146,7 @@ public class ErrorHandler extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        textAreaScrollpane = new javax.swing.JScrollPane();
         stackArea = new javax.swing.JTextArea();
         quitButton = new javax.swing.JButton();
         detailsButton = new javax.swing.JButton();
@@ -153,8 +154,8 @@ public class ErrorHandler extends javax.swing.JDialog {
         localizedMessage = new javax.swing.JLabel();
         footer = new javax.swing.JPanel();
         errIcon = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        errorScrollpane = new javax.swing.JScrollPane();
+        errorArea = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Houston, we have an error.");
@@ -164,7 +165,7 @@ public class ErrorHandler extends javax.swing.JDialog {
         stackArea.setColumns(20);
         stackArea.setRows(5);
         stackArea.setOpaque(false);
-        jScrollPane1.setViewportView(stackArea);
+        textAreaScrollpane.setViewportView(stackArea);
 
         quitButton.setText("Quit");
         quitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -203,21 +204,21 @@ public class ErrorHandler extends javax.swing.JDialog {
         errIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         errIcon.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
 
-        jScrollPane2.setBorder(null);
-        jScrollPane2.setWheelScrollingEnabled(false);
+        errorScrollpane.setBorder(null);
+        errorScrollpane.setWheelScrollingEnabled(false);
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
-        jTextArea1.setLineWrap(true);
-        jTextArea1.setText("We've encountered an error. Sorry. If you click Continue, the application will ignore this error and attempt to continue. If you click Quit, the application will close immediately.");
-        jTextArea1.setWrapStyleWord(true);
-        jTextArea1.setAlignmentX(0.0F);
-        jTextArea1.setAlignmentY(0.0F);
-        jTextArea1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jTextArea1.setFocusable(false);
-        jTextArea1.setOpaque(false);
-        jScrollPane2.setViewportView(jTextArea1);
+        errorArea.setEditable(false);
+        errorArea.setColumns(20);
+        errorArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        errorArea.setLineWrap(true);
+        errorArea.setText("We've encountered an error. Sorry. If you click Continue, the application will ignore this error and attempt to continue. If you click Quit, the application will close immediately.");
+        errorArea.setWrapStyleWord(true);
+        errorArea.setAlignmentX(0.0F);
+        errorArea.setAlignmentY(0.0F);
+        errorArea.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        errorArea.setFocusable(false);
+        errorArea.setOpaque(false);
+        errorScrollpane.setViewportView(errorArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -232,7 +233,7 @@ public class ErrorHandler extends javax.swing.JDialog {
                         .addComponent(continueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(quitButton, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(textAreaScrollpane, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(errIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -240,7 +241,7 @@ public class ErrorHandler extends javax.swing.JDialog {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(localizedMessage)
                                 .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jScrollPane2))))
+                            .addComponent(errorScrollpane))))
                 .addContainerGap())
             .addComponent(footer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -251,7 +252,7 @@ public class ErrorHandler extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(errIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(errorScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(localizedMessage)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -260,7 +261,7 @@ public class ErrorHandler extends javax.swing.JDialog {
                     .addComponent(quitButton)
                     .addComponent(continueButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(textAreaScrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(footer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -327,7 +328,7 @@ public class ErrorHandler extends javax.swing.JDialog {
                         thread.setDaemon(err.isDaemon());
                         thread.setName(err.getName());
                         thread.start();
-                    } catch (Exception ignored) { 
+                    } catch (Exception ignored) {
                     }
                 }
             } catch (Exception ex) {
@@ -340,7 +341,7 @@ public class ErrorHandler extends javax.swing.JDialog {
 
     private void detailsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_detailsButtonActionPerformed
         stackArea.setVisible(!stackArea.isVisible());
-        jScrollPane1.setVisible(!jScrollPane1.isVisible());
+        textAreaScrollpane.setVisible(!textAreaScrollpane.isVisible());
         pack();
     }//GEN-LAST:event_detailsButtonActionPerformed
 
@@ -385,12 +386,12 @@ public class ErrorHandler extends javax.swing.JDialog {
     private javax.swing.JButton continueButton;
     private javax.swing.JButton detailsButton;
     private javax.swing.JLabel errIcon;
+    private javax.swing.JTextArea errorArea;
+    private javax.swing.JScrollPane errorScrollpane;
     private javax.swing.JPanel footer;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel localizedMessage;
     private javax.swing.JButton quitButton;
     private javax.swing.JTextArea stackArea;
+    private javax.swing.JScrollPane textAreaScrollpane;
     // End of variables declaration//GEN-END:variables
 }
