@@ -31,3 +31,8 @@
 .idea/
 
 *.DS_Store
+*.obj
+*.exp
+*.lib
+*.exe
+*.log
