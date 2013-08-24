@@ -73,6 +73,16 @@ public class OS {
         return cdata;
     }
 
+    public static String getSystemFontName() {
+        if (amberosLoaded) {
+            switch (getPlatform()) {
+                case WINDOWS:
+                    return Win.getSystemFontName();
+            }
+        }
+        return UIManager.getString("Label.font");
+    }
+
     public static Platform getPlatform() {
         return Platform.getPlatform();
     }
@@ -80,15 +90,6 @@ public class OS {
     public static boolean is64Bit() {
         String osArch = System.getProperty("os.arch");
         return "amd64".equals(osArch) || "x86_64".equals(osArch);
-    }
-
-    private static native String nativeGetFont();
-
-    public static String getSystemFontName() {
-        if (!amberosLoaded) {
-            return UIManager.getString("Label.font");
-        }
-        return nativeGetFont();
     }
 
     public static void loadNativeLibraries() {

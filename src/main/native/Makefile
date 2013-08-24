@@ -2,7 +2,7 @@ CC = cl
 CFLAGS = /DWIN32 /DWIN32_LEAN_AND_MEAN /DUNICODE "/I$(JDK)\include" "/I$(JDK)\include\win32"
 LD = link
 LDFLAGS = /dll
-OBJS = amber_os_OS.obj amber_os_filechooser_WinFileDialog.obj
+OBJS = amber_os_Win.obj amber_os_filechooser_WinFileDialog.obj
 LIBS = kernel32.lib user32.lib comdlg32.lib shlwapi.lib
 
 !IF DEFINED(MINI)
@@ -19,7 +19,7 @@ dllmain.obj: dllmain.c
 	$(CC) $(CFLAGS) /c dllmain.c
 
 amber_os_filechooser_WinFileDialog.cpp: amber_os_filechooser_WinFileDialog.h
-amber_os_OS.cpp: amber_os_OS.h
+amber_os_Win.cpp: amber_os_Win.h
 
 .cpp.obj::
 	$(CC) $(CFLAGS) /c $<

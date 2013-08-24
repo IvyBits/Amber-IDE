@@ -21,6 +21,7 @@ public class WinFileDialog implements IFileDialog {
 
     public WinFileDialog(String title, Component parent) {
         this.title = title;
+        setParent(parent);
         if (!OS.osLibrariesLoaded()) {
             throw new UnsupportedOperationException("AmberOS not loaded");
         }

@@ -2,13 +2,18 @@ package amber.os;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
+import javax.swing.UIManager;
 
 /**
  *
  * @author Tudor
  */
 public class Win {
+    private static native String nativeGetFont();
 
+    public static String getSystemFontName() {
+        return nativeGetFont();
+    }
     public static long getHWND(Component component) {
         Class<?> WComponentPeer;
         try {
