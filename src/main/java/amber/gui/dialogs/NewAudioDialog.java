@@ -7,6 +7,8 @@ import amber.data.state.Scope;
 import amber.data.state.State;
 import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.AudioPlayerPanel;
+import amber.os.filechooser.FileDialogFactory;
+import amber.os.filechooser.IFileDialog;
 import amber.swing.UIUtil;
 import java.awt.GridBagLayout;
 import java.io.File;
@@ -20,7 +22,7 @@ import javax.swing.table.TableModel;
  */
 public class NewAudioDialog extends javax.swing.JDialog {
 
-    private JFileChooser browser;
+    private IFileDialog browser;
     private Audio audio;
     @State(Scope.PROJECT)
     private static String lastImportLocation;
@@ -36,16 +38,8 @@ public class NewAudioDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = new JFileChooser("Select audio clip...");
-        browser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        browser.setApproveButtonText("Choose clip");
-        browser.setFileFilter(UIUtil.makeFileFilter(
-                "Audio files (*.wav; *.ogg; *.aiff; *.midi; *.mid)",
-                "wav",
-                "aiff",
-                "ogg",
-                "midi",
-                "mid"));
+        browser = FileDialogFactory.newFileDialog("Select audio clip...", this);
+        browser.setFilter("Audio files (*.wav; *.ogg; *.aiff; *.midi; *.mid)|*.wav;*.aiff;*.ogg;*.midi;*.mid");
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);
         previewGroup.setLayout(new GridBagLayout());
@@ -307,11 +301,11 @@ public class NewAudioDialog extends javax.swing.JDialog {
         if (lastImportLocation != null) {
             File dir = new File(lastImportLocation);
             if (dir.exists() && dir.isDirectory()) {
-                browser.setCurrentDirectory(dir);
+                browser.setInitial(dir);
             }
         }
-        if (browser.showOpenDialog(Amber.getUI()) == JFileChooser.APPROVE_OPTION) {
-            audioLocationField.setText(browser.getSelectedFile().getAbsolutePath());
+        if (browser.show()) {
+            audioLocationField.setText(browser.getFile().getAbsolutePath());
             updatePreview();
             checkCreateableStatus();
         }

@@ -3,10 +3,12 @@ package amber.gui.dialogs;
 import amber.Amber;
 import amber.data.state.Scope;
 import amber.data.state.State;
-import amber.gl.Natives;
+import amber.os.Natives;
 import amber.gl.model.obj.WavefrontObject;
 import amber.gui.editor.map.ModelSelector;
 import amber.gui.misc.ErrorHandler;
+import amber.os.filechooser.FileDialogFactory;
+import amber.os.filechooser.IFileDialog;
 import amber.swing.UIUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +22,7 @@ import javax.swing.table.TableModel;
  */
 public class NewModelDialog extends javax.swing.JDialog {
 
-    private JFileChooser browser;
+    private IFileDialog browser;
     private WavefrontObject model;
     @State(Scope.PROJECT)
     private static String lastImportLocation;
@@ -36,12 +38,8 @@ public class NewModelDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = new JFileChooser("Select model...");
-        browser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        browser.setApproveButtonText("Choose model");
-        browser.setFileFilter(UIUtil.makeFileFilter(
-                "Models files (*.obj)",
-                "obj"));
+        browser = FileDialogFactory.newFileDialog("Select model...", this);
+        browser.setFilter("Model files (*obj)|*.obj");
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);
     }
@@ -313,36 +311,17 @@ public class NewModelDialog extends javax.swing.JDialog {
         if (lastImportLocation != null) {
             File dir = new File(lastImportLocation);
             if (dir.exists() && dir.isDirectory()) {
-                browser.setCurrentDirectory(dir);
+                browser.setInitial(dir);
             }
         }
-        if (browser.showOpenDialog(Amber.getUI()) == JFileChooser.APPROVE_OPTION) {
-            audioLocationField.setText(browser.getSelectedFile().getAbsolutePath());
+        setEnabled(false);
+        if (browser.show()) {
+            audioLocationField.setText(browser.getFile().getAbsolutePath());
             updatePreview();
             checkCreateableStatus();
         }
+        setEnabled(true);
     }//GEN-LAST:event_browseButtonActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        UIUtil.makeNative();
-        Natives.unpack();
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                NewModelDialog dialog = new NewModelDialog(new javax.swing.JFrame());
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioGroup;
     private javax.swing.JTextField audioLocationField;

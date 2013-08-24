@@ -2,8 +2,8 @@
 #include <jni.h>
 /* Header for class amber_os_OpenFileDialog */
 
-#ifndef _Included_amber_os_OpenFileDialog
-#define _Included_amber_os_OpenFileDialog
+#ifndef _Included_amber_os_filechooser_WinFileDialog
+#define _Included_amber_os_filechooser_WinFileDialog
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +12,7 @@ extern "C" {
  * Method:    showNative
  * Signature: ()Z
  */
-JNIEXPORT jboolean JNICALL Java_amber_os_OpenFileDialog_showNative
+JNIEXPORT jboolean JNICALL Java_amber_os_filechooser_WinFileDialog_showNative
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

@@ -1,11 +1,11 @@
-#include "amber_os_Utilities.h"
+#include "amber_os_OS.h"
 #include <windows.h>
 #include <shlwapi.h>
 #include <commdlg.h>
 
 #define OFDERROR { ret = false; goto cleanup; }
 
-extern "C" JNIEXPORT jboolean JNICALL Java_amber_os_OpenFileDialog_showNative(JNIEnv *env, jobject self) {
+extern "C" JNIEXPORT jboolean JNICALL Java_amber_os_filechooser_WinFileDialog_showNative(JNIEnv *env, jobject self) {
     OPENFILENAME ofn = { sizeof(OPENFILENAME), 0 };
     jclass cls = env->GetObjectClass(self);
     jfieldID fid;

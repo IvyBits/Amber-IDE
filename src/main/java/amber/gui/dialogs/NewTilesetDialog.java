@@ -4,7 +4,9 @@ import amber.Amber;
 import amber.data.res.Tileset;
 import amber.data.state.Scope;
 import amber.data.state.State;
-import amber.swing.UIUtil;
+import amber.os.filechooser.FileDialogFactory;
+import amber.os.filechooser.IFileDialog;
+import amber.os.filechooser.WinFileDialog;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,7 +19,7 @@ import java.io.File;
  */
 public class NewTilesetDialog extends javax.swing.JDialog {
 
-    private JFileChooser browser;
+    private IFileDialog browser;
     @State(Scope.PROJECT)
     private static String lastImportLocation;
 
@@ -32,15 +34,8 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = new JFileChooser("Select tileset image...");
-        browser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // ech
-        browser.setApproveButtonText("Choose image");
-        browser.setFileFilter(UIUtil.makeFileFilter(
-                "Image files (*.png; *.jpeg; *.jpg; *.gif)",
-                "png",
-                "jpeg",
-                "jpg",
-                "gif"));
+        browser = FileDialogFactory.newFileDialog("Select tileset image...", this);
+        browser.setFilter("Image files (*.png; *.jpeg; *.jpg; *.gif)|*.png;*.jpg;*.jpeg;*.gif");
     }
 
     public NewTilesetDialog(java.awt.Frame parent, File image) {
@@ -353,14 +348,16 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         if (lastImportLocation != null) {
             File dir = new File(lastImportLocation);
             if (dir.exists() && dir.isDirectory()) {
-                browser.setCurrentDirectory(dir);
+                browser.setInitial(dir);
             }
         }
-        if (browser.showOpenDialog(Amber.getUI()) == JFileChooser.APPROVE_OPTION) {
-            imageLocationField.setText(browser.getSelectedFile().getAbsolutePath());
+        setEnabled(false);
+        if (browser.show()) {
+            imageLocationField.setText(browser.getFile().getAbsolutePath());
             updatePreview();
             checkCreateableStatus();
         }
+        setEnabled(true);
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void imageLocationFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imageLocationFieldKeyTyped

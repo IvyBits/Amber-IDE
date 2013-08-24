@@ -1,7 +1,7 @@
 package amber;
 
 import amber.data.io.LoggedOutputStream;
-import amber.data.OS;
+import amber.os.OS;
 import amber.data.res.xml.XMLResourceManager;
 import amber.data.Workspace;
 import amber.data.state.IStateManager;
@@ -10,7 +10,7 @@ import amber.data.state.Scope;
 import amber.data.state.node.IState;
 import amber.data.state.node.SimpleState;
 import amber.data.state.xml.XMLStateManager;
-import amber.gl.Natives;
+import amber.os.Natives;
 import amber.gui.AmberUIManager;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.map.MapEditorPanel;
@@ -50,6 +50,7 @@ public class Amber {
      */
     public static void main(final String[] args) throws FileNotFoundException {
         try {
+            OS.loadNativeLibraries();
             Storage.init();
             //setupLogging();
             UIUtil.makeNative();
@@ -58,7 +59,6 @@ public class Amber {
                 ErrorHandler.init();
             } catch (Exception e) {
             }
-            Natives.unpack();
             ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -97,7 +97,7 @@ public class Amber {
     protected static String saveLastProject() {
         return workspace != null ? workspace.getRootDirectory().getAbsolutePath() : null;
     }
-    
+
     private static void setupFileViewers() {
         FileViewerPanel.setDefaultPanel(ScriptEditorPanel.class);
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
