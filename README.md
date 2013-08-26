@@ -3,6 +3,8 @@ Amber IDE
 
 A Java IDE for streamlined tile-based game development.
 
+[![Build Status](http://ci.amberide.tk/buildStatus/icon?job=Amber IDE)](http://ci.amberide.tk/job/Amber%20IDE/)
+
 Website: [http://amberide.tk](http://amberide.tk)  
 Issues: [http://www.amberide.tk/projects/amber-ide/issues](http://www.amberide.tk/projects/amber-ide/issues)
 
