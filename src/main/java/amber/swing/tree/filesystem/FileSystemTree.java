@@ -1,7 +1,5 @@
 package amber.swing.tree.filesystem;
 
-import amber.data.io.FileIO;
-import amber.swing.Dialogs;
 import amber.swing.tree.Trees;
 import java.awt.Component;
 import java.awt.Point;
@@ -10,8 +8,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,25 +15,17 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TooManyListenersException;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import amber.swing.tree.filesystem.FileTreeModel.FileTreeNode;
 import java.awt.AWTEvent;
-import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.Box;
 
 public class FileSystemTree extends JTree {
 
@@ -51,7 +39,6 @@ public class FileSystemTree extends JTree {
 
         public void dragOver(DropTargetDragEvent dtde) {
             Point e = dtde.getLocation();
-            // this.as.autoscroll(e);
             TreePath tp = getPathForLocation(e.x, e.y);
             if (tp != null) {
                 draggedNode = ((FileTreeNode) tp.getLastPathComponent());
@@ -100,18 +87,6 @@ public class FileSystemTree extends JTree {
                     FileTreeNode node = (FileTreeNode) value;
                     File file = node.getFile();
                     if (file != null) {
-                        /*for (FileTreeAdapter ad : adapters) {
-                         if (!ad.shouldDisplay(node.file)) {
-                         JLabel view = new JLabel();
-                         view.setVisible(false);
-                         view.setEnabled(false);
-                         view.setMaximumSize(new Dimension(0, 0));
-                         view.setMinimumSize(new Dimension(0, 0));
-                         view.setPreferredSize(new Dimension(0, 0));
-                         return Box.createVerticalStrut(1);
-                         //break _outer;
-                         }
-                         }*/
                         String ext = "";
                         String name = file.getName();
 
@@ -169,7 +144,7 @@ public class FileSystemTree extends JTree {
         });
     }
 
-    public void addFileTreeListener(FileTreeAdapter ftl) {
+    public void addFileTreeAdapter(FileTreeAdapter ftl) {
         adapters.add(ftl);
         addTreeExpansionListener(ftl);
         addTreeSelectionListener(ftl);
@@ -287,6 +262,7 @@ public class FileSystemTree extends JTree {
         return files;
     }
 
+    @Override
     public void addNotify() {
         super.addNotify();
         try {
@@ -295,6 +271,7 @@ public class FileSystemTree extends JTree {
         }
     }
 
+    @Override
     public void removeNotify() {
         super.removeNotify();
         getDropTarget().removeDropTargetListener(dragExecutor);
