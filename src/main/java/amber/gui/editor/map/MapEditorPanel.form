@@ -336,8 +336,6 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eraseButtonActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JToolBar$Separator" name="jSeparator1">
-                </Component>
                 <Component class="javax.swing.JToggleButton" name="fillButton">
                   <Properties>
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">

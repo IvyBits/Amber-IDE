@@ -229,7 +229,6 @@ public class MapEditorPanel extends FileViewerPanel {
         toolBar = new javax.swing.JToolBar();
         brushButton = new javax.swing.JToggleButton();
         eraseButton = new javax.swing.JToggleButton();
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         fillButton = new javax.swing.JToggleButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         selectButton = new javax.swing.JToggleButton();
@@ -368,7 +367,6 @@ public class MapEditorPanel extends FileViewerPanel {
             }
         });
         toolBar.add(eraseButton);
-        toolBar.add(jSeparator1);
 
         fillButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/MapEditor.Fill.png"))); // NOI18N
         fillButton.setToolTipText("Fill tool...");
@@ -476,7 +474,6 @@ public class MapEditorPanel extends FileViewerPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JTable jTable1;
     private javax.swing.JPanel mapBack;
