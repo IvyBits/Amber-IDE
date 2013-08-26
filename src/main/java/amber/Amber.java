@@ -10,7 +10,6 @@ import amber.data.state.Scope;
 import amber.data.state.node.IState;
 import amber.data.state.node.SimpleState;
 import amber.data.state.xml.XMLStateManager;
-import amber.os.Natives;
 import amber.gui.AmberUIManager;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.map.MapEditorPanel;
@@ -122,7 +121,7 @@ public class Amber {
         states.registerMacro("${PROJECT.DIR}", workspace.getDataDirectory().getAbsolutePath());
         states.clearStates(Scope.PROJECT);
         states.loadStates(Scope.PROJECT);
-        main.setTreeViewRoot(root);
+        main.loadProject(workspace);
         main.setTitle(String.format("Amber IDE (%s)", root.getAbsolutePath()));
         Storage.recentProjects.put(workspace.getRootDirectory().getAbsolutePath(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
     }
@@ -214,7 +213,7 @@ public class Amber {
      * @param file the file to be opened
      */
     public static void openFileTab(File file) {
-        main.addFileTab(file);
+        main.openFile(file);
     }
 
     public static void openToolTab(ToolDefinition tool) {

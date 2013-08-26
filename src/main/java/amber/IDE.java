@@ -1,105 +1,53 @@
 package amber;
 
-import amber.data.state.LazyState;
-import amber.data.state.Scope;
-import amber.data.state.node.IState;
+import amber.data.Workspace;
+import amber.gui.MainContentPanel;
 import amber.gui.dialogs.AboutDialog;
 import amber.gui.dialogs.JFontChooser;
 import amber.gui.dialogs.NewProjectDialog;
 import amber.gui.dialogs.ResourceDialog;
 import amber.gui.editor.FileViewerPanel;
-import amber.gui.editor.map.MapEditorPanel;
-import amber.gui.editor.text.ScriptEditorPanel;
-import amber.gui.editor.tool.ToolPanel;
-import amber.gui.misc.FileTreeExplorer;
 import amber.gui.misc.StartPagePanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
-import amber.swing.tabs.CloseableTabbedPane;
-import amber.swing.tabs.TabCloseListener;
-import amber.swing.tree.SmartExpander;
-import amber.swing.tree.Trees;
 import amber.tool.ToolDefinition;
-import amber.tool.ToolManifest;
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.BorderLayout;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.lwjgl.LWJGLException;
 
 /**
  * @author Tudor
  */
 public class IDE extends javax.swing.JFrame {
 
-    protected HashMap<Component, String> activeFiles = new HashMap<Component, String>();
-
-    @LazyState(scope = Scope.PROJECT, name = "ProjectTreeExpansion")
-    protected String saveTreeExpansion() {
-        return Trees.getExpansionState(treeView, 0);
-    }
+    private MainContentPanel content;
 
     /**
      * Creates new form Applet
      */
     public IDE() {
         initComponents();
-
-        treeView.addFileTreeListener(new FileTreeExplorer(treeView));
-        SmartExpander.installOn(treeView);
-        activeFilesTabbedPane.add("Start Page", new StartPagePanel());
-        activeFilesTabbedPane.addTabCloseListener(new TabCloseListener() {
-            public void tabClosed(String title, Component comp, CloseableTabbedPane pane) {
-                if (activeFiles.containsKey(comp)) {
-                    Amber.getWorkspace().getOpenedFiles().remove(activeFiles.remove(comp));
-                }
-            }
-        });
-        treeView.setRootVisible(true);
+        contentPane.add(BorderLayout.CENTER, new StartPagePanel());
     }
 
-    void setTreeViewRoot(File root) {
-        Amber.getStateManager().unregisterStateOwner(this);
-        treeView.setRoot(root);
-        IState treeState = Amber.getStateManager().getState(Scope.PROJECT, "ProjectTreeExpansion");
-
-        if (treeState != null) {
-            Trees.restoreExpanstionState(treeView, 0, (String) treeState.get());
-        }
-        Amber.getStateManager().registerStateOwner(this);
+    public void loadProject(Workspace space) {
+        contentPane.removeAll();
+        contentPane.add(BorderLayout.CENTER, content = new MainContentPanel(space));
     }
 
     void addToolTab(final ToolDefinition tool) {
-        ToolPanel toolPanel = new ToolPanel(tool);
-        ToolManifest mf = tool.getManifest();
-        try {
-            activeFilesTabbedPane.add(mf.name(), toolPanel);
-        } catch (RuntimeException ex) {
-            activeFilesTabbedPane.remove(toolPanel);
-            throw ex; // Propagate to the error handler in FileTreeExplorer
-        }
-        activeFilesTabbedPane.setToolTipTextAt(activeFilesTabbedPane.getTabCount() - 1,
-                String.format("<html>"
-                + "<b>%s</b> v%s by %s"
-                + "<br/>"
-                + "&nbsp;&nbsp;&nbsp;%s"
-                + "</html>", mf.name(), mf.version(), Arrays.toString(mf.authors()), mf.description()));
-        activeFilesTabbedPane.setSelectedIndex(activeFilesTabbedPane.getTabCount() - 1);
+        content.addToolTab(tool);
     }
 
-    void addFileTab(final File file) {
+    void openFile(final File file) {
         FileViewerPanel editor;
         try {
             editor = FileViewerPanel.fileViewerPanelFor(file);
             for (JMenu menu : editor.getContextMenus()) {
                 System.out.println("adding menu " + menu);
-                menuBar.add(menu, menuBar.getComponentCount()-1); // Help menu should always be last
+                menuBar.add(menu, menuBar.getComponentCount() - 1); // Help menu should always be last
                 menuBar.revalidate();
             }
         } catch (Exception ex) {
@@ -117,15 +65,7 @@ public class IDE extends javax.swing.JFrame {
             }
             return;
         }
-
-        try {
-            activeFilesTabbedPane.add(file.getName(), editor);
-        } catch (RuntimeException ex) {
-            activeFilesTabbedPane.remove(editor);
-            throw ex; // Propagate to the error handler in FileTreeExplorer
-        }
-        activeFiles.put(editor, file.getAbsolutePath());
-        activeFilesTabbedPane.setSelectedIndex(activeFilesTabbedPane.getTabCount() - 1);
+        content.addFileTab(editor);
     }
 
     /**
@@ -152,12 +92,9 @@ public class IDE extends javax.swing.JFrame {
         resourceButton = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         headerSeparator = new javax.swing.JSeparator();
-        projectDivider = new amber.swing.misc.ThinSplitPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        treeView = new amber.swing.tree.filesystem.FileSystemTree();
-        activeFilesTabbedPane = new amber.swing.tabs.CloseableTabbedPane();
         footerSeparator = new javax.swing.JSeparator();
         memoryMonitorProgressBar1 = new amber.gui.misc.MemoryMonitorProgressBar();
+        contentPane = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newProjectItem = new javax.swing.JMenuItem();
@@ -268,16 +205,7 @@ public class IDE extends javax.swing.JFrame {
         jToolBar1.add(resourceButton);
         jToolBar1.add(jSeparator2);
 
-        projectDivider.setDividerLocation(150);
-        projectDivider.setDividerSize(0);
-        projectDivider.setMinimumSize(new java.awt.Dimension(0, 0));
-
-        jScrollPane1.setBorder(null);
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(0, 0));
-        jScrollPane1.setViewportView(treeView);
-
-        projectDivider.setLeftComponent(jScrollPane1);
-        projectDivider.setRightComponent(activeFilesTabbedPane);
+        contentPane.setLayout(new java.awt.BorderLayout());
 
         fileMenu.setText(bundle.getString("IDE.fileMenu.text")); // NOI18N
 
@@ -379,13 +307,15 @@ public class IDE extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(headerSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(projectDivider, javax.swing.GroupLayout.DEFAULT_SIZE, 982, Short.MAX_VALUE)
             .addComponent(footerSeparator)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(memoryMonitorProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 821, Short.MAX_VALUE)
+                .addGap(14, 14, 14))
+            .addComponent(headerSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(contentPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -393,8 +323,8 @@ public class IDE extends javax.swing.JFrame {
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(headerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addComponent(projectDivider, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(footerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -462,10 +392,9 @@ public class IDE extends javax.swing.JFrame {
             SwingUtilities.updateComponentTreeUI(this);
         }
     }//GEN-LAST:event_fontItemActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItem;
-    private amber.swing.tabs.CloseableTabbedPane activeFilesTabbedPane;
+    private javax.swing.JPanel contentPane;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenuItem fontItem;
     private javax.swing.JSeparator footerSeparator;
@@ -474,7 +403,6 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar2;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -494,7 +422,6 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JMenuItem newTilesetItem;
     private javax.swing.JButton openButton;
     private javax.swing.JMenuItem openItem;
-    private amber.swing.misc.ThinSplitPane projectDivider;
     private javax.swing.JButton resourceButton;
     private javax.swing.JMenu resourcesItem;
     private javax.swing.JMenuItem saveAsItem;
@@ -502,6 +429,5 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveItem;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JMenuItem synchItem;
-    private amber.swing.tree.filesystem.FileSystemTree treeView;
     // End of variables declaration//GEN-END:variables
 }
