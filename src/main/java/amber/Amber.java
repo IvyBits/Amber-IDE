@@ -121,6 +121,7 @@ public class Amber {
         states.registerMacro("${PROJECT.DIR}", workspace.getDataDirectory().getAbsolutePath());
         states.clearStates(Scope.PROJECT);
         states.loadStates(Scope.PROJECT);
+        Settings.load();
         main.loadProject(workspace);
         main.setTitle(String.format("Amber IDE (%s)", root.getAbsolutePath()));
         Storage.recentProjects.put(workspace.getRootDirectory().getAbsolutePath(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
