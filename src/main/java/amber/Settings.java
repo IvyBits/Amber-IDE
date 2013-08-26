@@ -16,11 +16,13 @@ public class Settings {
 
     public static final int SETTINGS = 2;
 
+    static {
+        Scope.defineScope(SETTINGS, "${PROJECT.DIR}", "settings");
+    }
+
     public static void load() throws Exception {
         String _font = OS.getSystemFontName();
         defaultFont = _font;
-
-        Scope.defineScope(SETTINGS, "${PROJECT.DIR}", "settings");
         Amber.getStateManager().clearStates(SETTINGS);
         Amber.getStateManager().loadStates(SETTINGS);
         IState state = Amber.getStateManager().getState(SETTINGS, "uiFont");
