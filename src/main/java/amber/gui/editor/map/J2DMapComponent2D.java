@@ -29,6 +29,15 @@ import javax.swing.*;
 import static amber.gui.editor.map.MapContext.MODE_BRUSH;
 import static amber.gui.editor.map.MapContext.MODE_ERASE;
 import static amber.gui.editor.map.MapContext.MODE_FILL;
+import amber.swing.misc.TransferableImage;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  * @author xiaomao
@@ -256,6 +265,17 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         } else if (e.isControlDown()) {
             switch (e.getKeyCode()) {
+                case KeyEvent.VK_I:
+                    BufferedImage shot = new BufferedImage(getWidth(), getHeight(),BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = shot.createGraphics();
+                    g2.setClip(getBounds());
+                    paintComponent(g2);
+                    TransferableImage trans = new TransferableImage(shot);
+                    Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    c.setContents(trans, new ClipboardOwner() {
+                        public void lostOwnership(Clipboard clipboard, Transferable contents) {
+                        }
+                    });
                 case KeyEvent.VK_Z:
                     if (!context.undoStack.empty()) {
                         context.redoStack.push(context.map.clone());
