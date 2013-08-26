@@ -36,7 +36,6 @@ public class XMLStateManager extends AbstractStateManager {
             if (state instanceof FieldState) {
                 FieldState fs = (FieldState) state;
                 Object data = fs.get();
-                System.out.println(fs + " data is " + data + " while saving");
                 if (data != null) {
                     Element field = new Element("field");
                     field.addAttribute(new Attribute("path", fs.getName()));
@@ -65,10 +64,17 @@ public class XMLStateManager extends AbstractStateManager {
 
         Scope scope = Scope.predefinedScope(id);
         File output = new File(resolveMacros(scope.location()) + File.separator + scope.name() + ".xml");
+       
         output.mkdirs();
-        output.delete();
-        output.createNewFile();
-        new FileOutputStream(output).write(XML.format(buffer.toString("UTF-8")).getBytes());
+        if (!output.delete()) {
+            System.err.println("Failed to delete states file...");
+        }
+        if (!output.createNewFile()) {
+            System.err.println("Failed to create states file...");
+        }
+        FileOutputStream fos = new FileOutputStream(output);
+        fos.write(XML.format(buffer.toString("UTF-8")).getBytes());
+        fos.close();
     }
 
     @Override
@@ -95,7 +101,6 @@ public class XMLStateManager extends AbstractStateManager {
                                 try {
                                     data = XML.fromXML(fieldState.getChildElements("java").get(0).toXML());
                                 } catch (Exception e) {
-                                    System.err.println("Failed to read field state!");
                                     e.printStackTrace();
                                     continue;
                                 }

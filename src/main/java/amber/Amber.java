@@ -77,7 +77,6 @@ public class Amber {
             }
             states.registerMacro("${GLOBAL.DIR}", root.getAbsolutePath());
             loadStates(Scope.GLOBAL);
-            System.out.println(states.getState(Scope.GLOBAL, "LastProjectDirectory"));
 
             setupFileViewers();
 

@@ -150,10 +150,8 @@ public abstract class AbstractStateManager implements IStateManager {
 
     @Override
     public void addState(int scope, IState state) {
-        System.out.println("Adding " + state + " state");
         IState pre = getState(scope, state.getName());
         if (pre != null) {
-            System.out.println("Removed " + pre);
             removeState(scope, pre);
         }
         states.get(scope).add(state);
