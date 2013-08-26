@@ -1,5 +1,5 @@
 CC = cl
-CFLAGS = /DWIN32 /DWIN32_LEAN_AND_MEAN /DUNICODE "/I$(JDK)\include" "/I$(JDK)\include\win32"
+CFLAGS = /DWIN32 /DWIN32_LEAN_AND_MEAN /DUNICODE
 LD = link
 LDFLAGS = /dll
 OBJS = amber_os_Win.obj amber_os_filechooser_WinFileDialog.obj
