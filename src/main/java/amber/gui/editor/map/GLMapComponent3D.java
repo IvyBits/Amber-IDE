@@ -1,17 +1,11 @@
 package amber.gui.editor.map;
 
 import amber.Amber;
-import amber.data.math.Angles;
-import amber.data.res.Tileset;
-import amber.data.res.Tileset.TileSprite;
-import amber.data.map.Direction;
-import static amber.data.map.Direction.*;
 import amber.data.map.Layer;
 import amber.data.map.Layer3D;
 import amber.data.map.LevelMap;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
-import amber.data.map.Tile3D.Angle;
 import static amber.data.map.Tile3D.Angle.*;
 import amber.data.map.TileModel;
 import amber.data.sparse.SparseMatrix;
@@ -28,29 +22,20 @@ import amber.gl.camera.EulerCamera;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
 import static amber.gui.editor.map.MapContext.*;
-import amber.gui.editor.map.tool._2d.Brush2D;
-import amber.gui.editor.map.tool._2d.Eraser2D;
-import amber.gui.editor.map.tool._2d.Fill2D;
-import amber.gui.editor.map.tool._2d.Tool2D;
 import amber.gui.editor.map.tool._3d.Brush3D;
 import amber.gui.editor.map.tool._3d.Eraser3D;
 import amber.gui.editor.map.tool._3d.Fill3D;
 import amber.gui.editor.map.tool._3d.Tool3D;
 import amber.input.AbstractMouse;
 import amber.swing.MenuBuilder;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
@@ -58,7 +43,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.util.vector.Vector2f;
 import static amber.input.AbstractKeyboard.*;
 import static amber.input.AbstractMouse.*;
 import java.awt.BorderLayout;
@@ -181,12 +165,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     @Override
     protected void doKey(int keycode) {
         switch (keycode) {
-            case Keyboard.KEY_MULTIPLY:
-                currentAngle = currentAngle == _45 ? _90 : (currentAngle == _180 ? _45 : currentAngle);
-                break;
-            case Keyboard.KEY_DIVIDE:
-                currentAngle = currentAngle == _45 ? _180 : (currentAngle == _90 ? _45 : currentAngle);
-                break;
             case Keyboard.KEY_SUBTRACT:
                 if (cursorPos.y > 0) {
                     cursorPos.y--;
@@ -196,6 +174,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 cursorPos.y++;
                 break;
         }
+    }
+
+    @Override
+    protected void doScroll(int delta) {
+        currentTool().doScroll(delta);
     }
 
     /**
