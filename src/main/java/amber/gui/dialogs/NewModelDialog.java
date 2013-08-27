@@ -50,7 +50,8 @@ public class NewModelDialog extends javax.swing.JDialog {
         }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                createButton.setEnabled(new File(audioLocationField.getText()).exists() && !nameField.getText().isEmpty());
+                createButton.setEnabled(new File(modelLocationField.getText()).exists() && !nameField.getText().isEmpty());
+                getRootPane().setDefaultButton(createButton);
             }
         });
     }
@@ -58,7 +59,7 @@ public class NewModelDialog extends javax.swing.JDialog {
     private void updatePreview() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                final File dir = new File(audioLocationField.getText());
+                final File dir = new File(modelLocationField.getText());
                 if (dir.exists()) {
                     UIUtil.setTreeEnabled(detailsTable, true);
 
@@ -110,8 +111,8 @@ public class NewModelDialog extends javax.swing.JDialog {
         detailsTable = new javax.swing.JTable();
         audioGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
-        audioLocationField = new javax.swing.JTextField();
-        nameField = new javax.swing.JTextField();
+        modelLocationField = new amber.swing.textbox.HintTextField();
+        nameField = new amber.swing.textbox.HintTextField();
         browseButton = new javax.swing.JButton();
         clipLabel = new javax.swing.JLabel();
 
@@ -194,12 +195,14 @@ public class NewModelDialog extends javax.swing.JDialog {
 
         nameLabel.setText(bundle.getString("NewTilesetDialog.nameLabel.text")); // NOI18N
 
-        audioLocationField.addKeyListener(new java.awt.event.KeyAdapter() {
+        modelLocationField.setHint("Model path...");
+        modelLocationField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                audioLocationFieldKeyTyped(evt);
+                modelLocationFieldKeyTyped(evt);
             }
         });
 
+        nameField.setHint("Type in a name for model...");
         nameField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 nameFieldKeyTyped(evt);
@@ -227,10 +230,10 @@ public class NewModelDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(audioGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(audioGroupLayout.createSequentialGroup()
-                        .addComponent(audioLocationField)
+                        .addComponent(modelLocationField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(nameField))
+                    .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         audioGroupLayout.setVerticalGroup(
@@ -242,7 +245,7 @@ public class NewModelDialog extends javax.swing.JDialog {
                         .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(audioGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(audioLocationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(modelLocationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(browseButton)
                             .addComponent(clipLabel)))
                     .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -292,16 +295,16 @@ public class NewModelDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
-        File file = new File(audioLocationField.getText());
+        File file = new File(modelLocationField.getText());
         lastImportLocation = file.getParent();
         Amber.getResourceManager().importModel(nameField.getText(), model, file);
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed
 
-    private void audioLocationFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_audioLocationFieldKeyTyped
+    private void modelLocationFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_modelLocationFieldKeyTyped
         updatePreview();
         checkCreateableStatus();
-    }//GEN-LAST:event_audioLocationFieldKeyTyped
+    }//GEN-LAST:event_modelLocationFieldKeyTyped
 
     private void nameFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameFieldKeyTyped
         checkCreateableStatus();
@@ -316,7 +319,7 @@ public class NewModelDialog extends javax.swing.JDialog {
         }
         setEnabled(false);
         if (browser.show()) {
-            audioLocationField.setText(browser.getFile().getAbsolutePath());
+            modelLocationField.setText(browser.getFile().getAbsolutePath());
             updatePreview();
             checkCreateableStatus();
         }
@@ -324,14 +327,14 @@ public class NewModelDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_browseButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioGroup;
-    private javax.swing.JTextField audioLocationField;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel clipLabel;
     private javax.swing.JButton createButton;
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JTable detailsTable;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField modelLocationField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JPanel previewGroup;
     private javax.swing.JLabel previewLabel;

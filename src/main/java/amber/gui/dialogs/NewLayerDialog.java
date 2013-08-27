@@ -56,7 +56,7 @@ public class NewLayerDialog extends javax.swing.JDialog {
         createButton = new javax.swing.JButton();
         mapGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
-        nameField = new javax.swing.JTextField();
+        nameField = new amber.swing.textbox.HintTextField();
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -129,11 +129,7 @@ public class NewLayerDialog extends javax.swing.JDialog {
 
         nameLabel.setText("Name:");
 
-        nameField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                nameFieldKeyTyped(evt);
-            }
-        });
+        nameField.setHint("Type in layer name...");
 
         javax.swing.GroupLayout mapGroupLayout = new javax.swing.GroupLayout(mapGroup);
         mapGroup.setLayout(mapGroupLayout);
@@ -149,11 +145,11 @@ public class NewLayerDialog extends javax.swing.JDialog {
         mapGroupLayout.setVerticalGroup(
             mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mapGroupLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(3, 3, 3)
+                .addGroup(mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameLabel)
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
+                .addGap(6, 6, 6))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -205,9 +201,6 @@ public class NewLayerDialog extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void nameFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameFieldKeyTyped
-        checkCreateableStatus();
-    }//GEN-LAST:event_nameFieldKeyTyped
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton createButton;
     private javax.swing.JButton jButton1;
@@ -219,7 +212,7 @@ public class NewLayerDialog extends javax.swing.JDialog {
     private javax.swing.JPanel mapSizeGroup;
     private javax.swing.JLabel mapWidthLabel;
     private javax.swing.JSpinner mapWidthSpinner;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables
 }

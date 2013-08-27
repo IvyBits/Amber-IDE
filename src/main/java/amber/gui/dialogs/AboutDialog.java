@@ -28,6 +28,7 @@ public class AboutDialog extends javax.swing.JDialog {
         }
         websitePanel.setLayout(new BorderLayout());
         websitePanel.add(website.createRaw().get(0), BorderLayout.WEST);
+        getRootPane().setDefaultButton(closeButton);
     }
 
     /**
@@ -51,6 +52,10 @@ public class AboutDialog extends javax.swing.JDialog {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("amber/Bundle"); // NOI18N
         setTitle(bundle.getString("AboutDialog.title")); // NOI18N
         setModal(true);
+
+        jTabbedPane1.setFocusable(false);
+        jTabbedPane1.setRequestFocusEnabled(false);
+        jTabbedPane1.setVerifyInputWhenFocusTarget(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -122,9 +127,7 @@ public class AboutDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))

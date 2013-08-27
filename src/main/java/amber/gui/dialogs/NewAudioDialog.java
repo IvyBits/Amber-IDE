@@ -52,6 +52,7 @@ public class NewAudioDialog extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 createButton.setEnabled(new File(audioLocationField.getText()).exists() && !nameField.getText().isEmpty());
+                getRootPane().setDefaultButton(createButton);
             }
         });
     }
@@ -108,8 +109,8 @@ public class NewAudioDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         audioGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
-        audioLocationField = new javax.swing.JTextField();
-        nameField = new javax.swing.JTextField();
+        audioLocationField = new amber.swing.textbox.HintTextField();
+        nameField = new amber.swing.textbox.HintTextField();
         browseButton = new javax.swing.JButton();
         clipLabel = new javax.swing.JLabel();
         createButton = new javax.swing.JButton();
@@ -131,12 +132,14 @@ public class NewAudioDialog extends javax.swing.JDialog {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("amber/Bundle"); // NOI18N
         nameLabel.setText(bundle.getString("NewTilesetDialog.nameLabel.text")); // NOI18N
 
+        audioLocationField.setHint("Clip path...");
         audioLocationField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 audioLocationFieldKeyTyped(evt);
             }
         });
 
+        nameField.setHint("Type in a name for clip...");
         nameField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 nameFieldKeyTyped(evt);
@@ -144,6 +147,8 @@ public class NewAudioDialog extends javax.swing.JDialog {
         });
 
         browseButton.setText(bundle.getString("NewTilesetDialog.browseButton.text")); // NOI18N
+        browseButton.setDefaultCapable(false);
+        browseButton.setRequestFocusEnabled(false);
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -167,7 +172,7 @@ public class NewAudioDialog extends javax.swing.JDialog {
                         .addComponent(audioLocationField, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(nameField))
+                    .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         audioGroupLayout.setVerticalGroup(
@@ -203,7 +208,6 @@ public class NewAudioDialog extends javax.swing.JDialog {
 
         detailsScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Details"));
         detailsScrollPane.setMinimumSize(null);
-        detailsScrollPane.setPreferredSize(null);
 
         detailsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -239,8 +243,6 @@ public class NewAudioDialog extends javax.swing.JDialog {
         detailsScrollPane.setViewportView(detailsTable);
 
         previewGroup.setBorder(javax.swing.BorderFactory.createTitledBorder("Preview"));
-        previewGroup.setMinimumSize(null);
-        previewGroup.setPreferredSize(null);
         previewGroup.setLayout(new java.awt.BorderLayout());
 
         previewLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -323,7 +325,7 @@ public class NewAudioDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioGroup;
-    private javax.swing.JTextField audioLocationField;
+    private amber.swing.textbox.HintTextField audioLocationField;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel clipLabel;
@@ -331,7 +333,7 @@ public class NewAudioDialog extends javax.swing.JDialog {
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JTable detailsTable;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JPanel previewGroup;
     private javax.swing.JLabel previewLabel;
