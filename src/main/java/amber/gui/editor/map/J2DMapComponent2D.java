@@ -8,7 +8,6 @@ import amber.data.res.Tileset;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
-import static amber.gui.editor.map.MapContext.*;
 import amber.gui.editor.map.tool._2d.Brush2D;
 import amber.gui.editor.map.tool._2d.Eraser2D;
 import amber.gui.editor.map.tool._2d.Fill2D;
@@ -17,7 +16,6 @@ import amber.gui.misc.ErrorHandler;
 import amber.input.awt.AWTInputMap;
 import amber.swing.MenuBuilder;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -33,11 +31,6 @@ import amber.swing.misc.TransferableImage;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 /**
  * @author xiaomao
