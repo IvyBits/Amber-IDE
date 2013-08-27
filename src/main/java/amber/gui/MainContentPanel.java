@@ -9,6 +9,7 @@ import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.tool.ToolPanel;
 import amber.gui.misc.FileTreeExplorer;
 import amber.swing.tabs.CloseableTabbedPane;
+import amber.swing.tabs.CloseableTabbedPane.CloseableTabComponent;
 import amber.swing.tabs.TabCloseListener;
 import amber.swing.tree.SmartExpander;
 import amber.swing.tree.Trees;
@@ -86,7 +87,9 @@ public class MainContentPanel extends javax.swing.JPanel {
             throw ex; // Propagate to the error handler in FileTreeExplorer
         }
         activeFiles.put(file, file.getFile().getAbsolutePath());
-        getFilesTabbedPane().setSelectedIndex(getFilesTabbedPane().getTabCount() - 1);
+        int i = getFilesTabbedPane().getTabCount() - 1;
+        getFilesTabbedPane().setSelectedIndex(i);
+        ((CloseableTabComponent) getFilesTabbedPane().getTabComponentAt(i)).getTitleLabel().setIcon(file.getTabIcon());
     }
 
     public void addToolTab(ToolDefinition tool) {

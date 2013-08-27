@@ -16,6 +16,7 @@ import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
 import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.TipOfTheDay;
+import amber.gui.viewers.ImageViewerPanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
 import amber.tool.ToolDefinition;
@@ -99,6 +100,7 @@ public class Amber {
     private static void setupFileViewers() {
         FileViewerPanel.setDefaultPanel(ScriptEditorPanel.class);
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
+        FileViewerPanel.registerPanel(ImageViewerPanel.class, "jpg", "jpeg", "png", "gif", "bmp");
     }
 
     private static void restoreLastWorkspace() throws Exception {

@@ -3,8 +3,11 @@ package amber.gui.editor;
 import amber.data.io.FileIO;
 import java.io.File;
 import java.util.HashMap;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -21,6 +24,14 @@ public abstract class FileViewerPanel extends JPanel {
 
     public abstract JMenu[] getContextMenus();
 
+    public File getFile() {
+        return file;
+    }
+    
+    public Icon getTabIcon() {
+        return FileSystemView.getFileSystemView().getSystemIcon(file);
+    }
+    
     public static void registerPanel(Class<? extends FileViewerPanel> panel, String extension) {
         registerPanel(panel, new String[]{extension});
     }
@@ -36,12 +47,10 @@ public abstract class FileViewerPanel extends JPanel {
     }
 
     public static FileViewerPanel fileViewerPanelFor(File file) {
-        System.out.println("!!!!!!!!!!!!!" + FileIO.getFileExtension(file));
         Class<? extends FileViewerPanel> clazz = panels.get(FileIO.getFileExtension(file));
         if (clazz == null) {
             clazz = panels.get(null);
         }
-        System.out.println("Fileviewer for " + file + " is " + clazz);
         if (clazz != null) {
             try {
                 return clazz.getConstructor(File.class).newInstance(file);
