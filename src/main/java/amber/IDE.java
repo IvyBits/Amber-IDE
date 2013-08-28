@@ -15,6 +15,8 @@ import amber.tool.ToolDefinition;
 import java.awt.*;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -32,6 +34,30 @@ public class IDE extends javax.swing.JFrame {
         initComponents();
         contentPane.add(BorderLayout.CENTER, new StartPagePanel());
 
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                for (Component c : content.getFilesTabbedPane().getComponents()) {
+                    if (c instanceof FileViewerPanel && ((FileViewerPanel) c).modified()) {
+                        content.getFilesTabbedPane().setSelectedComponent(c);
+                        switch (JOptionPane.showConfirmDialog(IDE.this,
+                                "Do you want to save the following file:\n" + ((FileViewerPanel) c).getFile().getName(),
+                                "Confirm Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+                            case JOptionPane.YES_OPTION:
+                                ((FileViewerPanel) c).save();
+                                break;
+                            case JOptionPane.NO_OPTION:
+                                break;
+                            case JOptionPane.CANCEL_OPTION:
+                                return;
+                        }
+                    }
+                }
+                setVisible(false);
+                dispose();
+            }
+        });
     }
 
     public void loadProject(Workspace space) {
