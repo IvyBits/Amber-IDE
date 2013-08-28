@@ -34,6 +34,8 @@ public class FileTreeExplorer extends FileTreeAdapter {
     }
 
     private boolean open(TreePath path) {
+        if(path == null)
+            return false;
         File file = ((FileTreeNode) path.getLastPathComponent()).getFile();
         if (!file.isDirectory() && Amber.getWorkspace().getOpenedFiles().add(file.getAbsolutePath())) {
             String name = file.getName();
