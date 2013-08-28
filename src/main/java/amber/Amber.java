@@ -16,6 +16,7 @@ import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
 import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.TipOfTheDay;
+import amber.gui.viewers.AudioViewerPanel;
 import amber.gui.viewers.ImageViewerPanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
@@ -101,6 +102,7 @@ public class Amber {
         FileViewerPanel.setDefaultPanel(ScriptEditorPanel.class);
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
         FileViewerPanel.registerPanel(ImageViewerPanel.class, "jpg", "jpeg", "png", "gif", "bmp");
+        FileViewerPanel.registerPanel(AudioViewerPanel.class, "wav", "midi", "mid", "aiff", "ogg");
     }
 
     private static void restoreLastWorkspace() throws Exception {

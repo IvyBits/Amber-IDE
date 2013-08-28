@@ -85,8 +85,10 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
         stopButton = new javax.swing.JButton();
         openNativeButton = new javax.swing.JButton();
         positionSlider = new javax.swing.JSlider();
-        loopToggle = new javax.swing.JToggleButton();
         soundSlider = new javax.swing.JSlider();
+
+        setMaximumSize(new java.awt.Dimension(144, 79));
+        setMinimumSize(new java.awt.Dimension(144, 79));
 
         playButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/Player.Play.png"))); // NOI18N
         playButton.addActionListener(new java.awt.event.ActionListener() {
@@ -114,15 +116,6 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
         positionSlider.setValue(0);
         positionSlider.setAutoscrolls(true);
 
-        loopToggle.setMaximumSize(new java.awt.Dimension(65, 41));
-        loopToggle.setMinimumSize(new java.awt.Dimension(65, 41));
-        loopToggle.setPreferredSize(new java.awt.Dimension(65, 41));
-        loopToggle.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loopToggleActionPerformed(evt);
-            }
-        });
-
         soundSlider.setOrientation(javax.swing.JSlider.VERTICAL);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -131,18 +124,15 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(positionSlider, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(positionSlider, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addComponent(openNativeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loopToggle, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(openNativeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(soundSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(soundSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
@@ -154,8 +144,7 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
                     .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(openNativeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(soundSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(loopToggle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(soundSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, 0))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -196,11 +185,7 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
         sound.stop();
     }//GEN-LAST:event_stopButtonActionPerformed
 
-    private void loopToggleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loopToggleActionPerformed
-        sound.setLooping(loopToggle.isSelected());
-    }//GEN-LAST:event_loopToggleActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton loopToggle;
     private javax.swing.JButton openNativeButton;
     private javax.swing.JButton playButton;
     private javax.swing.JSlider positionSlider;
