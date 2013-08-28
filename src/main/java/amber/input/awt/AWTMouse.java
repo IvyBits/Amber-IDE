@@ -15,6 +15,7 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ public class AWTMouse {
     private static Point lastPoint = new Point(0, 0), grabEnter;
     private static WeakReference<Component> grabbedParent;
     private static AWTEventListener dispatch;
+    private static int scroll;
 
     public static void create() {
         Toolkit.getDefaultToolkit().addAWTEventListener(dispatch = new AWTEventListener() {
@@ -51,7 +53,7 @@ public class AWTMouse {
                     }
                 }
             }
-        }, AWTEvent.MOUSE_EVENT_MASK);
+        }, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_WHEEL_EVENT_MASK);
     }
 
     public static void destroy() {
@@ -104,12 +106,23 @@ public class AWTMouse {
         return -1;
     }
 
+    public static int getEventDWheel() {
+        ensureCreated();
+        if (currentEvent != null && currentEvent instanceof MouseWheelEvent) {    
+            MouseWheelEvent wheel = ((MouseWheelEvent) currentEvent);
+            int delta = scroll - wheel.getWheelRotation();
+            scroll = 0;
+            return delta;
+        }
+        return 0;
+    }
+
     public static int getEventButton() {
         ensureCreated();
         if (currentEvent != null) {
             return AWTInputMap.map(currentEvent);
         }
-        return -1;
+        return 0;
     }
 
     public static boolean getEventButtonState() {
@@ -193,7 +206,7 @@ public class AWTMouse {
                         parent.setCursor(Toolkit.getDefaultToolkit().
                                 createCustomCursor(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "blank cursor"));
                         grabbedParent = new WeakReference<Component>(parent);
-                        amber.data.OS.println("Grabbed at ", grabEnter, "::", parent);
+                        amber.os.OS.println("Grabbed at ", grabEnter, "::", parent);
                         w.addFocusListener(new FocusAdapter() {
                             @Override
                             public void focusLost(FocusEvent e) {
@@ -207,7 +220,7 @@ public class AWTMouse {
 
                     Component parent = grabbedParent.get();
                     parent.setCursor(Cursor.getDefaultCursor());
-                    amber.data.OS.println("Released ", parent);
+                    amber.os.OS.println("Released ", parent);
                     try {
                         SwingUtilities.convertPointToScreen(grabEnter, parent);
                         new Robot().mouseMove(grabEnter.x, grabEnter.y);
