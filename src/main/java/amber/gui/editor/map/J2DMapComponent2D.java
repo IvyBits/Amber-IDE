@@ -217,7 +217,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.drawLine(0, 0, context.map.getWidth() * u, 0);
         g.drawLine(0, 0, 0, context.map.getLength() * u);
         g.drawLine(context.map.getWidth() * u, 0, context.map.getWidth() * u, context.map.getLength() * u);
-        g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getWidth() * u);
+        g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getLength() * u);
 
         g.setStroke(stroke2);
         if (cursorPos != null) {
