@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 /**
  * @author Tudor
@@ -86,24 +87,12 @@ public class TileSheetRenderer extends JComponent {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        /*for (int x = 0; x < sheet.getWidth(); x++) {
-            for (int y = 0; y < sheet.getHeight(); y++) {
-                Tileset.TileSprite t = sheet.getTile(x, y);
-                if (t != null) {
-                    Dimension size = t.getSize();
-                    Point start = t.getStart();
-                    g.drawImage(sheet.getImage(), x * 32, y * 32, x * 32 + 32, y * 32
-                            + 32, start.x, start.y, size.width + start.x, size.height + start.y, null);
-                }
-            }
-        }*/
-        Rectangle clip = g.getClipBounds();
         Dimension size = sheet.getTile(0, 0).getSize();
+        BufferedImage image = sheet.getImage();
         double rx = 32 / size.width;
         double ry = 32 / size.height;
-        g.drawImage(sheet.getImage(), (int)(clip.x * rx), (int)(clip.y * ry),
-                (int)((clip.x + clip.width) * rx), (int)((clip.y + clip.height) * ry),
-                clip.x, clip.y, clip.x + clip.width, clip.y + clip.height, null);
+        g.drawImage(image, 0, 0, (int)(image.getWidth() * rx), (int)(image.getHeight() * ry),
+                0, 0, image.getWidth(), image.getHeight(), null);
 
         if (mouseLocation != null && clickLocation != null) {
             int x1 = Math.min(clickLocation.x, mouseLocation.x);
