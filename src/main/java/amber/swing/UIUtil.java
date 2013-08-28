@@ -143,6 +143,9 @@ public class UIUtil {
                 UIManager.put(key, f);
             }
         }
+        for (Window w : Window.getWindows()) {
+            SwingUtilities.updateComponentTreeUI(w);
+        }
     }
 
     /**
@@ -209,8 +212,7 @@ public class UIUtil {
                     false,
                     0,
                     col);
-            maxwidth = Math.max(maxwidth,
-                    headerComp.getPreferredSize().width);
+            maxwidth = Math.max(maxwidth, headerComp.getPreferredSize().width);
             column.setPreferredWidth(maxwidth);
         }
     }
