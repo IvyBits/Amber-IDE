@@ -1,5 +1,9 @@
 package amber.gui.editor.map;
 
+import amber.gui.editor.map.res.TileSelector;
+import amber.gui.editor.map.res.ModelSelector;
+import amber.gui.editor.map._3d.GLMapComponent3D;
+import amber.gui.editor.map._2d.J2DMapComponent2D;
 import amber.Amber;
 import amber.al.Audio;
 import amber.data.res.Tileset;

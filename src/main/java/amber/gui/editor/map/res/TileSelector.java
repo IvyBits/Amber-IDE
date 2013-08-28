@@ -1,10 +1,11 @@
-package amber.gui.editor.map;
+package amber.gui.editor.map.res;
 
 import amber.gui.editor.map.IMapComponent;
 import amber.Amber;
 import amber.data.res.Resource;
 import amber.data.res.Tileset;
 import amber.data.res.Tileset.TileSprite;
+import amber.gui.editor.map.MapContext;
 
 import javax.swing.*;
 import java.awt.*;
