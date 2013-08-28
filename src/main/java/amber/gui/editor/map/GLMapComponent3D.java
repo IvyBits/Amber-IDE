@@ -167,6 +167,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     LevelMap pre = context.map.clone();
                     if (currentTool().apply((int) cursorPos.x, (int) cursorPos.z, (int) cursorPos.y)) {
                         context.undoStack.push(pre);
+                        modified = true;
                     }
                 }
             } else if (isButtonDown(1)) {

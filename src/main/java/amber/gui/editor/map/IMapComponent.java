@@ -14,4 +14,7 @@ public interface IMapComponent {
     Component getComponent();
 
     JMenu[] getContextMenus();
+
+    boolean modified();
+    void save();
 }

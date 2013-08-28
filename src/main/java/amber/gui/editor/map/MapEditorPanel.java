@@ -201,6 +201,16 @@ public class MapEditorPanel extends FileViewerPanel {
         return renderer.getContextMenus();
     }
 
+    @Override
+    public boolean modified() {
+        return renderer.modified();
+    }
+
+    @Override
+    public void save() {
+        renderer.save();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -122,7 +122,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
             display.getHAdjustable().setValue(display.getHAdjustable().getValue() + delta);
         }
 
-        cursorPos.set((int) (AbstractMouse.getX(this)) / 32, (int) (AbstractMouse.getY(this)) / 32);
+        cursorPos.set(AbstractMouse.getX(this) / 32, AbstractMouse.getY(this) / 32);
 
         if (AbstractMouse.isButtonDown(0)) {
             LevelMap pre = context.map.clone();
@@ -130,6 +130,7 @@ public class GLMapComponent2D extends AbstractGLMapComponent {
 
             if (tool != null && tool.apply((int) cursorPos.x, (int) cursorPos.y)) {
                 context.undoStack.push(pre);
+                modified = true;
             }
         }
         AbstractMouse.poll();

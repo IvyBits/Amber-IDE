@@ -51,6 +51,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected Font infoFont = UIManager.getFont("MapEditor.font");
     protected Color background = UIManager.getColor("MapEditor.background");
     protected boolean moved = false;
+    protected boolean modified = false;
 
     public J2DMapComponent2D(LevelMap map) {
         setFocusable(true);
@@ -144,6 +145,28 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 }
             }).create()
         };
+    }
+
+    @Override
+    public boolean modified() {
+        return modified;
+    }
+
+    @Override
+    public void save() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    FileOutputStream fos = new FileOutputStream(context.outputFile);
+                    Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
+                    fos.close();
+                } catch (Exception ex) {
+                    ErrorHandler.alert(ex);
+                }
+            }
+        }.start();
+        modified = false;
     }
 
     @Override
@@ -289,18 +312,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     }
                     break;
                 case KeyEvent.VK_S:
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                FileOutputStream fos = new FileOutputStream(context.outputFile);
-                                Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                                fos.close();
-                            } catch (Exception ex) {
-                                ErrorHandler.alert(ex);
-                            }
-                        }
-                    }.start();
+                    save();
                     break;
                 case KeyEvent.VK_0:
                 case KeyEvent.VK_NUMPAD0:
@@ -337,6 +349,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
             if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
                 context.undoStack.push(pre);
+                modified = true;
             }
             repaint();
         }

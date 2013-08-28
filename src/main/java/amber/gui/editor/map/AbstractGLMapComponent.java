@@ -30,6 +30,7 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
     protected final MapContext context = new MapContext();
     protected Thread renderingThread;
     protected boolean running;
+    protected boolean modified = false;
 
     static {
         System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
@@ -94,18 +95,7 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
                         break;
                     case Keyboard.KEY_S:
                         if (isKeyDown(Keyboard.KEY_RCONTROL) || isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        FileOutputStream fos = new FileOutputStream(context.outputFile);
-                                        Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                                        fos.close();
-                                    } catch (Exception ex) {
-                                        ErrorHandler.alert(ex);
-                                    }
-                                }
-                            }.start();
+                            save();
                         }
                         break;
                     default:
@@ -129,6 +119,26 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
 
     public Component getComponent() {
         return this;
+    }
+
+    public boolean modified() {
+        return modified;
+    }
+
+    public void save() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    FileOutputStream fos = new FileOutputStream(context.outputFile);
+                    Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
+                    fos.close();
+                } catch (Exception ex) {
+                    ErrorHandler.alert(ex);
+                }
+            }
+        }.start();
+        modified = false;
     }
 
     protected boolean isInBounds(int x, int y) {

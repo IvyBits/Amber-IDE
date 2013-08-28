@@ -31,6 +31,12 @@ public abstract class FileViewerPanel extends JPanel {
     public Icon getTabIcon() {
         return FileSystemView.getFileSystemView().getSystemIcon(file);
     }
+
+    public boolean modified() {
+        return false;
+    }
+
+    public void save() {}
     
     public static void registerPanel(Class<? extends FileViewerPanel> panel, String extension) {
         registerPanel(panel, new String[]{extension});

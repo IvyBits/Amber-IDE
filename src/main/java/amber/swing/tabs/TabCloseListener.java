@@ -8,5 +8,5 @@ import java.awt.Component;
  */
 public interface TabCloseListener {
 
-    public void tabClosed(String title, Component comp, CloseableTabbedPane pane);
+    public boolean tabClosed(String title, Component comp, CloseableTabbedPane pane);
 }

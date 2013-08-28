@@ -11,7 +11,8 @@ import amber.gui.misc.StartPagePanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
 import amber.tool.ToolDefinition;
-import java.awt.BorderLayout;
+
+import java.awt.*;
 
 import javax.swing.*;
 import java.io.File;
@@ -186,6 +187,11 @@ public class IDE extends javax.swing.JFrame {
         saveButton.setMinimumSize(new java.awt.Dimension(28, 32));
         saveButton.setPreferredSize(new java.awt.Dimension(28, 32));
         saveButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveItemActionPerformed(evt);
+            }
+        });
         jToolBar1.add(saveButton);
         jToolBar1.add(jSeparator4);
 
@@ -349,6 +355,12 @@ public class IDE extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_openButtonActionPerformed
 
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        Component selected = content.getFilesTabbedPane().getSelectedComponent();
+        if (selected instanceof FileViewerPanel)
+            ((FileViewerPanel) selected).save();
+    }//GEN-LAST:event_saveButtonActionPerformed
+
     private void editorTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_editorTabbedPaneStateChanged
     }//GEN-LAST:event_editorTabbedPaneStateChanged
 
@@ -382,6 +394,10 @@ public class IDE extends javax.swing.JFrame {
     private void openItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openItemActionPerformed
         openButtonActionPerformed(evt);
     }//GEN-LAST:event_openItemActionPerformed
+
+    private void saveItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveItemActionPerformed
+        saveButtonActionPerformed(evt);
+    }//GEN-LAST:event_saveItemActionPerformed
 
     private void fontItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItemActionPerformed
         JFontChooser chooser = new JFontChooser();

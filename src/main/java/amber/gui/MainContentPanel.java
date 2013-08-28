@@ -18,7 +18,7 @@ import amber.tool.ToolManifest;
 import java.awt.Component;
 import java.util.Arrays;
 import java.util.HashMap;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 /**
  *
@@ -54,11 +54,25 @@ public class MainContentPanel extends javax.swing.JPanel {
         projectDivider.setRightComponent(openFileLabel);
     }
 
-    protected CloseableTabbedPane getFilesTabbedPane() {
+    public CloseableTabbedPane getFilesTabbedPane() {
         if (activeFilesTabbedPane == null) {
             activeFilesTabbedPane = new CloseableTabbedPane();
             activeFilesTabbedPane.addTabCloseListener(new TabCloseListener() {
-                public void tabClosed(String title, Component comp, CloseableTabbedPane pane) {
+                public boolean tabClosed(String title, Component comp, CloseableTabbedPane pane) {
+                    System.out.println("Tab closing...");
+                    if (comp instanceof FileViewerPanel && ((FileViewerPanel) comp).modified()) {
+                        switch (JOptionPane.showConfirmDialog(MainContentPanel.this,
+                                "Do you want to save the following file:\n" + title,
+                                "Confirm Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+                            case JOptionPane.YES_OPTION:
+                                ((FileViewerPanel) comp).save();
+                                break;
+                            case JOptionPane.NO_OPTION:
+                                break;
+                            case JOptionPane.CANCEL_OPTION:
+                                return false;
+                        }
+                    }
                     if (activeFiles.containsKey(comp)) {
                         Amber.getWorkspace().getOpenedFiles().remove(activeFiles.remove(comp));
                     }
@@ -66,6 +80,7 @@ public class MainContentPanel extends javax.swing.JPanel {
                         projectDivider.setRightComponent(openFileLabel);
                         activeFilesTabbedPane = null;
                     }
+                    return true;
                 }
             });
             int location = projectDivider.getDividerLocation();

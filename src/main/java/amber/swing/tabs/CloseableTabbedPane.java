@@ -117,7 +117,8 @@ public class CloseableTabbedPane extends JTabbedPane {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (TabCloseListener listener : closers) {
-                    listener.tabClosed(title, c, CloseableTabbedPane.this);
+                    if (!listener.tabClosed(title, c, CloseableTabbedPane.this))
+                        return;
                 }
                 remove(c);
             }
