@@ -219,9 +219,11 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tilesets = new javax.swing.JList();
-        newTilesetButton = new javax.swing.JButton();
-        deleteTilesetButton = new javax.swing.JButton();
         importTilesetDirectory = new javax.swing.JButton();
+        jToolBar2 = new javax.swing.JToolBar();
+        newTilesetButton = new javax.swing.JButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        deleteTilesetButton = new javax.swing.JButton();
         tileDetailsGroup = new javax.swing.JPanel();
         tileViewGroup = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -230,9 +232,11 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel10 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         clips = new javax.swing.JList();
-        newClipButton = new javax.swing.JButton();
-        deleteClipButton = new javax.swing.JButton();
         importClipDirectory = new javax.swing.JButton();
+        jToolBar1 = new javax.swing.JToolBar();
+        newClipButton = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        deleteClipButton = new javax.swing.JButton();
         audioDetailsGroup = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         detailsTable = new javax.swing.JTable();
@@ -242,9 +246,11 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel12 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
         models = new javax.swing.JList();
-        jButton12 = new javax.swing.JButton();
-        jButton13 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
+        jToolBar3 = new javax.swing.JToolBar();
+        importModelButton = new javax.swing.JButton();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        deleteModelButton = new javax.swing.JButton();
         modelViewGroup = new javax.swing.JPanel();
         modelPreviewLabel = new javax.swing.JLabel();
 
@@ -263,6 +269,8 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
             }
         });
 
+        tabbedPane.setFocusable(false);
+
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("ResourceDialog.jPanel3.border.title"))); // NOI18N
 
         tilesets.setModel(new DefaultListModel());
@@ -273,20 +281,6 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         });
         jScrollPane1.setViewportView(tilesets);
 
-        newTilesetButton.setText(bundle.getString("ResourceDialog.newTilesetButton.text")); // NOI18N
-        newTilesetButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newTilesetButtonActionPerformed(evt);
-            }
-        });
-
-        deleteTilesetButton.setText(bundle.getString("ResourceDialog.deleteTilesetButton.text")); // NOI18N
-        deleteTilesetButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteTilesetButtonActionPerformed(evt);
-            }
-        });
-
         importTilesetDirectory.setText(bundle.getString("ResourceDialog.importTilesetDirectory.text")); // NOI18N
         importTilesetDirectory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -294,28 +288,66 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
             }
         });
 
+        jToolBar2.setFloatable(false);
+        jToolBar2.setRollover(true);
+        jToolBar2.setMaximumSize(new java.awt.Dimension(57, 31));
+        jToolBar2.setMinimumSize(new java.awt.Dimension(57, 31));
+        jToolBar2.setPreferredSize(new java.awt.Dimension(57, 31));
+
+        newTilesetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Add.png"))); // NOI18N
+        newTilesetButton.setText(bundle.getString("ResourceDialog.newTilesetButton.text")); // NOI18N
+        newTilesetButton.setToolTipText(bundle.getString("ResourceDialog.newTilesetButton.toolTipText")); // NOI18N
+        newTilesetButton.setDefaultCapable(false);
+        newTilesetButton.setFocusable(false);
+        newTilesetButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        newTilesetButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        newTilesetButton.setMaximumSize(new java.awt.Dimension(26, 26));
+        newTilesetButton.setMinimumSize(new java.awt.Dimension(26, 26));
+        newTilesetButton.setPreferredSize(new java.awt.Dimension(26, 26));
+        newTilesetButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        newTilesetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newTilesetButtonActionPerformed(evt);
+            }
+        });
+        jToolBar2.add(newTilesetButton);
+        jToolBar2.add(filler2);
+
+        deleteTilesetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Remove.png"))); // NOI18N
+        deleteTilesetButton.setText(bundle.getString("ResourceDialog.deleteTilesetButton.text")); // NOI18N
+        deleteTilesetButton.setToolTipText(bundle.getString("ResourceDialog.deleteTilesetButton.toolTipText")); // NOI18N
+        deleteTilesetButton.setDefaultCapable(false);
+        deleteTilesetButton.setFocusable(false);
+        deleteTilesetButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        deleteTilesetButton.setIconTextGap(0);
+        deleteTilesetButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteTilesetButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        deleteTilesetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteTilesetButtonActionPerformed(evt);
+            }
+        });
+        jToolBar2.add(deleteTilesetButton);
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(newTilesetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteTilesetButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addGap(2, 2, 2))
             .addComponent(importTilesetDirectory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(newTilesetButton)
-                    .addComponent(deleteTilesetButton))
+                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(importTilesetDirectory))
         );
@@ -348,7 +380,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         );
         tileViewGroupLayout.setVerticalGroup(
             tileViewGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -359,10 +391,10 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(6, 6, 6)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tileDetailsGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tileDetailsGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tileViewGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -391,20 +423,6 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         });
         jScrollPane5.setViewportView(clips);
 
-        newClipButton.setText(bundle.getString("ResourceDialog.newClipButton.text")); // NOI18N
-        newClipButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newClipButtonActionPerformed(evt);
-            }
-        });
-
-        deleteClipButton.setText(bundle.getString("ResourceDialog.deleteClipButton.text")); // NOI18N
-        deleteClipButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteClipButtonActionPerformed(evt);
-            }
-        });
-
         importClipDirectory.setText(bundle.getString("ResourceDialog.importClipDirectory.text")); // NOI18N
         importClipDirectory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -412,28 +430,68 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
             }
         });
 
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+        jToolBar1.setMaximumSize(new java.awt.Dimension(57, 31));
+        jToolBar1.setMinimumSize(new java.awt.Dimension(57, 31));
+        jToolBar1.setPreferredSize(new java.awt.Dimension(57, 31));
+
+        newClipButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Add.png"))); // NOI18N
+        newClipButton.setText(bundle.getString("ResourceDialog.newClipButton.text")); // NOI18N
+        newClipButton.setToolTipText(bundle.getString("ResourceDialog.newClipButton.toolTipText")); // NOI18N
+        newClipButton.setDefaultCapable(false);
+        newClipButton.setFocusable(false);
+        newClipButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        newClipButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        newClipButton.setMaximumSize(new java.awt.Dimension(26, 26));
+        newClipButton.setMinimumSize(new java.awt.Dimension(26, 26));
+        newClipButton.setPreferredSize(new java.awt.Dimension(26, 26));
+        newClipButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        newClipButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newClipButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(newClipButton);
+        jToolBar1.add(filler1);
+
+        deleteClipButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Remove.png"))); // NOI18N
+        deleteClipButton.setText(bundle.getString("ResourceDialog.deleteClipButton.text")); // NOI18N
+        deleteClipButton.setToolTipText(bundle.getString("ResourceDialog.deleteClipButton.toolTipText")); // NOI18N
+        deleteClipButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        deleteClipButton.setFocusable(false);
+        deleteClipButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        deleteClipButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteClipButton.setMaximumSize(new java.awt.Dimension(29, 29));
+        deleteClipButton.setMinimumSize(new java.awt.Dimension(29, 29));
+        deleteClipButton.setPreferredSize(new java.awt.Dimension(29, 29));
+        deleteClipButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        deleteClipButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteClipButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(deleteClipButton);
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel10Layout.createSequentialGroup()
-                        .addComponent(newClipButton, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteClipButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addGap(2, 2, 2))
             .addComponent(importClipDirectory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(newClipButton)
-                    .addComponent(deleteClipButton))
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(importClipDirectory))
         );
@@ -508,7 +566,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(audioDetailsGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(audioPlayGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -548,39 +606,61 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         });
         jScrollPane6.setViewportView(models);
 
-        jButton12.setText(bundle.getString("ResourceDialog.jButton12.text")); // NOI18N
-        jButton12.addActionListener(new java.awt.event.ActionListener() {
+        jButton15.setText(bundle.getString("ResourceDialog.jButton15.text")); // NOI18N
+
+        jToolBar3.setFloatable(false);
+        jToolBar3.setRollover(true);
+
+        importModelButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Add.png"))); // NOI18N
+        importModelButton.setText(bundle.getString("ResourceDialog.text")); // NOI18N
+        importModelButton.setToolTipText(bundle.getString("ResourceDialog.importModelButton.toolTipText")); // NOI18N
+        importModelButton.setFocusable(false);
+        importModelButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        importModelButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        importModelButton.setMaximumSize(new java.awt.Dimension(26, 26));
+        importModelButton.setMinimumSize(new java.awt.Dimension(26, 26));
+        importModelButton.setName(""); // NOI18N
+        importModelButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        importModelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton12ActionPerformed(evt);
+                importModelButtonActionPerformed(evt);
             }
         });
+        jToolBar3.add(importModelButton);
+        jToolBar3.add(filler3);
 
-        jButton13.setText(bundle.getString("ResourceDialog.jButton13.text")); // NOI18N
-
-        jButton15.setText(bundle.getString("ResourceDialog.jButton15.text")); // NOI18N
+        deleteModelButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/General.Remove.png"))); // NOI18N
+        deleteModelButton.setText(bundle.getString("ResourceDialog.jButton12.text")); // NOI18N
+        deleteModelButton.setToolTipText(bundle.getString("ResourceDialog.deleteModelButton.toolTipText")); // NOI18N
+        deleteModelButton.setFocusable(false);
+        deleteModelButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        deleteModelButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteModelButton.setMaximumSize(new java.awt.Dimension(29, 29));
+        deleteModelButton.setMinimumSize(new java.awt.Dimension(29, 29));
+        deleteModelButton.setName(""); // NOI18N
+        deleteModelButton.setPreferredSize(new java.awt.Dimension(29, 29));
+        deleteModelButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar3.add(deleteModelButton);
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
         jPanel12Layout.setHorizontalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
-                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel12Layout.createSequentialGroup()
-                        .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addGap(2, 2, 2))
             .addComponent(jButton15, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton12)
-                    .addComponent(jButton13))
+                .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton15))
         );
@@ -604,7 +684,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(modelDetailsGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(modelViewGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -676,24 +756,28 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         Amber.getResourceManager().addResourceListener(this);
     }//GEN-LAST:event_formWindowOpened
 
-    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+    private void importModelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importModelButtonActionPerformed
         new NewModelDialog(Amber.getUI()).setVisible(true);
-    }//GEN-LAST:event_jButton12ActionPerformed
+    }//GEN-LAST:event_importModelButtonActionPerformed
 
     private void modelsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_modelsValueChanged
         updateModelPreview();
     }//GEN-LAST:event_modelsValueChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioDetailsGroup;
     private javax.swing.JPanel audioPlayGroup;
     private javax.swing.JList clips;
     private javax.swing.JButton deleteClipButton;
+    private javax.swing.JButton deleteModelButton;
     private javax.swing.JButton deleteTilesetButton;
     private javax.swing.JTable detailsTable;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.JButton importClipDirectory;
+    private javax.swing.JButton importModelButton;
     private javax.swing.JButton importTilesetDirectory;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton15;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
@@ -706,6 +790,9 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JToolBar jToolBar3;
     private javax.swing.JPanel modelDetailsGroup;
     private javax.swing.JLabel modelPreviewLabel;
     private javax.swing.JPanel modelViewGroup;
