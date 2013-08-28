@@ -3,14 +3,16 @@ package amber.gui.misc;
 import amber.swing.UIUtil;
 import java.io.File;
 import java.io.IOException;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import amber.al.Audio;
 import amber.al.Audio.State;
 import amber.al.AudioIO;
+import amber.data.res.Resource;
+import amber.os.OS;
+import static amber.os.OS.Platform.WINDOWS;
+import amber.swing.Dialogs;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.sound.midi.MidiUnavailableException;
 import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -27,18 +29,17 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
     private final ImageIcon PLAY_ICON = new ImageIcon(ClassLoader.getSystemResource("icon/Player.Play.png"));
     private final ImageIcon PAUSE_ICON = new ImageIcon(ClassLoader.getSystemResource("icon/Player.Pause.png"));
 
-    public AudioPlayerPanel(final Audio sound) {
+    public AudioPlayerPanel(final Resource<Audio> resource) {
         initComponents();
-        this.sound = sound;
-        //UIUtil.setComponentLF(positionSlider, "Nimbus");
-        //UIUtil.setComponentLF(soundSlider, "Nimbus");
-
+        sound = resource.get();
+        file = resource.getSource();
         openNativeButton.setIcon(UIUtil.getFileSystemIcon("mid"));
 
         timer = new javax.swing.Timer(100, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(sound.getState() == State.STOPPED)
+                if (sound.getState() == State.STOPPED) {
                     playButton.setIcon(PLAY_ICON);
+                }
                 positionSlider.setValue(getPercentProgress());
             }
         });
@@ -57,8 +58,7 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
      * Creates new form AudioPlayerPanel
      */
     public AudioPlayerPanel(File file) throws Exception {
-        this(AudioIO.read(file));
-        this.file = file;
+        this(new Resource<Audio>(AudioIO.read(file), null, file, Resource.AUDIO));
     }
 
     @Override
@@ -151,11 +151,21 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
 
     private void openNativeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNativeButtonActionPerformed
         try {
-            // TODO: only works on Windows
-            Runtime.getRuntime().exec("cmd /c " + file.getAbsolutePath());
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().open(file);
+                    return;
+                } catch (Exception ignored) {
+                }
+            }
+            switch (OS.getPlatform()) {
+                case WINDOWS:
+                    Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL " + file.getAbsolutePath());
+                    return;
+            }
         } catch (IOException ex) {
-            ErrorHandler.alert(ex);
         }
+        Dialogs.errorDialog().setMessage("An error occured. File cannot be opened.").setTitle("Sorry I failed.").show();
     }//GEN-LAST:event_openNativeButtonActionPerformed
 
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
@@ -184,7 +194,6 @@ public class AudioPlayerPanel extends javax.swing.JPanel {
         timer.stop();
         sound.stop();
     }//GEN-LAST:event_stopButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton openNativeButton;
     private javax.swing.JButton playButton;

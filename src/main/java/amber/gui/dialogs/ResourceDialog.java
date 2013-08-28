@@ -120,9 +120,10 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
             public void run() {
                 String name = (String) clips.getSelectedValue();
                 audioPlayGroup.removeAll();
-                Audio clip = Amber.getResourceManager().getAudio(name);
-                if (clip != null) {
-                    audioPlayGroup.add(new AudioPlayerPanel(clip));
+                Resource<Audio> res = Amber.getResourceManager().getAudioResource(name);
+                if (res != null) {
+                    Audio clip = res.get();
+                    audioPlayGroup.add(new AudioPlayerPanel(res));
                     AudioFormat data = clip.getFormat();
 
                     if (data != null) {
@@ -636,10 +637,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         deleteModelButton.setFocusable(false);
         deleteModelButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         deleteModelButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteModelButton.setMaximumSize(new java.awt.Dimension(29, 29));
-        deleteModelButton.setMinimumSize(new java.awt.Dimension(29, 29));
         deleteModelButton.setName(""); // NOI18N
-        deleteModelButton.setPreferredSize(new java.awt.Dimension(29, 29));
         deleteModelButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar3.add(deleteModelButton);
 
@@ -764,7 +762,6 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     private void modelsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_modelsValueChanged
         updateModelPreview();
     }//GEN-LAST:event_modelsValueChanged
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioDetailsGroup;
     private javax.swing.JPanel audioPlayGroup;
