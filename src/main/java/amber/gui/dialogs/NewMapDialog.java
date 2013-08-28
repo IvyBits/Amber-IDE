@@ -51,7 +51,7 @@ public class NewMapDialog extends javax.swing.JDialog {
         mapHeightSpinner = new javax.swing.JSpinner();
         mapGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
-        nameField = new javax.swing.JTextField();
+        nameField = new amber.swing.textbox.HintTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -115,6 +115,8 @@ public class NewMapDialog extends javax.swing.JDialog {
 
         nameLabel.setText("Name:");
 
+        nameField.setHint("Type in map name...");
+
         javax.swing.GroupLayout mapGroupLayout = new javax.swing.GroupLayout(mapGroup);
         mapGroup.setLayout(mapGroupLayout);
         mapGroupLayout.setHorizontalGroup(
@@ -129,11 +131,11 @@ public class NewMapDialog extends javax.swing.JDialog {
         mapGroupLayout.setVerticalGroup(
             mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mapGroupLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(3, 3, 3)
+                .addGroup(mapGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameLabel)
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
+                .addGap(6, 6, 6))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -220,7 +222,7 @@ public class NewMapDialog extends javax.swing.JDialog {
     private javax.swing.JPanel mapSizeGroup;
     private javax.swing.JLabel mapWidthLabel;
     private javax.swing.JSpinner mapWidthSpinner;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables
 }

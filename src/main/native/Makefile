@@ -2,7 +2,7 @@ CC = cl
 CFLAGS = /DWIN32 /DWIN32_LEAN_AND_MEAN /DUNICODE
 LD = link
 LDFLAGS = /dll
-OBJS = amber_os_Win.obj amber_os_filechooser_WinFileDialog.obj
+OBJS = amber_os_Win.obj amber_os_filechooser_WinFileDialog.obj amber_os_colorpicker_WinColorDialog.obj
 LIBS = kernel32.lib user32.lib comdlg32.lib shlwapi.lib
 
 !IF DEFINED(MINI)
@@ -19,6 +19,7 @@ dllmain.obj: dllmain.c
 	$(CC) $(CFLAGS) /c dllmain.c
 
 amber_os_filechooser_WinFileDialog.cpp: amber_os_filechooser_WinFileDialog.h
+amber_os_colorpicker_WinColorDialog.cpp: amber_os_colorpicker_WinColorDialog.h
 amber_os_Win.cpp: amber_os_Win.h
 
 .cpp.obj::

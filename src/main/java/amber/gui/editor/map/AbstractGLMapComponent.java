@@ -1,10 +1,7 @@
 package amber.gui.editor.map;
 
-import amber.data.OS;
+import amber.os.OS;
 import amber.data.map.LevelMap;
-import static amber.data.map.Tile3D.Angle._180;
-import static amber.data.map.Tile3D.Angle._45;
-import static amber.data.map.Tile3D.Angle._90;
 import amber.data.map.codec.Codec;
 import amber.gui.misc.ErrorHandler;
 import amber.input.AbstractKeyboard;
@@ -12,7 +9,15 @@ import static amber.input.AbstractKeyboard.getEventKey;
 import static amber.input.AbstractKeyboard.getEventKeyState;
 import static amber.input.AbstractKeyboard.isKeyDown;
 import amber.input.AbstractMouse;
+import amber.swing.misc.TransferableImage;
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import org.lwjgl.LWJGLException;
@@ -77,6 +82,9 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
             ex.printStackTrace();
             return;
         }
+        while (AbstractMouse.next()) {
+            doScroll(AbstractMouse.getEventDWheel());
+        }
         while (AbstractKeyboard.next()) {
             if (getEventKeyState()) {
                 int key;
@@ -106,6 +114,9 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
     }
 
     protected void doKey(int keycode) {
+    }
+
+    protected void doScroll(int delta) {
     }
 
     @Override

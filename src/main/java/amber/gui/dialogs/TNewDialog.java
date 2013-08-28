@@ -4,7 +4,7 @@ import java.awt.EventQueue;
 
 /**
  * A generic 'New' dialog.
- * 
+ *
  * @author Tudor
  */
 public class TNewDialog extends javax.swing.JDialog {
@@ -35,8 +35,8 @@ public class TNewDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         nameGroup = new javax.swing.JPanel();
-        nameField = new javax.swing.JTextField();
         nameLabel = new javax.swing.JLabel();
+        nameField = new amber.swing.textbox.HintTextField();
         createButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
@@ -46,13 +46,15 @@ public class TNewDialog extends javax.swing.JDialog {
 
         nameGroup.setBorder(javax.swing.BorderFactory.createTitledBorder(this.title));
 
-        nameField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                nameFieldKeyReleased(evt);
+        nameLabel.setText("Name:");
+
+        nameField.setHint("Type in a name...");
+        nameField.setRequestFocusEnabled(false);
+        nameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameFieldActionPerformed(evt);
             }
         });
-
-        nameLabel.setText("Name:");
 
         javax.swing.GroupLayout nameGroupLayout = new javax.swing.GroupLayout(nameGroup);
         nameGroup.setLayout(nameGroupLayout);
@@ -62,17 +64,17 @@ public class TNewDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(nameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nameField)
+                .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         nameGroupLayout.setVerticalGroup(
             nameGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(nameGroupLayout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addGroup(nameGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(nameField)
-                    .addComponent(nameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(6, 6, 6))
+                .addGroup(nameGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         createButton.setText("Create");
@@ -130,19 +132,18 @@ public class TNewDialog extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void nameFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameFieldKeyReleased
-       EventQueue.invokeLater(new Runnable(){
-
-           public void run() {
-               createButton.setEnabled(nameField.getText().length() > 0);
-           }
-       });
-    }//GEN-LAST:event_nameFieldKeyReleased
-
+    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                createButton.setEnabled(nameField.getText().length() > 0);
+                getRootPane().setDefaultButton(createButton);
+            }
+        });
+    }//GEN-LAST:event_nameFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton createButton;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JPanel nameGroup;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables

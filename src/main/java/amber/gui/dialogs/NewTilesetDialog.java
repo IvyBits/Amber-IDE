@@ -6,7 +6,6 @@ import amber.data.state.Scope;
 import amber.data.state.State;
 import amber.os.filechooser.FileDialogFactory;
 import amber.os.filechooser.IFileDialog;
-import amber.os.filechooser.WinFileDialog;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -52,6 +51,7 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 createButton.setEnabled(new File(imageLocationField.getText()).exists() && !nameField.getText().isEmpty());
+                getRootPane().setDefaultButton(createButton);
             }
         });
     }
@@ -83,12 +83,12 @@ public class NewTilesetDialog extends javax.swing.JDialog {
 
         tilesetGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
-        imageLocationField = new javax.swing.JTextField();
         imageLabel = new javax.swing.JLabel();
-        nameField = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
         transparencyBox = new javax.swing.JCheckBox();
         colorChooser = new amber.swing.misc.ColorChooserButton();
+        nameField = new amber.swing.textbox.HintTextField();
+        imageLocationField = new amber.swing.textbox.HintTextField();
         tileSizeGroup = new javax.swing.JPanel();
         widthSpinner = new javax.swing.JSpinner();
         widthLabel = new javax.swing.JLabel();
@@ -115,21 +115,11 @@ public class NewTilesetDialog extends javax.swing.JDialog {
 
         nameLabel.setText(bundle.getString("NewTilesetDialog.nameLabel.text")); // NOI18N
 
-        imageLocationField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                imageLocationFieldKeyTyped(evt);
-            }
-        });
-
         imageLabel.setText(bundle.getString("NewTilesetDialog.imageLabel.text")); // NOI18N
 
-        nameField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                nameFieldKeyTyped(evt);
-            }
-        });
-
         browseButton.setText(bundle.getString("NewTilesetDialog.browseButton.text")); // NOI18N
+        browseButton.setDefaultCapable(false);
+        browseButton.setRequestFocusEnabled(false);
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -147,10 +137,28 @@ public class NewTilesetDialog extends javax.swing.JDialog {
 
         colorChooser.setBorder(null);
         colorChooser.setText(bundle.getString("NewTilesetDialog.colorChooser.text")); // NOI18N
+        colorChooser.setDefaultCapable(false);
         colorChooser.setMargin(new java.awt.Insets(0, 0, 0, 0));
         colorChooser.setMaximumSize(new java.awt.Dimension(20, 20));
         colorChooser.setMinimumSize(new java.awt.Dimension(20, 20));
         colorChooser.setPreferredSize(new java.awt.Dimension(20, 20));
+        colorChooser.setRequestFocusEnabled(false);
+
+        nameField.setText(bundle.getString("NewTilesetDialog.nameField.text")); // NOI18N
+        nameField.setHint(bundle.getString("NewTilesetDialog.nameField.hint")); // NOI18N
+        nameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameFieldActionPerformed(evt);
+            }
+        });
+
+        imageLocationField.setText(bundle.getString("NewTilesetDialog.imageLocationField.text")); // NOI18N
+        imageLocationField.setHint(bundle.getString("NewTilesetDialog.imageLocationField.hint")); // NOI18N
+        imageLocationField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                imageLocationFieldActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout tilesetGroupLayout = new javax.swing.GroupLayout(tilesetGroup);
         tilesetGroup.setLayout(tilesetGroupLayout);
@@ -164,17 +172,15 @@ public class NewTilesetDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(tilesetGroupLayout.createSequentialGroup()
-                        .addComponent(imageLocationField)
+                        .addComponent(imageLocationField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(browseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(tilesetGroupLayout.createSequentialGroup()
-                        .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(tilesetGroupLayout.createSequentialGroup()
-                                .addComponent(transparencyBox, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(colorChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(transparencyBox, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(colorChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 70, Short.MAX_VALUE))
+                    .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         tilesetGroupLayout.setVerticalGroup(
@@ -183,15 +189,16 @@ public class NewTilesetDialog extends javax.swing.JDialog {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(tilesetGroupLayout.createSequentialGroup()
-                        .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(browseButton))
+                    .addGroup(tilesetGroupLayout.createSequentialGroup()
+                        .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(imageLocationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(browseButton)))
-                    .addGroup(tilesetGroupLayout.createSequentialGroup()
-                        .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(imageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(imageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(imageLocationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(4, 4, 4)
                 .addGroup(tilesetGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(transparencyBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -360,19 +367,10 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         setEnabled(true);
     }//GEN-LAST:event_browseButtonActionPerformed
 
-    private void imageLocationFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imageLocationFieldKeyTyped
-        updatePreview();
-        checkCreateableStatus();
-    }//GEN-LAST:event_imageLocationFieldKeyTyped
-
     private void transparencyBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transparencyBoxActionPerformed
         if (transparencyBox.isSelected()) {
         }
     }//GEN-LAST:event_transparencyBoxActionPerformed
-
-    private void nameFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameFieldKeyTyped
-        checkCreateableStatus();
-    }//GEN-LAST:event_nameFieldKeyTyped
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         File file = new File(imageLocationField.getText());
@@ -388,6 +386,15 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         }
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed
+
+    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+        checkCreateableStatus();
+    }//GEN-LAST:event_nameFieldActionPerformed
+
+    private void imageLocationFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imageLocationFieldActionPerformed
+        updatePreview();
+        checkCreateableStatus();
+    }//GEN-LAST:event_imageLocationFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
@@ -396,10 +403,10 @@ public class NewTilesetDialog extends javax.swing.JDialog {
     private javax.swing.JLabel heightLabel;
     private javax.swing.JSpinner heightSpinner;
     private javax.swing.JLabel imageLabel;
-    private javax.swing.JTextField imageLocationField;
+    private amber.swing.textbox.HintTextField imageLocationField;
     private javax.swing.JLabel marginLabel;
     private javax.swing.JSpinner marginSpinner;
-    private javax.swing.JTextField nameField;
+    private amber.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JScrollPane previewGroup;
     private javax.swing.JLabel previewLabel;

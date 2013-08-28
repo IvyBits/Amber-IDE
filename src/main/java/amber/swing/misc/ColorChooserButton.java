@@ -1,5 +1,8 @@
 package amber.swing.misc;
 
+import amber.Amber;
+import amber.os.colorpicker.ColorDialogFactory;
+import amber.os.colorpicker.IColorDialog;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -25,10 +28,11 @@ public class ColorChooserButton extends JButton {
         this.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedColor = JColorChooser.showDialog(ColorChooserButton.this, "Choose transparency color...", Color.WHITE);
-                if (selectedColor != null) {
+                IColorDialog picker = ColorDialogFactory.newFileDialog(Amber.getUI());
+                if(picker.show()) {
+                    selectedColor = picker.getColor();
                     setColor(selectedColor);
-                }
+                }              
             }
         });
 
@@ -40,7 +44,7 @@ public class ColorChooserButton extends JButton {
 
     public void setColor(Color col) {
         selectedColor = col;
-        // Here we create an image with a solid color, and then set it as the icon for out color button.
+        // Here we create an image with a solid color, and then set it as the icon for our color button.
         BufferedImage icon = new BufferedImage((int) (getWidth() * .40), (int) (getHeight() * 0.40), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = icon.createGraphics();
         graphics.setPaint(col);

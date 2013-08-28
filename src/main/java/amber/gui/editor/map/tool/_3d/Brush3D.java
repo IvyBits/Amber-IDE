@@ -1,17 +1,12 @@
 package amber.gui.editor.map.tool._3d;
 
 import amber.data.map.Direction;
-import static amber.data.map.Direction.EAST;
-import static amber.data.map.Direction.NORTH;
-import static amber.data.map.Direction.SOUTH;
-import static amber.data.map.Direction.WEST;
+import static amber.data.map.Direction.*;
 import amber.data.map.Layer;
 import amber.data.map.Layer3D;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
-import static amber.data.map.Tile3D.Angle._180;
-import static amber.data.map.Tile3D.Angle._45;
-import static amber.data.map.Tile3D.Angle._90;
+import static amber.data.map.Tile3D.Angle.*;
 import amber.data.map.TileModel;
 import amber.data.math.Angles;
 import amber.data.res.Tileset;
@@ -20,21 +15,7 @@ import amber.gl.tess.ITesselator;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gui.editor.map.MapContext;
 import java.awt.Component;
-import static org.lwjgl.opengl.GL11.GL_CURRENT_BIT;
-import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
-import static org.lwjgl.opengl.GL11.GL_LINE;
-import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.GL_POLYGON_BIT;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glPolygonMode;
-import static org.lwjgl.opengl.GL11.glPopAttrib;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushAttrib;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glVertex3f;
+import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -46,10 +27,23 @@ public class Brush3D extends AbstractTool3D {
     protected EulerCamera camera;
     protected Tile3D.Angle angle = Tile3D.Angle._180;
     protected ITesselator tess = new ImmediateTesselator();
+    protected int scroll = 0;
 
     public Brush3D(MapContext context, EulerCamera camera) {
         super(context);
         this.camera = camera;
+    }
+
+    @Override
+    public void doScroll(int delta) {
+        scroll -= delta;
+        if (scroll >= 4) {
+            angle = angle == _45 ? _90 : (angle == _180 ? _45 : angle);
+            scroll = 0;
+        } else if (scroll <= -4) {
+            angle = angle == _45 ? _180 : (angle == _90 ? _45 : angle);
+            scroll = 0;
+        }
     }
 
     public boolean apply(int x, int y, int z) {

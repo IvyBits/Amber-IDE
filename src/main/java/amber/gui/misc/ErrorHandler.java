@@ -135,6 +135,7 @@ public class ErrorHandler extends javax.swing.JDialog {
             form.format(t, th, out);
         }
         stackArea.setText(out.toString());
+        getRootPane().setDefaultButton(continueButton);
     }
 
     /**
@@ -168,6 +169,9 @@ public class ErrorHandler extends javax.swing.JDialog {
         textAreaScrollpane.setViewportView(stackArea);
 
         quitButton.setText("Quit");
+        quitButton.setDefaultCapable(false);
+        quitButton.setFocusable(false);
+        quitButton.setRequestFocusEnabled(false);
         quitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 quitButtonActionPerformed(evt);
@@ -175,6 +179,9 @@ public class ErrorHandler extends javax.swing.JDialog {
         });
 
         detailsButton.setText("Details");
+        detailsButton.setDefaultCapable(false);
+        detailsButton.setFocusable(false);
+        detailsButton.setRequestFocusEnabled(false);
         detailsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 detailsButtonActionPerformed(evt);
@@ -182,6 +189,7 @@ public class ErrorHandler extends javax.swing.JDialog {
         });
 
         continueButton.setText("Continue");
+        continueButton.setFocusable(false);
         continueButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 continueButtonActionPerformed(evt);

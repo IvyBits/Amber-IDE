@@ -9,11 +9,14 @@ import java.net.URL;
  */
 public final class Natives {
 
+    private static final boolean DEV = false;
+    private static final String REV = "5";
     private static final String NATIVE_DIR = "native/";
     private static final String WIN_DIR = NATIVE_DIR + "windows/";
     private static final String NIX_DIR = NATIVE_DIR + "linux/";
     private static final String MAC_DIR = NATIVE_DIR + "mac/";
-    private static final String CACHE_DIR = System.getProperty("java.io.tmpdir") + File.separatorChar + "ambercache_1.0.0_2";
+    private static final String CACHE_DIR = System.getProperty("java.io.tmpdir") + File.separatorChar
+            + "ambercache_1.0.0_" + (DEV ? System.currentTimeMillis() : REV);
 
     public static void unpack() {
         System.setProperty("org.lwjgl.librarypath", CACHE_DIR);
