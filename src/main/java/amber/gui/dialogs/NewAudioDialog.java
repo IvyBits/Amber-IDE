@@ -69,11 +69,10 @@ public class NewAudioDialog extends javax.swing.JDialog {
                     // and OAL can take a very long time to start.
                     try {
                         audio = AudioIO.read(dir);
+                        previewGroup.add(new AudioPlayerPanel(dir));
                     } catch (Exception ex) {
                         ErrorHandler.alert(ex);
                     }
-
-                    previewGroup.add(new AudioPlayerPanel(audio));
 
                     AudioFormat data = audio.getFormat();
                     if (data != null) {
