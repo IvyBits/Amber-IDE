@@ -31,6 +31,7 @@ public class IDE extends javax.swing.JFrame {
     public IDE() {
         initComponents();
         contentPane.add(BorderLayout.CENTER, new StartPagePanel());
+
     }
 
     public void loadProject(Workspace space) {
