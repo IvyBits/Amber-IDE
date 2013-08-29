@@ -32,7 +32,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         super(parent);
         initComponents();
 
-        UIUtil.setTreeEnabled(modelDetailsGroup, false);
+        UIUtil.setTreeEnabled(modelDetailsTable, false);
         UIUtil.setTreeEnabled(modelViewGroup, false);
 
         updateTilesetList();
@@ -97,10 +97,10 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         }
         updateModelPreview();
         if (models.getModel().getSize() > 0) {
-            UIUtil.setTreeEnabled(modelDetailsGroup, true);
+            UIUtil.setTreeEnabled(modelDetailsTable, true);
             UIUtil.setTreeEnabled(modelViewGroup, true);
         } else {
-            UIUtil.setTreeEnabled(modelDetailsGroup, false);
+            UIUtil.setTreeEnabled(modelDetailsTable, false);
             UIUtil.setTreeEnabled(modelViewGroup, false);
         }
     }
@@ -149,6 +149,19 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 String name = (String) models.getSelectedValue();
+                Resource<WavefrontObject> res = Amber.getResourceManager().getModelResource(name);
+                if (res != null) {
+                    WavefrontObject model = res.get();
+                    TableModel mod = modelDetailsTable.getModel();
+
+                    mod.setValueAt("Wavefront OBJ", 0, 1);
+                    mod.setValueAt(model.getGroups().size() + " groups", 1, 1);
+                    mod.setValueAt(model.getVertices().size() + " vertices", 2, 1);
+                    mod.setValueAt(model.getNormals().size() + " normals", 3, 1);
+                    mod.setValueAt(model.getMaterials().size() + " materials", 4, 1);
+                    UIUtil.adjustColumnPreferredWidths(modelDetailsTable);
+                }
+                
                 modelPreviewLabel.setText("");
                 WavefrontObject sheet = Amber.getResourceManager().getModel(name);
                 modelPreviewLabel.setIcon(sheet != null ? new ImageIcon(ModelThumbnail.getModelImage(sheet, 150, 150)) : null);
@@ -244,7 +257,6 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         detailsTable = new javax.swing.JTable();
         audioPlayGroup = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
-        modelDetailsGroup = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
         models = new javax.swing.JList();
@@ -255,6 +267,8 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         deleteModelButton = new javax.swing.JButton();
         modelViewGroup = new javax.swing.JPanel();
         modelPreviewLabel = new javax.swing.JLabel();
+        detailsScrollPane = new javax.swing.JScrollPane();
+        modelDetailsTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("amber/Bundle"); // NOI18N
@@ -348,7 +362,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -383,7 +397,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         );
         tileViewGroupLayout.setVerticalGroup(
             tileViewGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -492,7 +506,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -586,19 +600,6 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
 
         tabbedPane.addTab(bundle.getString("ResourceDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
-        modelDetailsGroup.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("ResourceDialog.modelDetailsGroup.border.title"))); // NOI18N
-
-        javax.swing.GroupLayout modelDetailsGroupLayout = new javax.swing.GroupLayout(modelDetailsGroup);
-        modelDetailsGroup.setLayout(modelDetailsGroupLayout);
-        modelDetailsGroupLayout.setHorizontalGroup(
-            modelDetailsGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 208, Short.MAX_VALUE)
-        );
-        modelDetailsGroupLayout.setVerticalGroup(
-            modelDetailsGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 46, Short.MAX_VALUE)
-        );
-
         jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("ResourceDialog.jPanel12.border.title"))); // NOI18N
 
         models.setModel(new DefaultListModel());
@@ -658,7 +659,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel12Layout.createSequentialGroup()
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .addComponent(jScrollPane6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -673,6 +674,40 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         modelPreviewLabel.setMaximumSize(null);
         modelViewGroup.add(modelPreviewLabel, java.awt.BorderLayout.CENTER);
 
+        detailsScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("ResourceDialog.detailsScrollPane.border.title"))); // NOI18N
+        detailsScrollPane.setMaximumSize(new java.awt.Dimension(462, 423));
+        detailsScrollPane.setMinimumSize(new java.awt.Dimension(462, 423));
+
+        modelDetailsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"Format", null},
+                {"Faces", null},
+                {"Vertices", null},
+                {"Normals", null},
+                {"Materials", null}
+            },
+            new String [] {
+                "Property", "Value"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        modelDetailsTable.getTableHeader().setReorderingAllowed(false);
+        detailsScrollPane.setViewportView(modelDetailsTable);
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -680,23 +715,25 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(modelDetailsGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(modelViewGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(10, 10, 10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(modelViewGroup, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                    .addComponent(detailsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(modelDetailsGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(detailsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(modelViewGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(10, 10, 10))
+                        .addComponent(modelViewGroup, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(10, 10, 10))))
         );
 
         tabbedPane.addTab(bundle.getString("ResourceDialog.jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
@@ -705,7 +742,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -770,6 +807,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     private javax.swing.JButton deleteClipButton;
     private javax.swing.JButton deleteModelButton;
     private javax.swing.JButton deleteTilesetButton;
+    private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JTable detailsTable;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
@@ -792,7 +830,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
-    private javax.swing.JPanel modelDetailsGroup;
+    private javax.swing.JTable modelDetailsTable;
     private javax.swing.JLabel modelPreviewLabel;
     private javax.swing.JPanel modelViewGroup;
     private javax.swing.JList models;
