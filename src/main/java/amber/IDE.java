@@ -73,11 +73,6 @@ public class IDE extends javax.swing.JFrame {
         FileViewerPanel editor;
         try {
             editor = FileViewerPanel.fileViewerPanelFor(file);
-            for (JMenu menu : editor.getContextMenus()) {
-                System.out.println("adding menu " + menu);
-                menuBar.add(menu, menuBar.getComponentCount() - 1); // Help menu should always be last
-                menuBar.revalidate();
-            }
         } catch (Exception ex) {
             ex.printStackTrace();
             if (ex instanceof IOException) {
@@ -94,6 +89,10 @@ public class IDE extends javax.swing.JFrame {
             return;
         }
         content.addFileTab(editor);
+    }
+
+    public JMenuBar getMenu() {
+        return menuBar;
     }
 
     /**

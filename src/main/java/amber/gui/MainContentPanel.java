@@ -16,10 +16,13 @@ import amber.swing.tree.SmartExpander;
 import amber.swing.tree.Trees;
 import amber.tool.ToolDefinition;
 import amber.tool.ToolManifest;
-import java.awt.Component;
+
+import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -82,6 +85,28 @@ public class MainContentPanel extends javax.swing.JPanel {
                         activeFilesTabbedPane = null;
                     }
                     return true;
+                }
+            });
+            activeFilesTabbedPane.addChangeListener(new ChangeListener() {
+                int oldMenuCount = 0;
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JMenuBar menuBar = Amber.getUI().getMenu();
+                    for (int i = 0; i < oldMenuCount; ++i) {
+                        menuBar.remove(menuBar.getMenuCount() - 2);
+                    }
+
+                    Component component = activeFilesTabbedPane.getSelectedComponent();
+                    if (component instanceof FileViewerPanel) {
+                        JMenu[] menus = ((FileViewerPanel) component).getContextMenus();
+                        for (JMenu menu : menus) {
+                            menuBar.add(menu, menuBar.getComponentCount() - 1); // Help menu should always be last
+                        }
+                        oldMenuCount = menus.length;
+                    } else {
+                        oldMenuCount = 0;
+                    }
+                    menuBar.revalidate();
                 }
             });
             int location = projectDivider.getDividerLocation();
