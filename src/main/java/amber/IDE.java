@@ -55,7 +55,7 @@ public class IDE extends javax.swing.JFrame {
                     }
                 }
                 setVisible(false);
-                dispose();
+                System.exit(0);
             }
         });
     }
