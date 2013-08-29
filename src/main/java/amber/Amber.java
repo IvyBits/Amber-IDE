@@ -15,6 +15,7 @@ import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
 import amber.gui.misc.ErrorHandler;
+import amber.gui.misc.FileSystemIcon;
 import amber.gui.misc.TipOfTheDay;
 import amber.gui.viewers.AudioViewerPanel;
 import amber.gui.viewers.ImageViewerPanel;
@@ -25,6 +26,7 @@ import amber.tool.ToolDefinition;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -80,6 +82,7 @@ public class Amber {
             states.registerMacro("${GLOBAL.DIR}", root.getAbsolutePath());
             loadStates(Scope.GLOBAL);
 
+            setupFileIcons();
             setupFileViewers();
 
             main = new IDE();
@@ -103,6 +106,11 @@ public class Amber {
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
         FileViewerPanel.registerPanel(ImageViewerPanel.class, "jpg", "jpeg", "png", "gif", "bmp");
         FileViewerPanel.registerPanel(AudioViewerPanel.class, "wav", "midi", "mid", "aiff", "ogg");
+    }
+
+    private static void setupFileIcons() {
+        FileSystemIcon.setIcon("m", new ImageIcon(ClassLoader.getSystemResource("icon/General.Map.png")));
+        FileSystemIcon.setIcon("rb", new ImageIcon(ClassLoader.getSystemResource("icon/General.Script.png")));
     }
 
     private static void restoreLastWorkspace() throws Exception {

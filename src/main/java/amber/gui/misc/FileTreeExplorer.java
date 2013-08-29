@@ -26,8 +26,6 @@ import java.io.IOException;
 public class FileTreeExplorer extends FileTreeAdapter {
 
     private FileSystemTree tree;
-    private final ImageIcon SCRIPT_ICON = new ImageIcon(ClassLoader.getSystemResource("icon/General.Script.png"));
-    private final ImageIcon MAP_ICON = new ImageIcon(ClassLoader.getSystemResource("icon/General.Map.png"));
 
     public FileTreeExplorer(FileSystemTree system) {
         tree = system;
@@ -202,6 +200,6 @@ public class FileTreeExplorer extends FileTreeAdapter {
 
     @Override
     public Icon getIcon(File file, String ext, FileTreeNode path, Icon defaultIcon) {
-        return ext.equalsIgnoreCase(".rb") ? SCRIPT_ICON : ext.equalsIgnoreCase(".m") ? MAP_ICON : defaultIcon;
+        return FileSystemIcon.iconExists(ext) ? FileSystemIcon.getIcon(ext) : defaultIcon;
     }
 }

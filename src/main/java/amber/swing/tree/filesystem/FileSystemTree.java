@@ -1,5 +1,6 @@
 package amber.swing.tree.filesystem;
 
+import amber.data.io.FileIO;
 import amber.swing.tree.Trees;
 import java.awt.Component;
 import java.awt.Point;
@@ -87,12 +88,8 @@ public class FileSystemTree extends JTree {
                     FileTreeNode node = (FileTreeNode) value;
                     File file = node.getFile();
                     if (file != null) {
-                        String ext = "";
                         String name = file.getName();
-
-                        if (name.contains(".")) {
-                            ext = name.substring(name.lastIndexOf("."), name.length());
-                        }
+                        String ext = FileIO.getFileExtension(file);
 
                         JLabel result = (JLabel) super.getTreeCellRendererComponent(tree, name, sel, expanded, leaf, row, hasFocus);
                         Icon icon = iconCache.get(name);
