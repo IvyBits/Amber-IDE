@@ -1,4 +1,4 @@
-package amber.gui.editor.map;
+package amber.gui.editor.map._2d;
 
 import amber.data.map.Layer;
 import amber.data.map.LevelMap;
@@ -8,6 +8,8 @@ import amber.data.res.Tileset;
 import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
+import amber.gui.editor.map.IMapComponent;
+import amber.gui.editor.map.MapContext;
 import amber.gui.editor.map.tool._2d.Brush2D;
 import amber.gui.editor.map.tool._2d.Eraser2D;
 import amber.gui.editor.map.tool._2d.Fill2D;

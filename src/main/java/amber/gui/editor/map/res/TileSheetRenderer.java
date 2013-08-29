@@ -1,4 +1,4 @@
-package amber.gui.editor.map;
+package amber.gui.editor.map.res;
 
 import amber.data.res.Tileset;
 import amber.data.res.Tileset.TileSprite;

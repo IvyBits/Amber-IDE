@@ -6,7 +6,8 @@ import amber.data.res.IResourceListener;
 import amber.data.res.Resource;
 import amber.data.res.Tileset;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.editor.map.ModelSelector;
+import amber.gui.editor.map.res.ModelSelector;
+import amber.gui.editor.map.res.ModelThumbnail;
 import amber.gui.misc.AudioPlayerPanel;
 import amber.swing.UIUtil;
 import javax.sound.sampled.AudioFormat;
@@ -150,7 +151,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
                 String name = (String) models.getSelectedValue();
                 modelPreviewLabel.setText("");
                 WavefrontObject sheet = Amber.getResourceManager().getModel(name);
-                modelPreviewLabel.setIcon(sheet != null ? new ImageIcon(ModelSelector.makeImage(sheet, 150, 150)) : null);
+                modelPreviewLabel.setIcon(sheet != null ? new ImageIcon(ModelThumbnail.getModelImage(sheet, 150, 150)) : null);
             }
         });
     }

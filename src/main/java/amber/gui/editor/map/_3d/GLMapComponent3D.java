@@ -1,4 +1,4 @@
-package amber.gui.editor.map;
+package amber.gui.editor.map._3d;
 
 import amber.Amber;
 import amber.data.map.Layer;
@@ -21,6 +21,7 @@ import amber.gl.TrueTypeFont;
 import amber.gl.camera.EulerCamera;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gl.tess.ITesselator;
+import amber.gui.editor.map.AbstractGLMapComponent;
 import static amber.gui.editor.map.MapContext.*;
 import amber.gui.editor.map.tool._3d.Brush3D;
 import amber.gui.editor.map.tool._3d.Eraser3D;

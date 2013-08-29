@@ -8,6 +8,7 @@ import amber.data.state.node.IState;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.tool.ToolPanel;
 import amber.gui.misc.FileTreeExplorer;
+import amber.swing.UIUtil;
 import amber.swing.tabs.CloseableTabbedPane;
 import amber.swing.tabs.CloseableTabbedPane.CloseableTabComponent;
 import amber.swing.tabs.TabCloseListener;

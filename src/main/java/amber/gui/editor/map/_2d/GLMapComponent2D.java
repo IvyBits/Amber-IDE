@@ -1,4 +1,4 @@
-package amber.gui.editor.map;
+package amber.gui.editor.map._2d;
 
 import amber.data.res.Tileset;
 import amber.data.map.Layer;
@@ -13,6 +13,7 @@ import amber.gl.Texture;
 import amber.gl.TrueTypeFont;
 import amber.gl.tess.ITesselator;
 import amber.gl.tess.ImmediateTesselator;
+import amber.gui.editor.map.AbstractGLMapComponent;
 import static amber.gui.editor.map.MapContext.*;
 import amber.gui.editor.map.tool._2d.*;
 import amber.input.AbstractKeyboard;

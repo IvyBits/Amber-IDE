@@ -5,7 +5,8 @@ import amber.data.state.Scope;
 import amber.data.state.State;
 import amber.os.Natives;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.editor.map.ModelSelector;
+import amber.gui.editor.map.res.ModelSelector;
+import amber.gui.editor.map.res.ModelThumbnail;
 import amber.gui.misc.ErrorHandler;
 import amber.os.filechooser.FileDialogFactory;
 import amber.os.filechooser.IFileDialog;
@@ -73,7 +74,7 @@ public class NewModelDialog extends javax.swing.JDialog {
 
                     try {
                         previewLabel.setText("");
-                        previewLabel.setIcon(new ImageIcon(ModelSelector.makeImage(model, 100, 100)));
+                        previewLabel.setIcon(new ImageIcon(ModelThumbnail.getModelImage(model, 100, 100)));
                         previewGroup.validate();
                     } catch (Exception e) {
                         e.printStackTrace();
