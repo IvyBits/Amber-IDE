@@ -79,7 +79,7 @@ public class Layer implements Cloneable {
      * @return the length
      */
     public int getHeight() {
-        return tiles.size();
+        return tiles.nonZeroEntries();
     }
 
     public String getName() {
