@@ -12,7 +12,6 @@ import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.data.math.vec.Ray;
 import amber.data.math.vec.Vec3d;
-import amber.gl.Buffers;
 import amber.input.AbstractKeyboard;
 import amber.gl.FrameTimer;
 import amber.gl.GLColor;
@@ -43,7 +42,6 @@ import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 import static org.lwjgl.opengl.GL11.*;
 import static amber.input.AbstractKeyboard.*;
 import static amber.input.AbstractMouse.*;
@@ -65,7 +63,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import javax.swing.UIManager;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLContext;
@@ -215,19 +212,20 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 break;
             case Keyboard.KEY_I:
                 if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                    int w = getWidth();
+                    int h = getHeight();
                     glReadBuffer(GL_FRONT);
-                    int width = getWidth();
-                    int height = getHeight();
-                    ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
-                    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-                    BufferedImage shot = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                    for (int x = 0; x < width; x++) {
-                        for (int y = 0; y < height; y++) {
-                            int i = (x + (width * y)) * 4;
-                            shot.setRGB(x, height - (y + 1), (0xFF << 24)
-                                    | (buffer.get(i) & 0xFF << 16)
-                                    | (buffer.get(i + 1) & 0xFF << 8)
-                                    | buffer.get(i + 2) & 0xFF);
+                    int bpp = 4; // Assuming a 32-bit display with a byte each for red, green, blue, and alpha.
+                    ByteBuffer buffer = BufferUtils.createByteBuffer(w * h * bpp);
+                    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                    BufferedImage shot = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                    for (int x = 0; x < w; x++) {
+                        for (int y = 0; y < h; y++) {
+                            int i = (x + (w * y)) * bpp;
+                            int r = buffer.get(i) & 0xFF;
+                            int g = buffer.get(i + 1) & 0xFF;
+                            int b = buffer.get(i + 2) & 0xFF;
+                            shot.setRGB(x, h - (y + 1), (0xFF << 24) | (r << 16) | (g << 8) | b);
                         }
                     }
                     TransferableImage trans = new TransferableImage(shot);
