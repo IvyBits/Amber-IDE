@@ -12,6 +12,7 @@ import amber.data.state.node.SimpleState;
 import amber.data.state.xml.XMLStateManager;
 import amber.gui.AmberUIManager;
 import amber.gui.editor.FileViewerPanel;
+import amber.gui.editor.linker.MapLinkerPanel;
 import amber.gui.editor.map.MapEditorPanel;
 import amber.gui.editor.text.ScriptEditorPanel;
 import amber.gui.misc.ErrorHandler;
@@ -22,6 +23,7 @@ import amber.gui.viewers.ImageViewerPanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;
 import amber.tool.ToolDefinition;
+import java.awt.EventQueue;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -85,12 +87,22 @@ public class Amber {
             setupFileIcons();
             setupFileViewers();
 
-            main = new IDE();
-            restoreLastWorkspace();
-            main.setVisible(true);
-            showTipOfTheDay();
-
-            states.registerStateOwner(Amber.class);
+            Settings.load();
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    main = new IDE();
+                    try {
+                        System.out.println("AAA");
+                        restoreLastWorkspace();
+                        System.out.println("BBB");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    main.setVisible(true);
+                    showTipOfTheDay();
+                    states.registerStateOwner(Amber.class);
+                }
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -106,6 +118,7 @@ public class Amber {
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
         FileViewerPanel.registerPanel(ImageViewerPanel.class, "jpg", "jpeg", "png", "gif", "bmp");
         FileViewerPanel.registerPanel(AudioViewerPanel.class, "wav", "midi", "mid", "aiff", "ogg");
+        FileViewerPanel.registerPanel(MapLinkerPanel.class, "mlnk");
     }
 
     private static void setupFileIcons() {
@@ -115,6 +128,7 @@ public class Amber {
 
     private static void restoreLastWorkspace() throws Exception {
         IState lastProject = states.getState(Scope.GLOBAL, "LastProjectDirectory");
+        System.out.println(lastProject + " is null?");
         if (workspace == null && lastProject != null && lastProject.get() != null) {
             File root = new File((String) lastProject.get());
             System.out.println("Loaded project " + root);
@@ -132,7 +146,6 @@ public class Amber {
         states.registerMacro("${PROJECT.DIR}", workspace.getDataDirectory().getAbsolutePath());
         states.clearStates(Scope.PROJECT);
         states.loadStates(Scope.PROJECT);
-        Settings.load();
         main.loadProject(workspace);
         main.setTitle(String.format("Amber IDE (%s)", root.getAbsolutePath()));
         Storage.recentProjects.put(workspace.getRootDirectory().getAbsolutePath(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));

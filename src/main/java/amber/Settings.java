@@ -5,9 +5,12 @@ import amber.data.state.Scope;
 import amber.data.state.node.IState;
 import amber.os.OS;
 import amber.swing.UIUtil;
+import java.awt.EventQueue;
 
 import java.awt.Font;
 import java.awt.Window;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -20,7 +23,7 @@ public class Settings {
     public static final int SETTINGS = 2;
 
     static {
-        Scope.defineScope(SETTINGS, "${PROJECT.DIR}", "settings");
+        Scope.defineScope(SETTINGS, "${GLOBAL.DIR}", "settings");
     }
 
     public static void load() throws Exception {
@@ -72,19 +75,25 @@ public class Settings {
     }
 
     public static void updateLaF() {
-        try {
-            if (laf != null) {
-                UIManager.setLookAndFeel(laf);
-            } else {
-                UIUtil.makeNative();
-                laf = UIManager.getSystemLookAndFeelClassName();
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    if (laf != null) {
+                        JFrame.setDefaultLookAndFeelDecorated(false);
+                        JDialog.setDefaultLookAndFeelDecorated(false);
+                        UIManager.setLookAndFeel(laf);
+                    } else {
+                        UIUtil.makeNative();
+                        laf = UIManager.getSystemLookAndFeelClassName();
+                    }
+                    for (Window w : Window.getWindows()) {
+                        SwingUtilities.updateComponentTreeUI(w);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            for (Window w : Window.getWindows()) {
-                SwingUtilities.updateComponentTreeUI(w);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     @LazyState(scope = SETTINGS, name = "uiFont")

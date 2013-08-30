@@ -1,12 +1,16 @@
 package amber.gui.dialogs;
 
 import amber.Settings;
-import amber.gui.AmberUIManager;
 import amber.swing.UIUtil;
+import java.awt.Dialog;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Window;
+import java.awt.im.InputContext;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -15,6 +19,35 @@ import javax.swing.UIManager.LookAndFeelInfo;
  * @author Tudor
  */
 public class SettingsDialog extends javax.swing.JDialog {
+
+    private static final HashMap<String, String> substanceLaF = new HashMap<String, String>();
+
+    static {
+        substanceLaF.put("Substance Nebula", "org.pushingpixels.substance.api.skin.SubstanceNebulaLookAndFeel");
+        substanceLaF.put("Substance Sahara", "org.pushingpixels.substance.api.skin.SubstanceSaharaLookAndFeel");
+        substanceLaF.put("Substance Business Black Steel", "org.pushingpixels.substance.api.skin.SubstanceBusinessBlackSteelLookAndFeel");
+        substanceLaF.put("Substance Office Silver 2007", "org.pushingpixels.substance.api.skin.SubstanceOfficeSilver2007LookAndFeel");
+        substanceLaF.put("Substance Autumn", "org.pushingpixels.substance.api.skin.SubstanceAutumnLookAndFeel");
+        substanceLaF.put("Substance Business", "org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel");
+        substanceLaF.put("Substance Creme", "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel");
+        substanceLaF.put("Substance Mariner", "org.pushingpixels.substance.api.skin.SubstanceMarinerLookAndFeel");
+        substanceLaF.put("Substance Dust Coffee", "org.pushingpixels.substance.api.skin.SubstanceDustCoffeeLookAndFeel");
+        substanceLaF.put("Substance Dust", "org.pushingpixels.substance.api.skin.SubstanceDustLookAndFeel");
+        substanceLaF.put("Substance Graphite Aqua", "org.pushingpixels.substance.api.skin.SubstanceGraphiteAquaLookAndFeel");
+        substanceLaF.put("Substance Business Blue Steel", "org.pushingpixels.substance.api.skin.SubstanceBusinessBlueSteelLookAndFeel");
+        substanceLaF.put("Substance Moderate", "org.pushingpixels.substance.api.skin.SubstanceModerateLookAndFeel");
+        substanceLaF.put("Substance Emerald Dusk", "org.pushingpixels.substance.api.skin.SubstanceEmeraldDuskLookAndFeel");
+        substanceLaF.put("Substance Creme Coffee", "org.pushingpixels.substance.api.skin.SubstanceCremeCoffeeLookAndFeel");
+        substanceLaF.put("Substance Gemini", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
+        substanceLaF.put("Substance Office Blue 2007", "org.pushingpixels.substance.api.skin.SubstanceOfficeBlue2007LookAndFeel");
+        substanceLaF.put("Substance Raven", "org.pushingpixels.substance.api.skin.SubstanceRavenLookAndFeel");
+        substanceLaF.put("Substance Office Black 2007", "org.pushingpixels.substance.api.skin.SubstanceOfficeBlack2007LookAndFeel");
+        substanceLaF.put("Substance Magellan", "org.pushingpixels.substance.api.skin.SubstanceMagellanLookAndFeel");
+        substanceLaF.put("Substance Graphite Glass", "org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel");
+        substanceLaF.put("Substance Challenger Deep", "org.pushingpixels.substance.api.skin.SubstanceChallengerDeepLookAndFeel");
+        substanceLaF.put("Substance Nebula Brick Wall", "org.pushingpixels.substance.api.skin.SubstanceNebulaBrickWallLookAndFeel");
+        substanceLaF.put("Substance Graphite", "org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel");
+    }
 
     /**
      * Creates new form SettingsDialog
@@ -26,8 +59,12 @@ public class SettingsDialog extends javax.swing.JDialog {
         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
             ((DefaultComboBoxModel) lafCombobox.getModel()).addElement(info.getName());
         }
+        for (String laf : substanceLaF.keySet()) {
+            ((DefaultComboBoxModel) lafCombobox.getModel()).addElement(laf);
+        }
+        System.out.println(UIManager.getLookAndFeel().getName());
         lafCombobox.setSelectedItem(UIManager.getLookAndFeel().getName());
-        
+
         Font def = Settings.getUIFont();
         fontChooser.setSelectedFont(def);
         fontChooser.setSelectedFontSize(def.getSize());
@@ -175,15 +212,21 @@ public class SettingsDialog extends javax.swing.JDialog {
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
         // Appearance tab
         if (!lafCombobox.getSelectedItem().equals(UIManager.getLookAndFeel().getName())) {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if (lafCombobox.getSelectedItem().equals(info.getName())) {
-                   Settings.setLaFClassName(info.getClassName());
-                   Settings.updateLaF();
+                    Settings.setLaFClassName(info.getClassName());
+                    Settings.updateLaF();
+                }
+            }
+            for (Map.Entry<String, String> substance : substanceLaF.entrySet()) {
+                if (lafCombobox.getSelectedItem().equals(substance.getKey())) {
+                    Settings.setLaFClassName(substance.getValue());
+                    Settings.updateLaF();
                 }
             }
         }
-        
-        if(!fontChooser.getSelectedFont().equals(Settings.getUIFont())) {
+
+        if (!fontChooser.getSelectedFont().equals(Settings.getUIFont())) {
             Settings.setUIFont(fontChooser.getSelectedFont());
             Settings.updateFont();
         }

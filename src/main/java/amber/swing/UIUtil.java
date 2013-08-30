@@ -45,7 +45,9 @@ public class UIUtil {
         System.setProperty("sun.java2d.noddraw", "true");
 
         System.setProperty("swing.aatext", "true");
-
+        
+        JFrame.setDefaultLookAndFeelDecorated(false);
+        JDialog.setDefaultLookAndFeelDecorated(false);
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setReshowDelay(0);
