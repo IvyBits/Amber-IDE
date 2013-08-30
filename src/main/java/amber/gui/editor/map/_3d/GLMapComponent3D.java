@@ -12,6 +12,7 @@ import amber.data.sparse.SparseMatrix;
 import amber.data.sparse.SparseVector;
 import amber.data.math.vec.Ray;
 import amber.data.math.vec.Vec3d;
+import amber.gl.Buffers;
 import amber.input.AbstractKeyboard;
 import amber.gl.FrameTimer;
 import amber.gl.GLColor;
@@ -50,6 +51,8 @@ import amber.swing.misc.TransferableImage;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.ScrollPane;
@@ -57,11 +60,14 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import javax.swing.UIManager;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 /**
@@ -93,6 +99,28 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
         display.add(this);
+        addFocusListener(new FocusListener() {
+            private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
+                @Override
+                public boolean dispatchKeyEvent(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_ALT) {
+                        doKey(Keyboard.KEY_LMENU);
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(altDisabler);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
+            }
+        });
     }
 
     @Override
@@ -116,6 +144,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         glShadeModel(GL_SMOOTH);
+        glEnable(GL_POLYGON_OFFSET_FILL);
 
         timer.start();
 
@@ -190,7 +219,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     int width = getWidth();
                     int height = getHeight();
                     ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
-                    GL11.glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
                     BufferedImage shot = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                     for (int x = 0; x < width; x++) {
                         for (int y = 0; y < height; y++) {
@@ -255,12 +284,14 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
 
         cam.applyTranslations();
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
+        //glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_DEPTH_TEST);
 
         List<Layer> layers = context.map.getLayers();
         // Fix for z-buffer fighting        
         glPolygonOffset(1, 1);
+
+        glPopAttrib();
         for (int i = 0; i != layers.size(); i++) {
             drawLayer(layers.get(i));
         }
@@ -297,6 +328,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 font.drawString(0, getHeight() - font.getHeight(), "FPS: " + timer.fps() + "\n"
                         + "Position: (" + (int) cam.x() + ", " + (int) cam.y() + ", " + (int) cam.z() + ")\n"
                         + "Altitude: " + cursorPos.y + "\n"
+                        + "Direction: " + cam.getFacingDirection() + "\n"
                         + (!AbstractMouse.isGrabbed() ? "Cursor: (" + (int) cursorPos.x + ", " + (int) cursorPos.z + ")" : ""), 1f, 1f, TrueTypeFont.ALIGN_LEFT);
                 glPopAttrib();
             }
@@ -330,7 +362,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
 
         tess.startModelBatch();
         SparseVector.SparseVectorIterator modelIterator = modelVector.iterator();
-        while (modelIterator.hasNext() && modelVector.size() > 0) {
+        while (modelIterator.hasNext()) {
             SparseMatrix<TileModel> matrix = (SparseMatrix<TileModel>) modelIterator.next();
             SparseMatrix.SparseMatrixIterator matrixIterator = matrix.iterator();
             int z = modelIterator.realIndex();

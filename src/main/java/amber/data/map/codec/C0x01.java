@@ -26,7 +26,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -77,7 +76,6 @@ public class C0x01 extends Codec {
                 case TAG_MODEL:
                     short id = buffer.readShort();
                     String name = buffer.readUTF();
-                    System.out.println("Read model: " + id + "::" + name);
                     for (Resource<WavefrontObject> e : Amber.getResourceManager().getModels()) {
                         if (e.getName().equals(name)) {
                             models.put(id, e.get());
@@ -177,7 +175,7 @@ public class C0x01 extends Codec {
             layers.writeShort(layer.getWidth());
             layers.writeShort(layer.getLength());
 
-            layers.writeInt(layer.tileMatrix().size());
+            layers.writeInt(layer.tileMatrix().nonZeroEntries());
             SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
             while (tileIterator.hasNext()) {
                 SparseMatrix<Tile> matrix = (SparseMatrix<Tile>) tileIterator.next();
@@ -261,7 +259,14 @@ public class C0x01 extends Codec {
 
             if (layer instanceof Layer3D) {
                 Layer3D l3d = (Layer3D) layer;
-                layers.writeInt(l3d.modelMatrix().size());
+                int nz = 0;
+                for(SparseMatrix<TileModel> matrix : l3d.modelMatrix()) {
+                    for(TileModel u : matrix) {
+                        if(u != null)
+                            nz++;
+                    }
+                }
+                layers.writeInt(nz);
                 SparseVector.SparseVectorIterator modelIterator = l3d.modelMatrix().iterator();
                 HashMap<WavefrontObject, String> modelIds = new HashMap<WavefrontObject, String>();
                 for (Resource<WavefrontObject> models : Amber.getResourceManager().getModels()) {
@@ -288,7 +293,6 @@ public class C0x01 extends Codec {
             }
         }
 
-        System.out.println("Write " + constantsCount);
         buffer.writeShort(constantsCount);
         buffer.writeBytes(constants.getBuffer());
         buffer.writeShort(map.getLayers().size());

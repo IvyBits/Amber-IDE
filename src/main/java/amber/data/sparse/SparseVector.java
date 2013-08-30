@@ -19,7 +19,7 @@
  */
 package amber.data.sparse;
 
-import amber.data.OS;
+import amber.os.OS;
 import java.util.Iterator;
 
 /**
@@ -64,10 +64,6 @@ public class SparseVector<T> implements Iterable<T>, Cloneable {
 
     public SparseVector() {
         this(Integer.MAX_VALUE);
-    }
-
-    public int size() {
-        return used;
     }
 
     public void set(int index, T value) {
