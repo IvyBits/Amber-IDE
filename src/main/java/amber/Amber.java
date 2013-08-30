@@ -118,7 +118,6 @@ public class Amber {
         FileViewerPanel.registerPanel(MapEditorPanel.class, "m");
         FileViewerPanel.registerPanel(ImageViewerPanel.class, "jpg", "jpeg", "png", "gif", "bmp");
         FileViewerPanel.registerPanel(AudioViewerPanel.class, "wav", "midi", "mid", "aiff", "ogg");
-        FileViewerPanel.registerPanel(MapLinkerPanel.class, "mlnk");
     }
 
     private static void setupFileIcons() {
