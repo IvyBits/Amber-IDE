@@ -2,6 +2,8 @@ package amber.gui;
 
 import amber.Amber;
 import amber.data.Workspace;
+import amber.data.io.FileMonitor;
+import amber.data.io.FileMonitor.FileListener;
 import amber.data.state.LazyState;
 import amber.data.state.Scope;
 import amber.data.state.node.IState;
@@ -14,10 +16,12 @@ import amber.swing.tabs.CloseableTabbedPane.CloseableTabComponent;
 import amber.swing.tabs.TabCloseListener;
 import amber.swing.tree.SmartExpander;
 import amber.swing.tree.Trees;
+import amber.swing.tree.filesystem.FileSystemTree;
 import amber.tool.ToolDefinition;
 import amber.tool.ToolManifest;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import javax.swing.*;
@@ -32,6 +36,7 @@ public class MainContentPanel extends javax.swing.JPanel {
 
     protected HashMap<Component, String> activeFiles = new HashMap<Component, String>();
     protected CloseableTabbedPane activeFilesTabbedPane;
+    protected FileMonitor monitor;
     protected JLabel openFileLabel = new JLabel("Double-click a file to open it.", JLabel.CENTER);
 
     @LazyState(scope = Scope.PROJECT, name = "ProjectTreeExpansion")
@@ -48,14 +53,27 @@ public class MainContentPanel extends javax.swing.JPanel {
         treeView.addFileTreeAdapter(new FileTreeExplorer(treeView));
         treeView.setRoot(workspace.getRootDirectory());
         IState treeState = Amber.getStateManager().getState(Scope.PROJECT, "ProjectTreeExpansion");
-
         if (treeState != null) {
             Trees.restoreExpanstionState(treeView, 0, (String) treeState.get());
         }
         Amber.getStateManager().registerStateOwner(this);
         SmartExpander.installOn(treeView);
         treeView.setRootVisible(true);
+        monitor = new FileMonitor(1500);
+        monitor.addFile(workspace.getRootDirectory());
+        monitor.addListener(new FileListener(){
+
+            public void fileChanged(File file) {
+                System.out.println("Changed: " + file);
+                treeView.synchronize();
+            }
+        });
         projectDivider.setRightComponent(openFileLabel);
+    }
+    
+    @Override
+    public void removeNotify() {
+        monitor.stop();
     }
 
     public CloseableTabbedPane getFilesTabbedPane() {
@@ -149,6 +167,10 @@ public class MainContentPanel extends javax.swing.JPanel {
                 + "&nbsp;&nbsp;&nbsp;%s"
                 + "</html>", mf.name(), mf.version(), Arrays.toString(mf.authors()), mf.description()));
         getFilesTabbedPane().setSelectedIndex(getFilesTabbedPane().getTabCount() - 1);
+    }
+    
+    public FileSystemTree getFileTree() {
+        return treeView;
     }
 
     /**
