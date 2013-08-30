@@ -258,10 +258,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected FrameTimer timer = new FrameTimer();
 
     protected void onKeyPress(KeyEvent e) {
-        int delta = timer.getDelta() / 5;
-        if (delta > 200) {
-            delta = 200;
-        }
+        int delta = Math.min(timer.getDelta() / 5, 200);
         if (e.getModifiersEx() == 0) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_W:
