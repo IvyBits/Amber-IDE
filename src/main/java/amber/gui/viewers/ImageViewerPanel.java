@@ -1,5 +1,6 @@
 package amber.gui.viewers;
 
+import amber.gl.FrameTimer;
 import amber.gui.editor.FileViewerPanel;
 
 import java.awt.*;
@@ -39,6 +40,7 @@ public class ImageViewerPanel extends FileViewerPanel {
                     ly = e.getYOnScreen();
                     if (container.getWidth() > imageWidth() || container.getHeight() > imageHeight())
                         container.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    requestFocusInWindow();
                 }
 
                 @Override
@@ -81,6 +83,35 @@ public class ImageViewerPanel extends FileViewerPanel {
                         container.revalidate();
                         sx.setValue((int) ((sx.getValue() + vx) * multiplier) - sx.getVisibleAmount() / 2);
                         sy.setValue((int) ((sy.getValue() + vy) * multiplier) - sx.getVisibleAmount() / 2);
+                    }
+                }
+            });
+
+            addKeyListener(new KeyAdapter() {
+                protected FrameTimer timer = new FrameTimer();
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.getModifiersEx() == 0) {
+                        int delta = Math.min(timer.getDelta() / 5, 200);
+                        switch (e.getKeyCode()) {
+                            case KeyEvent.VK_W:
+                            case KeyEvent.VK_UP:
+                                container.getVerticalScrollBar().setValue(container.getVerticalScrollBar().getValue() - delta);
+                                break;
+                            case KeyEvent.VK_S:
+                            case KeyEvent.VK_DOWN:
+                                container.getVerticalScrollBar().setValue(container.getVerticalScrollBar().getValue() + delta);
+                                break;
+                            case KeyEvent.VK_A:
+                            case KeyEvent.VK_LEFT:
+                                container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() - delta);
+                                break;
+                            case KeyEvent.VK_D:
+                            case KeyEvent.VK_RIGHT:
+                                container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() + delta);
+                                break;
+                        }
                     }
                 }
             });
