@@ -10,11 +10,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Enumeration;
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -48,8 +46,6 @@ public class UIUtil {
 
         System.setProperty("swing.aatext", "true");
 
-        JFrame.setDefaultLookAndFeelDecorated(false);
-        JDialog.setDefaultLookAndFeelDecorated(false);
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setReshowDelay(0);

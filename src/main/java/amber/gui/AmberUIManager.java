@@ -24,6 +24,6 @@ public class AmberUIManager {
     public static void setup() {
         UIManager.put("MapEditor.font", new Font(available("Consolas", "DejaVu Sans Mono", "Inconsolata", "Courier New", "Courier"), Font.PLAIN, 15));
         UIManager.put("MapEditor.background", Color.WHITE);
-        Settings.setFont();
+        Settings.updateFont();
     }
 }

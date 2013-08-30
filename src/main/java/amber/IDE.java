@@ -6,6 +6,7 @@ import amber.gui.dialogs.AboutDialog;
 import amber.gui.dialogs.JFontChooser;
 import amber.gui.dialogs.NewProjectDialog;
 import amber.gui.dialogs.ResourceDialog;
+import amber.gui.dialogs.SettingsDialog;
 import amber.gui.editor.FileViewerPanel;
 import amber.gui.misc.StartPagePanel;
 import amber.swing.Dialogs;
@@ -129,6 +130,7 @@ public class IDE extends javax.swing.JFrame {
         openItem = new javax.swing.JMenuItem();
         saveItem = new javax.swing.JMenuItem();
         saveAsItem = new javax.swing.JMenuItem();
+        settingsItem = new javax.swing.JMenuItem();
         synchItem = new javax.swing.JMenuItem();
         resourcesItem = new javax.swing.JMenu();
         manageItem = new javax.swing.JMenuItem();
@@ -136,8 +138,6 @@ public class IDE extends javax.swing.JFrame {
         newTilesetItem = new javax.swing.JMenuItem();
         newAudioItem = new javax.swing.JMenuItem();
         newModelItem = new javax.swing.JMenuItem();
-        settingsMenu = new javax.swing.JMenu();
-        fontItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         aboutItem = new javax.swing.JMenuItem();
 
@@ -213,11 +213,6 @@ public class IDE extends javax.swing.JFrame {
         saveButton.setMinimumSize(new java.awt.Dimension(28, 32));
         saveButton.setPreferredSize(new java.awt.Dimension(28, 32));
         saveButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        saveButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveItemActionPerformed(evt);
-            }
-        });
         jToolBar1.add(saveButton);
         jToolBar1.add(jSeparator4);
 
@@ -273,11 +268,25 @@ public class IDE extends javax.swing.JFrame {
 
         saveItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         saveItem.setText(bundle.getString("IDE.saveItem.text")); // NOI18N
+        saveItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveItemActionPerformed(evt);
+            }
+        });
         fileMenu.add(saveItem);
 
         saveAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         saveAsItem.setText(bundle.getString("IDE.saveAsItem.text")); // NOI18N
         fileMenu.add(saveAsItem);
+
+        settingsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F7, java.awt.event.InputEvent.ALT_MASK));
+        settingsItem.setText(bundle.getString("IDE.settingsItem.text")); // NOI18N
+        settingsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(settingsItem);
 
         synchItem.setText(bundle.getString("IDE.synchItem.text")); // NOI18N
         synchItem.addActionListener(new java.awt.event.ActionListener() {
@@ -309,18 +318,6 @@ public class IDE extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
-        settingsMenu.setText(bundle.getString("IDE.settingsMenu.text")); // NOI18N
-
-        fontItem.setText(bundle.getString("IDE.fontItem.text")); // NOI18N
-        fontItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fontItemActionPerformed(evt);
-            }
-        });
-        settingsMenu.add(fontItem);
-
-        menuBar.add(settingsMenu);
-
         helpMenu.setText(bundle.getString("IDE.helpMenu.text")); // NOI18N
 
         aboutItem.setText(bundle.getString("IDE.aboutItem.text")); // NOI18N
@@ -346,17 +343,17 @@ public class IDE extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 821, Short.MAX_VALUE)
                 .addGap(14, 14, 14))
-            .addComponent(headerSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(contentPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(headerSeparator)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(headerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+                .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(footerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -425,20 +422,14 @@ public class IDE extends javax.swing.JFrame {
         saveButtonActionPerformed(evt);
     }//GEN-LAST:event_saveItemActionPerformed
 
-    private void fontItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItemActionPerformed
-        JFontChooser chooser = new JFontChooser();
-        chooser.setFont(Settings.getUIFont());
-        if (chooser.showDialog(this) == JFontChooser.OK_OPTION) {
-            Settings.font = chooser.getSelectedFont().getName();
-            UIUtil.setUIFont(Settings.getUIFont());
-            SwingUtilities.updateComponentTreeUI(this);
-        }
-    }//GEN-LAST:event_fontItemActionPerformed
+    private void settingsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsItemActionPerformed
+        new SettingsDialog(this).setVisible(true);
+    }//GEN-LAST:event_settingsItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItem;
     private javax.swing.JPanel contentPane;
     private javax.swing.JMenu fileMenu;
-    private javax.swing.JMenuItem fontItem;
     private javax.swing.JSeparator footerSeparator;
     private javax.swing.JSeparator headerSeparator;
     private javax.swing.JMenu helpMenu;
@@ -469,7 +460,7 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveAsItem;
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem saveItem;
-    private javax.swing.JMenu settingsMenu;
+    private javax.swing.JMenuItem settingsItem;
     private javax.swing.JMenuItem synchItem;
     // End of variables declaration//GEN-END:variables
 }
