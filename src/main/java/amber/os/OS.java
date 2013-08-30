@@ -94,15 +94,22 @@ public class OS {
 
     public static void loadNativeLibraries() {
         Natives.unpack();
-        try {
-            String path = System.getProperty("amber.os.librarypath");
-            System.load(path);
-            amberosLoaded = true;
-        } catch (Exception e) {
-            System.err.println("Can't load AmberOS, OS-specific utilities will not work");
-            e.printStackTrace();
+        loadAmberOS();
+    }
+
+    protected static void loadAmberOS() {
+        String path = System.getProperty("amber.os.librarypath");
+        if (path != null) {
+            try {
+                System.load(path);
+                amberosLoaded = true;
+            } catch (Exception e) {
+                System.err.println("Can't load AmberOS, OS-specific utilities will not work");
+                e.printStackTrace();
+                amberosLoaded = false;
+            }
+        } else
             amberosLoaded = false;
-        }
     }
 
     public static boolean osLibrariesLoaded() {
