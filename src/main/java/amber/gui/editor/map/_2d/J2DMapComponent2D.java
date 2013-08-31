@@ -66,22 +66,42 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         });
 
         MouseAdapter adapter = new MouseAdapter() {
+            int lx, ly;
             @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-                onMouseDown(mouseEvent);
+            public void mouseDragged(MouseEvent e) {
+                if (e.isControlDown()) {
+                    int dx = lx - e.getXOnScreen();
+                    int dy = ly - e.getYOnScreen();
+                    display.getHorizontalScrollBar().setValue(display.getHorizontalScrollBar().getValue() + dx);
+                    display.getVerticalScrollBar().setValue(display.getVerticalScrollBar().getValue() + dy);
+
+                    lx = e.getXOnScreen();
+                    ly = e.getYOnScreen();
+                } else
+                    onMouseDown(e);
             }
 
             @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-                onMouseMove(mouseEvent);
+            public void mouseMoved(MouseEvent e) {
+                onMouseMove(e);
                 if (moved) {
                     repaint();
                 }
             }
 
             @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-                onMouseDown(mouseEvent);
+            public void mouseReleased(MouseEvent e) {
+                if (e.isControlDown())
+                    mouseDragged(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isControlDown()) {
+                    lx = e.getXOnScreen();
+                    ly = e.getYOnScreen();
+                } else
+                    onMouseDown(e);
             }
         };
 

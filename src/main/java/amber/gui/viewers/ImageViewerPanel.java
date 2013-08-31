@@ -38,7 +38,7 @@ public class ImageViewerPanel extends FileViewerPanel {
                 public void mousePressed(MouseEvent e) {
                     lx = e.getXOnScreen();
                     ly = e.getYOnScreen();
-                    if (container.getWidth() > imageWidth() || container.getHeight() > imageHeight())
+                    if (container.getWidth() < imageWidth() || container.getHeight() < imageHeight())
                         container.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     requestFocusInWindow();
                 }
@@ -54,7 +54,7 @@ public class ImageViewerPanel extends FileViewerPanel {
                     container.setCursor(Cursor.getDefaultCursor());
                 }
 
-                synchronized void moveImage(MouseEvent e) {
+                void moveImage(MouseEvent e) {
                     if (container.getWidth() < imageWidth()) {
                         int dx = lx - e.getXOnScreen();
                         container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() + dx);
