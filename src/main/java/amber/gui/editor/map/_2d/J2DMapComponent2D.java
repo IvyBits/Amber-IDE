@@ -266,9 +266,16 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         g.setStroke(stroke2);
         if (cursorPos != null) {
-            Dimension size = currentTool().getDrawRectangleSize();
+            Tool2D currentTool = currentTool();
+            Dimension size = currentTool.getDrawRectangleSize();
             if (size.height > 0 && size.width > 0) {
-                g.drawRect(cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u, size.width * u, size.height * u);
+                int x = cursorPos.x * u, y = context.map.getLength() * u - cursorPos.y * u - size.height * u;
+                int width = size.width * u, height = size.height * u;
+                g.drawRect(x, y, width, height);
+                Composite old = g.getComposite();
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .7f));
+                g.drawImage(currentTool.getPreview(), x, y, width, height, null);
+                g.setComposite(old);
             }
         }
 
