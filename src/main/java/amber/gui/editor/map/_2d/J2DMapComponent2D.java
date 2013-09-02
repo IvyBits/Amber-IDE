@@ -270,8 +270,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getLength() * u);
 
         g.setStroke(stroke2);
-        if (cursorPos != null) {
-            Tool2D currentTool = currentTool();
+        Tool2D currentTool = currentTool();
+        if (cursorPos != null && currentTool != null) {
             Dimension size = currentTool.getDrawRectangleSize();
             if (size.height > 0 && size.width > 0) {
                 int x = cursorPos.x * u, y = context.map.getLength() * u - cursorPos.y * u - size.height * u;
