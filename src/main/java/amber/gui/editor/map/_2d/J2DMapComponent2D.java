@@ -25,6 +25,8 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import static amber.gui.editor.map.MapContext.MODE_BRUSH;
 import static amber.gui.editor.map.MapContext.MODE_ERASE;
@@ -88,7 +90,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                onMouseMove(e);
+                onMouseMove(e.getX(), e.getY());
                 if (moved) {
                     repaint();
                 }
@@ -123,6 +125,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     updateSize();
                     e.consume();
                 }
+            }
+        });
+
+        display.getViewport().addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                Point point = MouseInfo.getPointerInfo().getLocation();
+                SwingUtilities.convertPointFromScreen(point, J2DMapComponent2D.this);
+                onMouseMove(point.x, point.y);
             }
         });
 
@@ -365,7 +376,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected void onMouseDown(MouseEvent e) {
         requestFocusInWindow();
-        onMouseMove(e);
+        onMouseMove(e.getX(), e.getY());
         if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED)
                 || (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
             LevelMap pre = context.map.clone();
@@ -379,8 +390,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         }
     }
 
-    protected void onMouseMove(MouseEvent e) {
-        int x = e.getX() / u, y = context.map.getLength() - e.getY() / u - 1;
+    protected void onMouseMove(int x, int y) {
+        x /= u;
+        y = context.map.getLength() - y / u - 1;
         moved = cursorPos.x != x || cursorPos.y != y;
         if (moved) {
             cursorPos.setLocation(x, y);
