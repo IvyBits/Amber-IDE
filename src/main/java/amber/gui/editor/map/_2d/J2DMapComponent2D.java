@@ -41,7 +41,7 @@ import java.awt.datatransfer.Transferable;
  */
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
-    private static int u = 32;
+    private int u = 32;
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
