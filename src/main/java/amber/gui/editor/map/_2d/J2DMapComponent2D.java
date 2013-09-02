@@ -67,9 +67,14 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         MouseAdapter adapter = new MouseAdapter() {
             int lx, ly;
+
+            boolean isDrag(MouseEvent e) {
+                return (e.isControlDown() && SwingUtilities.isLeftMouseButton(e)) || SwingUtilities.isMiddleMouseButton(e);
+            }
+
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (e.isControlDown()) {
+                if (isDrag(e)) {
                     int dx = lx - e.getXOnScreen();
                     int dy = ly - e.getYOnScreen();
                     display.getHorizontalScrollBar().setValue(display.getHorizontalScrollBar().getValue() + dx);
@@ -91,13 +96,13 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (e.isControlDown())
+                if (isDrag(e))
                     mouseDragged(e);
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.isControlDown()) {
+                if (isDrag(e)) {
                     lx = e.getXOnScreen();
                     ly = e.getYOnScreen();
                 } else
