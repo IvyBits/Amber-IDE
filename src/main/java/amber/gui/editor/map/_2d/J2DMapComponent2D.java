@@ -1,12 +1,7 @@
 package amber.gui.editor.map._2d;
 
-import amber.data.map.Layer;
 import amber.data.map.LevelMap;
-import amber.data.map.Tile;
 import amber.data.map.codec.Codec;
-import amber.data.res.Tileset;
-import amber.data.sparse.SparseMatrix;
-import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
 import amber.gui.editor.map.IMapComponent;
 import amber.gui.editor.map.MapContext;
@@ -41,6 +36,7 @@ import java.awt.datatransfer.Transferable;
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected final MapContext context = new MapContext();
+    protected FrameTimer timer = new FrameTimer();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
     protected Font infoFont = UIManager.getFont("MapEditor.font");
@@ -52,10 +48,10 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     public J2DMapComponent2D(LevelMap map) {
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-        
+
         renderer = new J2DMapRenderer2D(map);
         renderer.drawGrid(true);
-        
+
         display.getVerticalScrollBar().setUnitIncrement(16);
         display.getHorizontalScrollBar().setUnitIncrement(16);
 
@@ -208,78 +204,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     @Override
     public void paintComponent(Graphics g_) {
+        int u = renderer.zoom();
         Graphics2D g = (Graphics2D) g_;
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         renderer.draw(g_);
 
-        if (info) {
-            g.setColor(Color.BLACK);
-            g.setFont(infoFont);
-            g.translate(0, -(getHeight() - context.map.getLength() * renderer.zoom()));
-            g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
-        }
-    }
-
-    protected void drawLayer(Graphics2D g, Layer layer, int x1, int y1_, int x2, int y2_) {
-        SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
-        int y1 = context.map.getLength() - y2_;
-        int y2 = context.map.getLength() - y1_;
-
-        for (int x = x1; x < x2; x++) {
-            for (int y = y1; y < y2; y++) {
-                SparseVector.SparseVectorIterator iterator = tileVector.iterator();
-                while (iterator.hasNext()) {
-                    SparseMatrix<Tile> matrix = (SparseMatrix<Tile>) iterator.next();
-                    Tile t = matrix.get(x, y);
-
-                    if (t != null) {
-                        Tileset.TileSprite sprite = t.getSprite();
-                        Tileset sheet = sprite.getTileset();
-                        BufferedImage texture = sheet.getImage();
-
-                        Point start = sprite.getStart();
-                        Dimension size = sprite.getSize();
-
-                        int u = renderer.zoom();
-                        int dx = x * u;
-                        int dy = context.map.getLength() * u - y * u - u;
-
-                        g.drawImage(texture, dx, dy, dx + u, dy + u, start.x, start.y, start.x + size.width, start.y + size.height, null);
-                    }
-                }
-            }
-        }
-    }
-    static final Stroke stroke2 = new BasicStroke(2);
-    static final Stroke stroke3 = new BasicStroke(3);
-
-    protected void drawGrid(Graphics2D g, int x1, int y1, int x2, int y2) {
-        int u = renderer.zoom();
-        
-        Color oldColor = g.getColor();
-        g.setColor(Color.GRAY);
-
-        Stroke oldStroke = g.getStroke();
-
-        if (grid) {
-            for (int x = x1; x <= x2; x++) {
-                g.drawLine(x * u, 0, x * u, context.map.getLength() * u);
-            }
-            for (int y = y1; y <= y2; y++) {
-                g.drawLine(0, y * u, context.map.getWidth() * u, y * u);
-            }
-        }
-
+        g.setStroke(new BasicStroke(2));
         g.setColor(Color.BLACK);
-        g.setStroke(stroke3);
-        g.drawLine(0, 0, context.map.getWidth() * u, 0);
-        g.drawLine(0, 0, 0, context.map.getLength() * u);
-        g.drawLine(context.map.getWidth() * u, 0, context.map.getWidth() * u, context.map.getLength() * u);
-        g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getLength() * u);
-
-        g.setStroke(stroke2);
         Tool2D currentTool = currentTool();
         if (cursorPos != null && currentTool != null) {
             Dimension size = currentTool.getDrawRectangleSize();
@@ -294,10 +227,12 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         }
 
-        g.setColor(oldColor);
-        g.setStroke(oldStroke);
+        if (info) {
+            g.setFont(infoFont);
+            g.translate(0, -(getHeight() - context.map.getLength() * renderer.zoom()));
+            g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
+        }
     }
-    protected FrameTimer timer = new FrameTimer();
 
     protected void onKeyPress(KeyEvent e) {
         int delta = Math.min(timer.getDelta() / 5, 200);
@@ -339,16 +274,19 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         public void lostOwnership(Clipboard clipboard, Transferable contents) {
                         }
                     });
+                    break;
                 case KeyEvent.VK_Z:
                     if (!context.undoStack.empty()) {
                         context.redoStack.push(context.map.clone());
-                        context.map = context.undoStack.pop();
+                        renderer.setMap(context.map = context.undoStack.pop());
+                        repaint();
                     }
                     break;
                 case KeyEvent.VK_Y:
                     if (!context.redoStack.empty()) {
                         context.undoStack.push(context.map.clone());
-                        context.map = context.redoStack.pop();
+                        renderer.setMap(context.map = context.redoStack.pop());
+                        repaint();
                     }
                     break;
                 case KeyEvent.VK_S:
@@ -386,6 +324,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             Tool2D tool = currentTool();
 
             if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
+                System.out.println("act");
                 context.undoStack.push(pre);
                 modified = true;
             }
