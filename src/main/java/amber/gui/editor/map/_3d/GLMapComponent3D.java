@@ -49,8 +49,6 @@ import amber.swing.misc.TransferableImage;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.ScrollPane;
@@ -58,9 +56,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import javax.swing.UIManager;
@@ -89,35 +84,13 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
 
     public GLMapComponent3D(LevelMap map) throws LWJGLException {
         super(map);
-        setMinimumSize(new Dimension(50, 50));
-        setPreferredSize(new Dimension(50, 50));
+        setMinimumSize(new Dimension(0, 0));
+        setPreferredSize(new Dimension(0, 0));
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
         display.add(this);
-        addFocusListener(new FocusListener() {
-            private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
-                @Override
-                public boolean dispatchKeyEvent(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_ALT) {
-                        doKey(Keyboard.KEY_LMENU);
-                        return true;
-                    }
-                    return false;
-                }
-            };
-
-            @Override
-            public void focusGained(FocusEvent e) {
-                KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(altDisabler);
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
-            }
-        });
     }
 
     @Override
@@ -181,18 +154,18 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         SwingUtilities.convertPointFromScreen(mouse, Amber.getUI());
         if (Amber.getUI().findComponentAt(mouse) == this) {
             if (isButtonDown(0)) {
+                LevelMap pre = context.map.clone();
+                if (currentTool().apply((int) cursorPos.x, (int) cursorPos.z, (int) cursorPos.y)) {
+                    context.undoStack.push(pre);
+                    modified = true;
+                }
+            } else if (isButtonDown(1)) {
                 if (isKeyDown(Keyboard.KEY_LCONTROL)) {
                     AbstractMouse.setGrabbed(true);
                 } else {
-                    LevelMap pre = context.map.clone();
-                    if (currentTool().apply((int) cursorPos.x, (int) cursorPos.z, (int) cursorPos.y)) {
-                        context.undoStack.push(pre);
-                        modified = true;
-                    }
+                    AbstractMouse.setGrabbed(false);
+                    setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 }
-            } else if (isButtonDown(1)) {
-                AbstractMouse.setGrabbed(false);
-                setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
             }
 
             AbstractMouse.poll();
@@ -268,7 +241,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             glViewport(0, 0, getWidth(), getHeight());
             cam.setAspectRatio(aspect);
             cam.applyPerspectiveMatrix();
-
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
@@ -282,14 +254,12 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
 
         cam.applyTranslations();
-        //glEnable(GL_TEXTURE_RECTANGLE_ARB);
         glEnable(GL_DEPTH_TEST);
 
         List<Layer> layers = context.map.getLayers();
         // Fix for z-buffer fighting        
         glPolygonOffset(1, 1);
 
-        glPopAttrib();
         for (int i = 0; i != layers.size(); i++) {
             drawLayer(layers.get(i));
         }

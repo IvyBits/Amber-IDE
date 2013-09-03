@@ -9,21 +9,12 @@ import static amber.input.AbstractKeyboard.getEventKey;
 import static amber.input.AbstractKeyboard.getEventKeyState;
 import static amber.input.AbstractKeyboard.isKeyDown;
 import amber.input.AbstractMouse;
-import amber.swing.misc.TransferableImage;
 import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.AWTGLCanvas;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.PixelFormat;
 
 /**
@@ -55,9 +46,10 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
                 while (running) {
                     if (isShowing() && isFocusOwner()) {
                         repaint();
-                        Display.sync(120);
+                       // Display.sync(12000);
                     } else {
                         OS.sleep(300); // Prevent useless CPU cycles when not showing
+                        repaint();
                     }
                 }
             }
