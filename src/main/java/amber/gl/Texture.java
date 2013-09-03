@@ -36,6 +36,10 @@ public class Texture {
     public void bind() {
         glBindTexture(target, textureID);
     }
+    
+    public void unbind() {
+        glBindTexture(target, 0);
+    }
 
     /**
      * Set the height of the image

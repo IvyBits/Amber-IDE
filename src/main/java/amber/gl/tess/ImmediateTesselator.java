@@ -4,10 +4,11 @@ import amber.data.math.Angles;
 import static amber.data.map.Direction.*;
 import amber.data.map.Tile;
 import amber.data.map.Tile3D;
+import amber.data.map.Tile3D.Angle;
 import amber.data.map.TileModel;
 import amber.data.res.Tileset;
-import amber.gl.Texture;
-import amber.gl.TextureLoader;
+import amber.gl.atlas.ITextureAtlas;
+import amber.gl.atlas.TextureAtlasFactory;
 import amber.gl.model.ModelScene;
 import amber.gl.model.obj.WavefrontObject;
 import java.awt.Dimension;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.util.WeakHashMap;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
-import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
 
 /**
  * Renders tiles in immediate mode.
@@ -25,19 +25,17 @@ import static org.lwjgl.opengl.ARBTextureRectangle.GL_TEXTURE_RECTANGLE_ARB;
  */
 public class ImmediateTesselator implements ITesselator {
 
-    protected WeakHashMap<Tileset, Texture> textureCache = new WeakHashMap<Tileset, Texture>();
+    protected WeakHashMap<Tileset, ITextureAtlas> textureCache = new WeakHashMap<Tileset, ITextureAtlas>();
     protected WeakHashMap<WavefrontObject, ModelScene> modelCache = new WeakHashMap<WavefrontObject, ModelScene>();
-    protected int bound;
+    protected ITextureAtlas atl;
 
     public void drawTile3D(Tile3D tile, float x, float y, float z) {
-        Texture txt = getTexture(tile);
-        if (txt.getID() != bound) {
-            glBindTexture(txt.getTarget(), bound = txt.getID());
-        }
+        atl = getTexture(tile);
+
         glPushMatrix();
         float[] tr = new float[]{x, z, y, 0};
 
-        switch (tile.getDirection()) {
+        switch (tile.getDirection().toCardinal()) {
             case SOUTH:
                 tr[0]++;
                 tr[2]++;
@@ -52,45 +50,69 @@ public class ImmediateTesselator implements ITesselator {
                 tr[3] = 270;
                 break;
         }
+        float y1, y2, y3, y4;
+        y1 = y2 = y3 = y4 = 0;
+        Vector2f ix;
+        if (tile.isCorner()) {
+            switch (tile.getDirection()) {
+                case NORTH_EAST:
+                    y3++;
+                    break;
+                case NORTH_WEST:
+                    y2++;
+                    break;
+                case SOUTH_EAST:
+                    y1++;
+                    break;
+                case SOUTH_WEST:
+                    y4++;
+                    break;
+            }
+            ix = Angles.circleIntercept(Angle._180.intValue(), 0, 0, 1);
+        } else {
+            ix = Angles.circleIntercept(tile.getAngle().intValue(), 0, 0, 1);
+        }
         glTranslatef(tr[0], tr[1], tr[2]);
-        glRotatef(tr[3], 0, 1, 0);
-        Vector2f ix = Angles.circleIntercept(tile.getAngle().intValue(), 0, 0, 1);
 
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
 
-        float tx = start.x;
-        float ty = start.y;
-        float th = size.height;
-        float tw = size.width;
+        atl.bindTextureRegion(start.x, start.y, size.height, size.width);
 
-        glBegin(GL_QUADS);
+        glRotatef(tr[3], 0, 1, 0);
+        glBegin(GL_TRIANGLES);
         {
-            glTexCoord2f(tx, ty + th);
-            glVertex3f(0, 0, 0);
-            glTexCoord2f(tx, ty);
-            glVertex3f(ix.x, ix.y, 0);
-            glTexCoord2f(tx + tw, ty);
-            glVertex3f(ix.x, ix.y, 1);
-            glTexCoord2f(tx + tw, ty + th);
-            glVertex3f(0, 0, 1);
+            //0      
+            atl.atlasCoord(0, 1);
+            glVertex3f(0, y1, 0);
+            //1  
+            atl.atlasCoord(0, 0);
+            glVertex3f(ix.x, ix.y + y2, 0);
+            //2
+            atl.atlasCoord(1, 0);
+            glVertex3f(ix.x, ix.y + y3, 1);
+
+            //3
+            atl.atlasCoord(1, 1);
+            glVertex3f(0, y4, 1);
+            //2
+            atl.atlasCoord(1, 0);
+            glVertex3f(ix.x, ix.y + y3, 1);
+            //0     
+            atl.atlasCoord(0, 1);
+            glVertex3f(0, y1, 0);
         }
         glEnd();
         glPopMatrix();
     }
 
     public void drawTile2D(Tile tile, float x, float y) {
-        Texture txt = getTexture(tile);
-        if (txt.getID() != bound) {
-            glBindTexture(txt.getTarget(), bound = txt.getID());
-        }
+        atl = getTexture(tile);
+
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
 
-        float tx = start.x;
-        float ty = start.y;
-        float th = size.height;
-        float tw = size.width;
+        atl.bindTextureRegion(start.x, start.y, size.width, size.height);
 
         float dx = x * 32;
         float dy = y * 32;
@@ -98,23 +120,23 @@ public class ImmediateTesselator implements ITesselator {
         glBegin(GL_TRIANGLES);
         {
             //0
-            glTexCoord2f(tx, ty + th);
+            atl.atlasCoord(0, 1);
             glVertex2f(dx, dy);
             //1
-            glTexCoord2f(tx, ty);
+            atl.atlasCoord(0, 0);
             glVertex2f(dx, dy + 32);
             //2
-            glTexCoord2f(tx + tw, ty);
+            atl.atlasCoord(1, 0);
             glVertex2f(dx + 32, dy + 32);
 
             //3 
-            glTexCoord2f(tx + tw, ty + th);
+            atl.atlasCoord(1, 1);
             glVertex2f(dx + 32, dy);
             //2
-            glTexCoord2f(tx + tw, ty);
+            atl.atlasCoord(1, 0);
             glVertex2f(dx + 32, dy + 32);
             //0
-            glTexCoord2f(tx, ty + th);
+            atl.atlasCoord(0, 1);
             glVertex2f(dx, dy);
         }
         glEnd();
@@ -122,15 +144,12 @@ public class ImmediateTesselator implements ITesselator {
 
     public void startTileBatch() {
         glPushMatrix();
-        glPushAttrib(GL_CURRENT_BIT);
-        glEnable(GL_TEXTURE_RECTANGLE_ARB);
     }
 
     public void endTileBatch() {
-        bound = -1;
-        glDisable(GL_TEXTURE_RECTANGLE_ARB);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glPopAttrib();
+        if (atl != null) {
+            atl.unbind();
+        }
         glPopMatrix();
     }
 
@@ -161,16 +180,15 @@ public class ImmediateTesselator implements ITesselator {
         modelCache.clear();
     }
 
-    protected Texture getTexture(Tile t) {
-        Tileset.TileSprite sprite = t.getSprite();
-        Tileset sheet = sprite.getTileset();
-        Texture txt;
+    protected ITextureAtlas getTexture(Tile t) {
+        Tileset sheet = t.getSprite().getTileset();
+        ITextureAtlas atlas;
         if (textureCache.containsKey(sheet)) {
-            txt = textureCache.get(sheet);
+            atlas = textureCache.get(sheet);
         } else {
-            textureCache.put(sheet, txt = TextureLoader.getTexture(sheet.getImage(), GL_TEXTURE_2D, GL_RGBA));
+            textureCache.put(sheet, atlas = TextureAtlasFactory.createAtlas(sheet.getImage()));
         }
-        return txt;
+        return atlas;
     }
 
     protected ModelScene getModel(TileModel t) {
