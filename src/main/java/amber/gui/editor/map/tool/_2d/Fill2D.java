@@ -6,7 +6,6 @@ import amber.data.res.Tileset;
 import amber.gui.editor.map.MapContext;
 import java.awt.Point;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -24,18 +23,22 @@ public class Fill2D extends Brush2D {
         private final Point start;
         private final Layer layer;
         private HashSet<Point> toFill = new HashSet<Point>();
-        private Tileset.TileSprite toFind;
         int minX, minY, width, height;
+        Tileset.TileSprite[][] toFind;
 
         public FloodFiller(Fill2D tool, Point start) {
             this.tool = tool;
             this.start = start;
-            toFind = tool.spriteAt(start.x, start.y);
             minX = start.x;
             minY = start.y;
             width = tool.context.tileSelection.length;
             height = tool.context.tileSelection[0].length;
             layer = context.map.getLayer(context.layer);
+
+            toFind = new Tileset.TileSprite[width][height];
+            for (int x = 0; x < width; ++x)
+                for (int y = 0; y < height; ++y)
+                    toFind[x][y] = tool.spriteAt(start.x + x, start.y + y);
         }
 
         public void buildList() {
@@ -45,7 +48,7 @@ public class Fill2D extends Brush2D {
                 Point point = toVisit.pop();
                 if (!tool.isInBounds(point.x, point.y))
                     continue;
-                if (tool.spriteAt(point.x, point.y) != toFind)
+                if (tool.spriteAt(point.x, point.y) != toFind[((start.x - point.x) % width + width) % width][((start.y - point.y) % height + height) % height])
                     continue;
                 if (!toFill.add(point))
                     continue;
