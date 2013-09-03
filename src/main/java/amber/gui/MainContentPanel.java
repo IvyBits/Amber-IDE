@@ -75,25 +75,40 @@ public class MainContentPanel extends javax.swing.JPanel {
         monitor.stop();
     }
 
+    public static boolean askToSaveFile(Component parent, Component... files) {
+        CloseableTabbedPane tabs = Amber.getUI().getContentPanel().getFilesTabbedPane();
+        for (Component c : files) {
+            if (!(c instanceof FileViewerPanel))
+                continue;
+            FileViewerPanel file = (FileViewerPanel) c;
+            if (!file.modified())
+                continue;
+            if (tabs != null)
+                tabs.setSelectedComponent(file);
+            switch (JOptionPane.showConfirmDialog(parent, "Do you want to save the following file:\n" +
+                    file.getFile().getName(), "Confirm Close", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE)) {
+                case JOptionPane.YES_OPTION:
+                    file.save();
+                    break;
+                case JOptionPane.NO_OPTION:
+                    break;
+                case JOptionPane.CANCEL_OPTION:
+                    return false;
+            }
+        }
+        return true;
+    }
+
     public CloseableTabbedPane getFilesTabbedPane() {
         if (activeFilesTabbedPane == null) {
             activeFilesTabbedPane = new CloseableTabbedPane();
             activeFilesTabbedPane.addTabCloseListener(new TabCloseListener() {
                 public boolean tabClosed(String title, Component comp, CloseableTabbedPane pane) {
                     System.out.println("Tab closing...");
-                    if (comp instanceof FileViewerPanel && ((FileViewerPanel) comp).modified()) {
-                        switch (JOptionPane.showConfirmDialog(MainContentPanel.this,
-                                "Do you want to save the following file:\n" + title,
-                                "Confirm Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-                            case JOptionPane.YES_OPTION:
-                                ((FileViewerPanel) comp).save();
-                                break;
-                            case JOptionPane.NO_OPTION:
-                                break;
-                            case JOptionPane.CANCEL_OPTION:
-                                return false;
-                        }
-                    }
+                    if (comp instanceof FileViewerPanel && !askToSaveFile(MainContentPanel.this, comp))
+                        return false;
+
                     if (activeFiles.containsKey(comp)) {
                         Amber.getWorkspace().getOpenedFiles().remove(activeFiles.remove(comp));
                     }

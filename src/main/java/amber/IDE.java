@@ -39,22 +39,9 @@ public class IDE extends javax.swing.JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                for (Component c : content.getFilesTabbedPane().getComponents()) {
-                    if (c instanceof FileViewerPanel && ((FileViewerPanel) c).modified()) {
-                        content.getFilesTabbedPane().setSelectedComponent(c);
-                        switch (JOptionPane.showConfirmDialog(IDE.this,
-                                "Do you want to save the following file:\n" + ((FileViewerPanel) c).getFile().getName(),
-                                "Confirm Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-                            case JOptionPane.YES_OPTION:
-                                ((FileViewerPanel) c).save();
-                                break;
-                            case JOptionPane.NO_OPTION:
-                                break;
-                            case JOptionPane.CANCEL_OPTION:
-                                return;
-                        }
-                    }
-                }
+                if (content.getFilesTabbedPane() != null &&
+                        !MainContentPanel.askToSaveFile(IDE.this, content.getFilesTabbedPane().getComponents()))
+                    return;
                 setVisible(false);
                 System.exit(0);
             }
@@ -94,6 +81,10 @@ public class IDE extends javax.swing.JFrame {
 
     public JMenuBar getMenu() {
         return menuBar;
+    }
+
+    public MainContentPanel getContentPanel() {
+        return content;
     }
 
     /**
