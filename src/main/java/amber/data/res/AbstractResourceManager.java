@@ -14,6 +14,8 @@ import java.util.HashMap;
 import static amber.data.res.ResourceListener.*;
 import static amber.data.res.Resource.*;
 import amber.gl.model.obj.Material;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -54,6 +56,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
         Resource<Tileset> resource = new Resource<Tileset>(sheet, name, source, Resource.TILESET);
         tilesets.put(name, resource);
         doCopy(resource, imgDir);
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.tilesetImported(resource);
         }
@@ -62,6 +65,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
     public void removeTileset(String name) {
         Resource<Tileset> removed = tilesets.remove(name);
         doDelete(name, imgDir);
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.tilesetRemoved(removed);
         }
@@ -71,6 +75,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
         Resource<Audio> resource = new Resource<Audio>(clip, name, source, Resource.AUDIO);
         clips.put(name, resource);
         doCopy(resource, audioDir);
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.audioImported(resource);
         }
@@ -79,6 +84,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
     public void removeAudio(String name) {
         Resource<Audio> removed = clips.remove(name);
         doDelete(name, audioDir);
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.audioRemoved(removed);
         }
@@ -105,7 +111,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
         } catch (Exception ex) {
             ErrorHandler.alert(ex);
         }
-
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.modelImported(resource);
         }
@@ -114,6 +120,7 @@ public abstract class AbstractResourceManager implements IResourceManager {
     public void removeModel(String name) {
         Resource<WavefrontObject> removed = models.remove(name);
         doDelete(name, modelDir);
+        emitResourcesSafe();
         for (IResourceListener listener : listeners) {
             listener.modelRemoved(removed);
         }
@@ -193,12 +200,6 @@ public abstract class AbstractResourceManager implements IResourceManager {
     public void registerResourceListener(Object listener) {
         Object parent = null;
         Class owner = listener instanceof Class ? (Class) listener : (parent = listener).getClass();
-
-
-
-
-
-
         for (Method m : owner.getDeclaredMethods()) {
             ResourceListener rl = m.getAnnotation(ResourceListener.class);
             if (rl
@@ -220,14 +221,16 @@ public abstract class AbstractResourceManager implements IResourceManager {
                 Method m = rrl.listener;
                 if (m.getClass() == owner && Modifier.isStatic(m.getModifiers()) || rrl.parent == parent) {
                     listeners.remove(l);
-
-
-
-
-
-
                 }
             }
+        }
+    }
+
+    private final void emitResourcesSafe() {
+        try {
+            emitResources();
+        } catch (Exception ex) {
+            ErrorHandler.alert(ex);
         }
     }
 
