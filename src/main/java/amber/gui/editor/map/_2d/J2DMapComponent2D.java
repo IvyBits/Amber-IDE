@@ -320,6 +320,11 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 case KeyEvent.VK_RIGHT:
                     display.getHorizontalScrollBar().setValue(display.getHorizontalScrollBar().getValue() + delta);
                     break;
+                default: {
+                    Tool2D tool = currentTool();
+                    if (tool != null)
+                        tool.doKey(AWTInputMap.map(e));
+                }
             }
         } else if (e.isControlDown()) {
             switch (e.getKeyCode()) {
@@ -369,8 +374,6 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     updateSize();
                     break;
             }
-        } else {
-            currentTool().doKey(AWTInputMap.map(e));
         }
     }
 
