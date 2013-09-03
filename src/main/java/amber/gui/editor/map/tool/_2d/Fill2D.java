@@ -39,24 +39,25 @@ public class Fill2D extends Brush2D {
         }
 
         public void buildList() {
-            buildList(start.x, start.y);
-        }
-
-        protected void buildList(int x, int y) {
-            if (!tool.isInBounds(x, y))
-                return;
-            if (tool.spriteAt(x, y) != toFind)
-                return;
-            if (!toFill.add(new Point(x, y)))
-                return;
-            if (x < minX)
-                minX = x;
-            if (y < minY)
-                minY = y;
-            buildList(x - 1, y);
-            buildList(x, y + 1);
-            buildList(x + 1, y);
-            buildList(x, y - 1);
+            Stack<Point> toVisit = new Stack<Point>();
+            toVisit.push(start);
+            while (!toVisit.empty()) {
+                Point point = toVisit.pop();
+                if (!tool.isInBounds(point.x, point.y))
+                    continue;
+                if (tool.spriteAt(point.x, point.y) != toFind)
+                    continue;
+                if (!toFill.add(point))
+                    continue;
+                if (point.x < minX)
+                    minX = point.x;
+                if (point.y < minY)
+                    minY = point.y;
+                toVisit.push(new Point(point.x - 1, point.y));
+                toVisit.push(new Point(point.x, point.y + 1));
+                toVisit.push(new Point(point.x + 1, point.y));
+                toVisit.push(new Point(point.x, point.y - 1));
+            }
         }
 
         public boolean fill() {
