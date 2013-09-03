@@ -33,7 +33,7 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = FileDialogFactory.newFileDialog("Select tileset image...", this);
+        browser = FileDialogFactory.newFileDialog("Select tileset image...", Amber.getUI());
         browser.setFilter("Image files (*.png; *.jpeg; *.jpg; *.gif)|*.png;*.jpg;*.jpeg;*.gif");
     }
 

@@ -14,7 +14,9 @@ import amber.gl.camera.EulerCamera;
 import amber.gl.tess.ITesselator;
 import amber.gl.tess.ImmediateTesselator;
 import amber.gui.editor.map.MapContext;
+import amber.input.AbstractKeyboard;
 import java.awt.Component;
+import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -86,7 +88,7 @@ public class Brush3D extends AbstractTool3D {
         // It works, that's all you need to know.
         switch (angle) {
             case _180:
-                switch (dir) {
+                switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x + sy, y + sx, z, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
@@ -97,7 +99,7 @@ public class Brush3D extends AbstractTool3D {
                         return setTile(sx + x, sy + y - h + 1, z, sel[sx][sy], dir, angle);
                 }
             case _90:
-                switch (dir) {
+                switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
@@ -108,7 +110,7 @@ public class Brush3D extends AbstractTool3D {
                         return setTile(sx + x, y, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
             case _45:
-                switch (dir) {
+                switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x + sy, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
                     case EAST:
@@ -129,7 +131,7 @@ public class Brush3D extends AbstractTool3D {
             Tile r = lay.getTile(x, y, z);
             if (tile != null) {
                 modified = r == null || !tile.equals(r.getSprite());
-                lay.setTile(x, y, z, new Tile3D(tile, dir, angle));
+                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal()));
             } else {
                 modified = r != null;
                 lay.setTile(x, y, z, null);
@@ -148,7 +150,7 @@ public class Brush3D extends AbstractTool3D {
             glPushMatrix();
             float[] tr = new float[]{x, y, z, 0};
 
-            switch (camera.getFacingDirection()) {
+            switch (camera.getFacingDirection().toCardinal()) {
                 case SOUTH:
                     tr[0]++;
                     tr[2]++;
@@ -164,15 +166,38 @@ public class Brush3D extends AbstractTool3D {
                     break;
             }
             glTranslatef(tr[0], tr[1], tr[2]);
+            float y1, y2, y3, y4;
+            y1 = y2 = y3 = y4 = 0;
+            Vector2f ix;
+            Direction dir = camera.getFacingDirection();
+            if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal()) {
+                switch (dir) {
+                    case NORTH_EAST:
+                        y3++;
+                        break;
+                    case NORTH_WEST:
+                        y2++;
+                        break;
+                    case SOUTH_EAST:
+                        y4++;
+                        break;
+                    case SOUTH_WEST:
+                        y1++;
+                        break;
+                }
+                ix = Angles.circleIntercept(Tile3D.Angle._180.intValue(), 0, 0, context.tileSelection[0].length);
+            } else {
+                ix = Angles.circleIntercept(angle.intValue(), 0, 0, context.tileSelection[0].length);
+            }
             glRotatef(tr[3], 0, 1, 0);
-            Vector2f ix = Angles.circleIntercept(angle.intValue(), 0, 0, context.tileSelection[0].length);
+
             glBegin(GL_LINE_LOOP);
             {
                 int w = context.tileSelection.length;
-                glVertex3f(0, 0, 0);
-                glVertex3f(ix.x, ix.y, 0);
-                glVertex3f(ix.x, ix.y, w);
-                glVertex3f(0, 0, w);
+                glVertex3f(0, 0+y1, 0);
+                glVertex3f(ix.x, ix.y+y2, 0);
+                glVertex3f(ix.x, ix.y+y3, w);
+                glVertex3f(0, 0+y4, w);
             }
             glEnd();
             glPopMatrix();

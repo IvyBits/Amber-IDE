@@ -23,7 +23,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -41,7 +40,6 @@ import java.awt.datatransfer.Transferable;
  */
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
-    private int u = 32;
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
@@ -49,11 +47,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected Color background = UIManager.getColor("MapEditor.background");
     protected boolean moved = false;
     protected boolean modified = false;
+    protected J2DMapRenderer2D renderer;
 
     public J2DMapComponent2D(LevelMap map) {
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-
+        
+        renderer = new J2DMapRenderer2D(map);
+        renderer.drawGrid(true);
+        
         display.getVerticalScrollBar().setUnitIncrement(16);
         display.getHorizontalScrollBar().setUnitIncrement(16);
 
@@ -84,8 +86,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
                     lx = e.getXOnScreen();
                     ly = e.getYOnScreen();
-                } else
+                } else {
                     onMouseDown(e);
+                }
             }
 
             @Override
@@ -98,8 +101,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (isDrag(e))
+                if (isDrag(e)) {
                     mouseDragged(e);
+                }
             }
 
             @Override
@@ -107,8 +111,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 if (isDrag(e)) {
                     lx = e.getXOnScreen();
                     ly = e.getYOnScreen();
-                } else
+                } else {
                     onMouseDown(e);
+                }
             }
         };
 
@@ -120,7 +125,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             public void mouseWheelMoved(MouseWheelEvent e) {
                 if (e.isControlDown()) {
                     double delta = e.getPreciseWheelRotation();
-                    u = Math.max(1, (int) (u - delta));
+                    renderer.zoomTo(Math.max(1, (int) (renderer.zoom() - delta)));
                     repaint();
                     updateSize();
                     e.consume();
@@ -144,6 +149,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     }
 
     private void updateSize() {
+        int u = renderer.zoom();
         Dimension size = new Dimension(context.map.getWidth() * u + 1, context.map.getLength() * u + 1);
         setPreferredSize(size);
         setSize(new Dimension(context.map.getWidth() * u + 1, context.map.getLength() * u + 1));
@@ -206,22 +212,12 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        Rectangle clip = g.getClipBounds();
-        int x1 = Math.max(0, clip.x / u - 1);
-        int x2 = Math.min(x1 + clip.width / u + 3, context.map.getWidth());
-        int y1 = Math.max(0, clip.y / u - 1);
-        int y2 = Math.min(y1 + clip.height / u + 3, context.map.getLength());
-
-        List<Layer> layers = context.map.getLayers();
-        for (int i = 0; i != layers.size(); i++) {
-            drawLayer(g, layers.get(i), x1, y1, x2, y2);
-        }
-        drawGrid(g, x1, y1, x2, y2);
+        renderer.draw(g_);
 
         if (info) {
             g.setColor(Color.BLACK);
             g.setFont(infoFont);
-            g.translate(0, -(getHeight() - context.map.getLength() * u));
+            g.translate(0, -(getHeight() - context.map.getLength() * renderer.zoom()));
             g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
         }
     }
@@ -246,6 +242,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         Point start = sprite.getStart();
                         Dimension size = sprite.getSize();
 
+                        int u = renderer.zoom();
                         int dx = x * u;
                         int dy = context.map.getLength() * u - y * u - u;
 
@@ -259,6 +256,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     static final Stroke stroke3 = new BasicStroke(3);
 
     protected void drawGrid(Graphics2D g, int x1, int y1, int x2, int y2) {
+        int u = renderer.zoom();
+        
         Color oldColor = g.getColor();
         g.setColor(Color.GRAY);
 
@@ -322,14 +321,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     break;
                 default: {
                     Tool2D tool = currentTool();
-                    if (tool != null)
+                    if (tool != null) {
                         tool.doKey(AWTInputMap.map(e));
+                    }
                 }
             }
         } else if (e.isControlDown()) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_I:
-                    BufferedImage shot = new BufferedImage(getWidth(), getHeight(),BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage shot = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2 = shot.createGraphics();
                     g2.setClip(getBounds());
                     paintComponent(g2);
@@ -356,20 +356,20 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     break;
                 case KeyEvent.VK_0:
                 case KeyEvent.VK_NUMPAD0:
-                    u = 32;
+                    renderer.zoomTo(32);
                     repaint();
                     updateSize();
                     break;
                 case KeyEvent.VK_EQUALS:
                 case KeyEvent.VK_PLUS:
                 case KeyEvent.VK_ADD:
-                    u += 4;
+                    renderer.zoomTo(renderer.zoom() + 4);
                     repaint();
                     updateSize();
                     break;
                 case KeyEvent.VK_MINUS:
                 case KeyEvent.VK_SUBTRACT:
-                    u = Math.max(1, u - 4);
+                    renderer.zoomTo(Math.max(1, renderer.zoom() - 4));
                     repaint();
                     updateSize();
                     break;
@@ -394,8 +394,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     }
 
     protected void onMouseMove(int x, int y) {
-        x /= u;
-        y = context.map.getLength() - y / u - 1;
+        x /= renderer.zoom();
+        y = context.map.getLength() - y / renderer.zoom() - 1;
         moved = cursorPos.x != x || cursorPos.y != y;
         if (moved) {
             cursorPos.setLocation(x, y);

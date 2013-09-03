@@ -38,7 +38,7 @@ public class NewAudioDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = FileDialogFactory.newFileDialog("Select audio clip...", this);
+        browser = FileDialogFactory.newFileDialog("Select audio clip...", Amber.getUI());
         browser.setFilter("Audio files (*.wav; *.ogg; *.aiff; *.midi; *.mid)|*.wav;*.aiff;*.ogg;*.midi;*.mid");
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);

@@ -48,10 +48,7 @@ import static amber.input.AbstractMouse.*;
 import amber.swing.misc.TransferableImage;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Label;
 import java.awt.Panel;
-import java.awt.ScrollPane;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -60,7 +57,6 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import javax.swing.UIManager;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GLContext;
 
 /**
  *
@@ -139,6 +135,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         if (!(AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL))) {
             // Frame-rate independant movement        
             float dxyz = (float) timer.getDelta() * 8f * 0.1f;
+            dxyz = Math.min(dxyz, 100);
             cam.processKeyboard(12, dxyz, dxyz, dxyz);
         }
 

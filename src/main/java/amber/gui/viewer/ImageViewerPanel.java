@@ -1,7 +1,7 @@
-package amber.gui.viewers;
+package amber.gui.viewer;
 
 import amber.gl.FrameTimer;
-import amber.gui.editor.FileViewerPanel;
+import amber.gui.FileViewerPanel;
 
 import java.awt.*;
 import java.awt.event.*;

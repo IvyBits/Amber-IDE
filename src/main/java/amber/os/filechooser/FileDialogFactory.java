@@ -2,6 +2,7 @@ package amber.os.filechooser;
 
 import amber.os.OS;
 import java.awt.Component;
+import javax.swing.UIManager;
 
 /**
  *
@@ -10,7 +11,7 @@ import java.awt.Component;
 public class FileDialogFactory {
 
     public static IFileDialog newFileDialog(String title, Component parent) {
-        if (OS.osLibrariesLoaded()) {
+        if (OS.osLibrariesLoaded() && UIManager.getLookAndFeel().getClass().getName().equals(UIManager.getSystemLookAndFeelClassName())) {
             switch (OS.getPlatform()) {
                 case WINDOWS:
                     return new WinFileDialog(title, parent);

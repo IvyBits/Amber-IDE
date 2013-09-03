@@ -15,7 +15,7 @@ import amber.gl.model.obj.WavefrontObject;
 import amber.gui.dialogs.NewLayerDialog;
 import amber.gui.dialogs.NewTilesetDialog;
 import amber.gui.dialogs.ResourceDialog;
-import amber.gui.editor.FileViewerPanel;
+import amber.gui.FileViewerPanel;
 import amber.swing.LabelBuilder;
 import amber.swing.UIUtil;
 import amber.swing.misc.FileDropHandler;
