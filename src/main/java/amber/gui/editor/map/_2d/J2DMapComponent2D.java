@@ -1,12 +1,7 @@
 package amber.gui.editor.map._2d;
 
-import amber.data.map.Layer;
 import amber.data.map.LevelMap;
-import amber.data.map.Tile;
 import amber.data.map.codec.Codec;
-import amber.data.res.Tileset;
-import amber.data.sparse.SparseMatrix;
-import amber.data.sparse.SparseVector;
 import amber.gl.FrameTimer;
 import amber.gui.editor.map.IMapComponent;
 import amber.gui.editor.map.MapContext;
@@ -232,7 +227,6 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             }
         }
 
-
         if (info) {
             g.setFont(infoFont);
             g.translate(0, -(getHeight() - context.map.getLength() * renderer.zoom()));
@@ -280,16 +274,19 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                         public void lostOwnership(Clipboard clipboard, Transferable contents) {
                         }
                     });
+                    break;
                 case KeyEvent.VK_Z:
                     if (!context.undoStack.empty()) {
                         context.redoStack.push(context.map.clone());
-                        context.map = context.undoStack.pop();
+                        renderer.setMap(context.map = context.undoStack.pop());
+                        repaint();
                     }
                     break;
                 case KeyEvent.VK_Y:
                     if (!context.redoStack.empty()) {
                         context.undoStack.push(context.map.clone());
-                        context.map = context.redoStack.pop();
+                        renderer.setMap(context.map = context.redoStack.pop());
+                        repaint();
                     }
                     break;
                 case KeyEvent.VK_S:
@@ -327,6 +324,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             Tool2D tool = currentTool();
 
             if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
+                System.out.println("act");
                 context.undoStack.push(pre);
                 modified = true;
             }
