@@ -221,20 +221,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
      */
     @Override
     public void paintGL() {
-        if (!GLContext.getCapabilities().GL_ARB_texture_rectangle) {
-            running = false;
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    display.remove(GLMapComponent3D.this);
-                    ScrollPane scroller = new ScrollPane();
-                    scroller.setMinimumSize(new Dimension(0, 0));
-                    scroller.add(new Label("ARB_TEXTURE_RECTANGLE not supported. Try updating your graphics drivers.", Label.CENTER));
-                    display.add(scroller);
-                    display.validate();
-                }
-            });
-            return;
-        }
         super.paintGL();
         float aspect = (float) getWidth() / (float) getHeight();
         if (aspect != cam.aspectRatio()) {
