@@ -1,8 +1,11 @@
 package amber.swing.tabs;
 
+import amber.swing.MenuBuilder;
+import amber.swing.UIUtil;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -15,6 +18,60 @@ public class CloseableTabbedPane extends JTabbedPane {
 
     private HashMap<Integer, String> titles = new HashMap<Integer, String>();
     private List<TabCloseListener> closers = new ArrayList<TabCloseListener>();
+
+    public CloseableTabbedPane() {
+        super();
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                final int index = getUI().tabForCoordinate(CloseableTabbedPane.this, e.getX(), e.getY());
+                if (index == -1)
+                    return;
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    if (getTabComponentAt(index) instanceof CloseableTabComponent)
+                        ((CloseableTabComponent) getTabComponentAt(index)).getCloseButton().doClick();
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    e.consume();
+                    new MenuBuilder("").addButton("Switch", new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            if (getSelectedIndex() != index)
+                                setSelectedIndex(index);
+                            getSelectedComponent().requestFocusInWindow();
+                        }
+                    }).addSeparator().addButton("Close", new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            if (getTabComponentAt(index) instanceof CloseableTabComponent)
+                                ((CloseableTabComponent) getTabComponentAt(index)).getCloseButton().doClick();
+                        }
+                    }).create().getPopupMenu().show(CloseableTabbedPane.this, e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e))
+                    e.consume();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e))
+                    e.consume();
+            }
+        });
+
+        UIUtil.mapInput(this, JComponent.WHEN_IN_FOCUSED_WINDOW, KeyEvent.VK_W, InputEvent.CTRL_MASK, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Component component = getTabComponentAt(getSelectedIndex());
+                if (component instanceof CloseableTabComponent)
+                    ((CloseableTabComponent) component).getCloseButton().doClick();
+            }
+        });
+    }
 
     public void addTabCloseListener(TabCloseListener listener) {
         closers.add(listener);
@@ -91,6 +148,8 @@ public class CloseableTabbedPane extends JTabbedPane {
             titleLabel = new JLabel(title);
             add(titleLabel);
             add(closeButton);
+
+            setFocusable(false);
         }
 
         public JButton getCloseButton() {

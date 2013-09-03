@@ -59,7 +59,8 @@ public class SettingsDialog extends javax.swing.JDialog {
         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
             ((DefaultComboBoxModel) lafCombobox.getModel()).addElement(info.getName());
         }
-        for (String laf : substanceLaF.keySet()) {
+
+        for (String laf : new java.util.TreeSet<String>(substanceLaF.keySet())) {
             ((DefaultComboBoxModel) lafCombobox.getModel()).addElement(laf);
         }
         System.out.println(UIManager.getLookAndFeel().getName());

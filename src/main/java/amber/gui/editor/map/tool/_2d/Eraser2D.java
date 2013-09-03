@@ -3,6 +3,7 @@ package amber.gui.editor.map.tool._2d;
 import amber.gui.editor.map.MapContext;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import javax.swing.JSlider;
 import static javax.swing.SwingConstants.HORIZONTAL;
 import org.lwjgl.input.Keyboard;
@@ -47,6 +48,13 @@ public class Eraser2D extends AbstractTool2D {
     @Override
     public Dimension getDrawRectangleSize() {
         return new Dimension(size, size);
+    }
+
+    @Override
+    public BufferedImage getPreview() {
+        BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        image.setRGB(0, 0, 0x00FFFFFF);
+        return image;
     }
 
     public Component getContextComponent() {

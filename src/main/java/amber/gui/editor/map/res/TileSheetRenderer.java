@@ -100,9 +100,13 @@ public class TileSheetRenderer extends JComponent {
             int y1 = Math.min(clickLocation.y, mouseLocation.y);
             int y2 = Math.max(clickLocation.y, mouseLocation.y);
             ((Graphics2D) g).setStroke(new BasicStroke(2F));
-            g.drawRect(x1 * 32, y1 * 32, parent.getSelection().length * 32, parent.getSelection()[0].length * 32);
-            g.setColor(new Color(.1f, .2f, 1f, .4f));
-            g.fillRect(x1 * 32, y1 * 32, parent.getSelection().length * 32, parent.getSelection()[0].length * 32);
+
+            TileSprite[][] selection = parent.getSelection();
+            if (selection != null) {
+                g.drawRect(x1 * 32, y1 * 32, selection.length * 32, selection[0].length * 32);
+                g.setColor(new Color(.1f, .2f, 1f, .4f));
+                g.fillRect(x1 * 32, y1 * 32, selection.length * 32, selection[0].length * 32);
+            }
         }
     }
 

@@ -40,13 +40,26 @@ public class MemoryMonitorProgressBar extends JProgressBar {
     }
 
     protected void update() {
-        String grabbed = String.valueOf((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024);
-        String total = String.valueOf(Runtime.getRuntime().totalMemory() / 1024 / 1024);
+        int used = (int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024);
+        int total = (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024);
+        final String unit;
+        if (used >= 1000 || total >= 1000) {
+            used /= 1024;
+            total /= 1024;
+            unit = "GB";
+        } else
+            unit = "MB";
+        final int used_ = used;
+        final int total_ = total;
 
-        setMaximum(Integer.parseInt(total));
-        setValue(Integer.parseInt(grabbed));
-
-        setString(grabbed + " M of " + total + " M");
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setMaximum(total_);
+                setValue(used_);
+                setString(used_ + " " + unit + "/" + total_ + " " + unit);
+            }
+        });
     }
 
     public void setSleepTime(int sleepTime) {

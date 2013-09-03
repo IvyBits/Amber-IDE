@@ -25,6 +25,8 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import static amber.gui.editor.map.MapContext.MODE_BRUSH;
 import static amber.gui.editor.map.MapContext.MODE_ERASE;
@@ -39,7 +41,7 @@ import java.awt.datatransfer.Transferable;
  */
 public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
-    private static int u = 32;
+    private int u = 32;
     protected final MapContext context = new MapContext();
     protected Point cursorPos = new Point();
     protected JScrollPane display = new JScrollPane(this);
@@ -66,22 +68,47 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         });
 
         MouseAdapter adapter = new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-                onMouseDown(mouseEvent);
+            int lx, ly;
+
+            boolean isDrag(MouseEvent e) {
+                return (e.isControlDown() && SwingUtilities.isLeftMouseButton(e)) || SwingUtilities.isMiddleMouseButton(e);
             }
 
             @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-                onMouseMove(mouseEvent);
+            public void mouseDragged(MouseEvent e) {
+                if (isDrag(e)) {
+                    int dx = lx - e.getXOnScreen();
+                    int dy = ly - e.getYOnScreen();
+                    display.getHorizontalScrollBar().setValue(display.getHorizontalScrollBar().getValue() + dx);
+                    display.getVerticalScrollBar().setValue(display.getVerticalScrollBar().getValue() + dy);
+
+                    lx = e.getXOnScreen();
+                    ly = e.getYOnScreen();
+                } else
+                    onMouseDown(e);
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                onMouseMove(e.getX(), e.getY());
                 if (moved) {
                     repaint();
                 }
             }
 
             @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-                onMouseDown(mouseEvent);
+            public void mouseReleased(MouseEvent e) {
+                if (isDrag(e))
+                    mouseDragged(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (isDrag(e)) {
+                    lx = e.getXOnScreen();
+                    ly = e.getYOnScreen();
+                } else
+                    onMouseDown(e);
             }
         };
 
@@ -98,6 +125,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     updateSize();
                     e.consume();
                 }
+            }
+        });
+
+        display.getViewport().addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                Point point = MouseInfo.getPointerInfo().getLocation();
+                SwingUtilities.convertPointFromScreen(point, J2DMapComponent2D.this);
+                onMouseMove(point.x, point.y);
             }
         });
 
@@ -245,10 +281,17 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.drawLine(0, context.map.getLength() * u, context.map.getWidth() * u, context.map.getLength() * u);
 
         g.setStroke(stroke2);
-        if (cursorPos != null) {
-            Dimension size = currentTool().getDrawRectangleSize();
+        Tool2D currentTool = currentTool();
+        if (cursorPos != null && currentTool != null) {
+            Dimension size = currentTool.getDrawRectangleSize();
             if (size.height > 0 && size.width > 0) {
-                g.drawRect(cursorPos.x * u, context.map.getLength() * u - cursorPos.y * u - size.height * u, size.width * u, size.height * u);
+                int x = cursorPos.x * u, y = context.map.getLength() * u - cursorPos.y * u - size.height * u;
+                int width = size.width * u, height = size.height * u;
+                g.drawRect(x, y, width, height);
+                Composite old = g.getComposite();
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .7f));
+                g.drawImage(currentTool.getPreview(), x, y, width, height, null);
+                g.setComposite(old);
             }
         }
 
@@ -258,10 +301,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected FrameTimer timer = new FrameTimer();
 
     protected void onKeyPress(KeyEvent e) {
-        int delta = timer.getDelta() / 5;
-        if (delta > 200) {
-            delta = 200;
-        }
+        int delta = Math.min(timer.getDelta() / 5, 200);
         if (e.getModifiersEx() == 0) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_W:
@@ -336,7 +376,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
     protected void onMouseDown(MouseEvent e) {
         requestFocusInWindow();
-        onMouseMove(e);
+        onMouseMove(e.getX(), e.getY());
         if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED)
                 || (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
             LevelMap pre = context.map.clone();
@@ -350,8 +390,9 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         }
     }
 
-    protected void onMouseMove(MouseEvent e) {
-        int x = e.getX() / u, y = context.map.getLength() - e.getY() / u - 1;
+    protected void onMouseMove(int x, int y) {
+        x /= u;
+        y = context.map.getLength() - y / u - 1;
         moved = cursorPos.x != x || cursorPos.y != y;
         if (moved) {
             cursorPos.setLocation(x, y);

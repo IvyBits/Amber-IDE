@@ -2,8 +2,11 @@ package amber.gui.editor.map.tool._2d;
 
 import amber.data.map.Layer;
 import amber.data.map.Tile;
+import amber.data.res.Tileset;
 import amber.gui.editor.map.MapContext;
-import java.awt.Component;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  *

@@ -1,5 +1,6 @@
 package amber.gui.viewers;
 
+import amber.gl.FrameTimer;
 import amber.gui.editor.FileViewerPanel;
 
 import java.awt.*;
@@ -37,8 +38,9 @@ public class ImageViewerPanel extends FileViewerPanel {
                 public void mousePressed(MouseEvent e) {
                     lx = e.getXOnScreen();
                     ly = e.getYOnScreen();
-                    if (container.getWidth() > imageWidth() || container.getHeight() > imageHeight())
+                    if (container.getWidth() < imageWidth() || container.getHeight() < imageHeight())
                         container.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    requestFocusInWindow();
                 }
 
                 @Override
@@ -52,7 +54,7 @@ public class ImageViewerPanel extends FileViewerPanel {
                     container.setCursor(Cursor.getDefaultCursor());
                 }
 
-                synchronized void moveImage(MouseEvent e) {
+                void moveImage(MouseEvent e) {
                     if (container.getWidth() < imageWidth()) {
                         int dx = lx - e.getXOnScreen();
                         container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() + dx);
@@ -72,18 +74,68 @@ public class ImageViewerPanel extends FileViewerPanel {
                 public void mouseWheelMoved(MouseWheelEvent e) {
                     if (e.isControlDown()) {
                         double multiplier = e.getUnitsToScroll() < 0 ? 1.3 : 1.0/1.3;
-                        JScrollBar sx = container.getHorizontalScrollBar(), sy = container.getVerticalScrollBar();
-                        int vx = sx.getVisibleAmount() / 2, vy = sy.getVisibleAmount() / 2;
                         u *= multiplier;
-                        updateSize();
-
-                        repaint();
-                        container.revalidate();
-                        sx.setValue((int) ((sx.getValue() + vx) * multiplier) - sx.getVisibleAmount() / 2);
-                        sy.setValue((int) ((sy.getValue() + vy) * multiplier) - sx.getVisibleAmount() / 2);
+                        updateZoom(multiplier);
                     }
                 }
             });
+
+            addKeyListener(new KeyAdapter() {
+                protected FrameTimer timer = new FrameTimer();
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.getModifiersEx() == 0) {
+                        int delta = Math.min(timer.getDelta() / 5, 200);
+                        switch (e.getKeyCode()) {
+                            case KeyEvent.VK_W:
+                            case KeyEvent.VK_UP:
+                                container.getVerticalScrollBar().setValue(container.getVerticalScrollBar().getValue() - delta);
+                                break;
+                            case KeyEvent.VK_S:
+                            case KeyEvent.VK_DOWN:
+                                container.getVerticalScrollBar().setValue(container.getVerticalScrollBar().getValue() + delta);
+                                break;
+                            case KeyEvent.VK_A:
+                            case KeyEvent.VK_LEFT:
+                                container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() - delta);
+                                break;
+                            case KeyEvent.VK_D:
+                            case KeyEvent.VK_RIGHT:
+                                container.getHorizontalScrollBar().setValue(container.getHorizontalScrollBar().getValue() + delta);
+                                break;
+                        }
+                    } else if (e.isControlDown()) {
+                        double multiplier;
+                        switch (e.getKeyCode()) {
+                            case KeyEvent.VK_EQUALS:
+                            case KeyEvent.VK_PLUS:
+                            case KeyEvent.VK_ADD:
+                                multiplier = 1.3;
+                                u *= multiplier;
+                                updateZoom(multiplier);
+                                break;
+                            case KeyEvent.VK_MINUS:
+                            case KeyEvent.VK_SUBTRACT:
+                                multiplier = 1./1.3;
+                                u *= multiplier;
+                                updateZoom(multiplier);
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+
+        private void updateZoom(double multiplier) {
+            JScrollBar sx = container.getHorizontalScrollBar(), sy = container.getVerticalScrollBar();
+            int vx = sx.getVisibleAmount() / 2, vy = sy.getVisibleAmount() / 2;
+            updateSize();
+
+            repaint();
+            container.revalidate();
+            sx.setValue((int) ((sx.getValue() + vx) * multiplier) - sx.getVisibleAmount() / 2);
+            sy.setValue((int) ((sy.getValue() + vy) * multiplier) - sx.getVisibleAmount() / 2);
         }
 
         @Override

@@ -109,12 +109,14 @@ public class MainContentPanel extends javax.swing.JPanel {
                 int oldMenuCount = 0;
                 @Override
                 public void stateChanged(ChangeEvent e) {
+                    if (!(e.getSource() instanceof CloseableTabbedPane))
+                        return;
                     JMenuBar menuBar = Amber.getUI().getMenu();
                     for (int i = 0; i < oldMenuCount; ++i) {
                         menuBar.remove(menuBar.getMenuCount() - 2);
                     }
 
-                    Component component = activeFilesTabbedPane.getSelectedComponent();
+                    Component component = ((CloseableTabbedPane) e.getSource()).getSelectedComponent();
                     if (component instanceof FileViewerPanel) {
                         JMenu[] menus = ((FileViewerPanel) component).getContextMenus();
                         for (JMenu menu : menus) {

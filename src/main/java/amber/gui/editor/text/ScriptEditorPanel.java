@@ -24,6 +24,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.*;
 import org.fife.ui.rtextarea.Gutter;
@@ -63,6 +65,8 @@ public class ScriptEditorPanel extends FileViewerPanel {
         }
     };
 
+    protected boolean modified = false;
+
     /**
      * Creates new form ScriptEditorPanel
      *
@@ -83,17 +87,7 @@ public class ScriptEditorPanel extends FileViewerPanel {
         UIUtil.mapInput(this, JComponent.WHEN_IN_FOCUSED_WINDOW, KeyEvent.VK_S, InputEvent.CTRL_MASK, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PrintStream out = null;
-                try {
-                    out = new PrintStream(new FileOutputStream(file));
-                    out.print(editor.getText());
-                } catch (Exception ex) {
-                    ErrorHandler.alert(ex);
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
-                }
+                save();
             }
         });
         String ext = FileIO.getFileExtension(file);
@@ -112,6 +106,23 @@ public class ScriptEditorPanel extends FileViewerPanel {
         } catch (Exception e) {
             ErrorHandler.alert(e);
         }
+
+        editor.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                modified = true;
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                modified = true;
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                modified = true;
+            }
+        });
     }
 
     private void ensureOutputShown() {
@@ -124,6 +135,27 @@ public class ScriptEditorPanel extends FileViewerPanel {
     @Override
     public JMenu[] getContextMenus() {
         return new JMenu[0];
+    }
+
+    @Override
+    public boolean modified() {
+        return modified;
+    }
+
+    @Override
+    public void save() {
+        PrintStream out = null;
+        try {
+            out = new PrintStream(new FileOutputStream(file));
+            out.println(editor.getText());
+            modified = false;
+        } catch (Exception ex) {
+            ErrorHandler.alert(ex);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 
     /**
