@@ -37,6 +37,7 @@ public class MainContentPanel extends javax.swing.JPanel {
     protected CloseableTabbedPane activeFilesTabbedPane;
     protected FileMonitor monitor;
     protected JLabel openFileLabel = new JLabel("Double-click a file to open it.", JLabel.CENTER);
+    protected JPanel statusBar = new JPanel(new BorderLayout());
 
     @LazyState(scope = Scope.PROJECT, name = "ProjectTreeExpansion")
     protected String saveTreeExpansion() {
@@ -63,7 +64,6 @@ public class MainContentPanel extends javax.swing.JPanel {
         monitor.addListener(new FileListener(){
 
             public void fileChanged(File file) {
-                System.out.println("Changed: " + file);
                 treeView.synchronize();
             }
         });
@@ -172,6 +172,10 @@ public class MainContentPanel extends javax.swing.JPanel {
     
     public FileSystemTree getFileTree() {
         return treeView;
+    }
+    
+    public Component getStatusBar() {
+        return statusBar;
     }
 
     /**

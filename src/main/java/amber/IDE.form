@@ -239,17 +239,18 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="footerSeparator" alignment="0" max="32767" attributes="0"/>
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-              <Component id="memoryMonitorProgressBar1" min="-2" pref="98" max="-2" attributes="0"/>
-          </Group>
           <Group type="102" attributes="0">
               <Component id="jToolBar1" pref="821" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
           </Group>
           <Component id="contentPane" alignment="1" max="32767" attributes="0"/>
           <Component id="headerSeparator" alignment="0" max="32767" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="statusBar" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="memoryMonitorProgressBar1" min="-2" pref="98" max="-2" attributes="0"/>
+          </Group>
+          <Component id="footerSeparator" alignment="1" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -259,11 +260,14 @@
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               <Component id="headerSeparator" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="contentPane" pref="522" max="32767" attributes="0"/>
+              <Component id="contentPane" pref="523" max="32767" attributes="0"/>
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               <Component id="footerSeparator" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
-              <Component id="memoryMonitorProgressBar1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="memoryMonitorProgressBar1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="statusBar" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
@@ -420,6 +424,10 @@
     <Component class="amber.gui.misc.MemoryMonitorProgressBar" name="memoryMonitorProgressBar1">
     </Component>
     <Container class="javax.swing.JPanel" name="contentPane">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+    </Container>
+    <Container class="javax.swing.JPanel" name="statusBar">
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
     </Container>

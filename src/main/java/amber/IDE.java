@@ -64,10 +64,12 @@ public class IDE extends javax.swing.JFrame {
     public void loadProject(Workspace space) {
         contentPane.removeAll();
         contentPane.add(BorderLayout.CENTER, content = new MainContentPanel(space));
+        statusBar.add(BorderLayout.CENTER, content.getStatusBar());
     }
 
     void addToolTab(final ToolDefinition tool) {
         content.addToolTab(tool);
+        revalidate();
     }
 
     void openFile(final File file) {
@@ -90,6 +92,7 @@ public class IDE extends javax.swing.JFrame {
             return;
         }
         content.addFileTab(editor);
+        revalidate();
     }
 
     public JMenuBar getMenu() {
@@ -123,6 +126,7 @@ public class IDE extends javax.swing.JFrame {
         footerSeparator = new javax.swing.JSeparator();
         memoryMonitorProgressBar1 = new amber.gui.misc.MemoryMonitorProgressBar();
         contentPane = new javax.swing.JPanel();
+        statusBar = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newProjectItem = new javax.swing.JMenuItem();
@@ -234,6 +238,8 @@ public class IDE extends javax.swing.JFrame {
 
         contentPane.setLayout(new java.awt.BorderLayout());
 
+        statusBar.setLayout(new java.awt.BorderLayout());
+
         fileMenu.setText(bundle.getString("IDE.fileMenu.text")); // NOI18N
 
         newProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -336,15 +342,16 @@ public class IDE extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(footerSeparator)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(memoryMonitorProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 821, Short.MAX_VALUE)
                 .addGap(14, 14, 14))
             .addComponent(contentPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(headerSeparator)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(statusBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(memoryMonitorProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(footerSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -353,11 +360,13 @@ public class IDE extends javax.swing.JFrame {
                 .addGap(0, 0, 0)
                 .addComponent(headerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+                .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(footerSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
-                .addComponent(memoryMonitorProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, 0)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(memoryMonitorProgressBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         pack();
@@ -461,6 +470,7 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem saveItem;
     private javax.swing.JMenuItem settingsItem;
+    private javax.swing.JPanel statusBar;
     private javax.swing.JMenuItem synchItem;
     // End of variables declaration//GEN-END:variables
 }
