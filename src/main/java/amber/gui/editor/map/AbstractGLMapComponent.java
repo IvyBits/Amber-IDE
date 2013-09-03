@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.AWTGLCanvas;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.PixelFormat;
 
 /**
@@ -46,7 +47,7 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
                 while (running) {
                     if (isShowing() && isFocusOwner()) {
                         repaint();
-                       // Display.sync(12000);
+                        Display.sync(120);
                     } else {
                         OS.sleep(300); // Prevent useless CPU cycles when not showing
                         repaint();
