@@ -7,7 +7,6 @@ import amber.data.io.FileMonitor.FileListener;
 import amber.data.state.LazyState;
 import amber.data.state.Scope;
 import amber.data.state.node.IState;
-import amber.gui.editor.FileViewerPanel;
 import amber.gui.editor.tool.ToolPanel;
 import amber.gui.misc.FileTreeExplorer;
 import amber.swing.UIUtil;

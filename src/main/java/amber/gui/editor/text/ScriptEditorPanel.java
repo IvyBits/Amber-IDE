@@ -2,7 +2,7 @@ package amber.gui.editor.text;
 
 import amber.Amber;
 import amber.data.io.FileIO;
-import amber.gui.editor.FileViewerPanel;
+import amber.gui.FileViewerPanel;
 import amber.gui.misc.ErrorHandler;
 import amber.gui.misc.RubyConsole;
 import amber.swing.UIUtil;

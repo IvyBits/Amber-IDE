@@ -7,7 +7,7 @@ import amber.gui.dialogs.JFontChooser;
 import amber.gui.dialogs.NewProjectDialog;
 import amber.gui.dialogs.ResourceDialog;
 import amber.gui.dialogs.SettingsDialog;
-import amber.gui.editor.FileViewerPanel;
+import amber.gui.FileViewerPanel;
 import amber.gui.misc.StartPagePanel;
 import amber.swing.Dialogs;
 import amber.swing.UIUtil;

@@ -1,6 +1,6 @@
-package amber.gui.viewers;
+package amber.gui.viewer;
 
-import amber.gui.editor.FileViewerPanel;
+import amber.gui.FileViewerPanel;
 import amber.gui.misc.AudioPlayerPanel;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;

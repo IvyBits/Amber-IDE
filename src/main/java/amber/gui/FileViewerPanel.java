@@ -1,13 +1,12 @@
-package amber.gui.editor;
+package amber.gui;
 
 import amber.data.io.FileIO;
+import amber.gui.misc.FileSystemIcon;
 import java.io.File;
 import java.util.HashMap;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -29,7 +28,7 @@ public abstract class FileViewerPanel extends JPanel {
     }
     
     public Icon getTabIcon() {
-        return FileSystemView.getFileSystemView().getSystemIcon(file);
+        return FileSystemIcon.getIcon(file);
     }
 
     public boolean modified() {
