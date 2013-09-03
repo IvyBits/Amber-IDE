@@ -4,8 +4,6 @@ import amber.os.OS;
 import amber.os.Win;
 import java.awt.Component;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 
 public class WinFileDialog implements IFileDialog {
 

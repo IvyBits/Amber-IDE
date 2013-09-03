@@ -39,7 +39,7 @@ public class NewModelDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
 
-        browser = FileDialogFactory.newFileDialog("Select model...", this);
+        browser = FileDialogFactory.newFileDialog("Select model...", Amber.getUI());
         browser.setFilter("Model files (*.obj)|*.obj");
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);
