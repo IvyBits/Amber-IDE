@@ -1,11 +1,10 @@
 package amber.gui.dialogs;
 
 import amber.Amber;
+import amber.data.io.FileIO;
 import amber.data.state.Scope;
 import amber.data.state.State;
-import amber.os.Natives;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.editor.map.res.ModelSelector;
 import amber.gui.editor.map.res.ModelThumbnail;
 import amber.gui.misc.ErrorHandler;
 import amber.os.filechooser.FileDialogFactory;
@@ -14,7 +13,6 @@ import amber.swing.UIUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.table.TableModel;
 
 /**
@@ -43,6 +41,14 @@ public class NewModelDialog extends javax.swing.JDialog {
         browser.setFilter("Model files (*.obj)|*.obj");
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);
+    }
+
+    public NewModelDialog(java.awt.Frame parent, File model) {
+        this(parent);
+        nameField.setText(FileIO.getFileName(model));
+        modelLocationField.setText(model.getAbsolutePath());
+        updatePreview();
+        checkCreateableStatus();
     }
 
     private void checkCreateableStatus() {
