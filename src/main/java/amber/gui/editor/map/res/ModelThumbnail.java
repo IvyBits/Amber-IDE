@@ -22,7 +22,7 @@ public class ModelThumbnail {
 
     public static Image getModelImage(WavefrontObject obj) {
         if (!thumbs.containsKey(obj)) {
-            thumbs.put(obj, makeImage(obj, 512, 512));
+            thumbs.put(obj, makeImage(obj));
         }
         return thumbs.get(obj);
     }
@@ -39,7 +39,10 @@ public class ModelThumbnail {
         thumbs.clear();
     }
 
-    private static Image makeImage(final WavefrontObject model, final int twidth, final int theight) {
+    private static Image makeImage(final WavefrontObject model) {
+        if (model == null) {
+            throw new IllegalArgumentException("model may not be null");
+        }
         final int width = 512;
         final int height = 512;
         BufferedImage img = null;
