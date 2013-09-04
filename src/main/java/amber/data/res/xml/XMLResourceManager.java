@@ -76,7 +76,7 @@ public class XMLResourceManager extends AbstractResourceManager {
             Elements modelNodes = root.getChildElements("models").get(0).getChildElements();
             for (int i = 0; i != modelNodes.size(); i++) {
                 String name = modelNodes.get(i).getAttributeValue("name");
-                File source = FileIO.getFilesByName(name, new File(modelDir, name))[0];
+                File source = new File(modelDir, name + File.separator + name + ".obj");
                 System.out.println("Loaded model " + source);
                 importModel(name, new WavefrontObject(source), source);
             }

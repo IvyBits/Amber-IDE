@@ -14,8 +14,6 @@ import java.util.HashMap;
 import static amber.data.res.ResourceListener.*;
 import static amber.data.res.Resource.*;
 import amber.gl.model.obj.Material;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
