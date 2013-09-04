@@ -40,7 +40,11 @@ public class ModelSelector extends JPanel {
         add(scroller, BorderLayout.NORTH);
     }
 
-    public void addModel(final WavefrontObject model, final String name) {
+    public void addModel(WavefrontObject model, String name) {
+        addModel(new ImageIcon(ModelThumbnail.getModelImage(model, 60, 60)), model, name);
+    }
+
+    private void addModel(final ImageIcon icon, final WavefrontObject model, final String name) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 JToggleButton button = new JToggleButton();
@@ -49,7 +53,7 @@ public class ModelSelector extends JPanel {
                 button.setMaximumSize(new Dimension(85, 85));
                 button.setMinimumSize(new Dimension(85, 85));
                 button.setPreferredSize(new Dimension(85, 85));
-                button.setIcon(new ImageIcon(ModelThumbnail.getModelImage(model, 60, 60)));
+                button.setIcon(icon);
                 button.addActionListener(new AbstractAction() {
                     public void actionPerformed(ActionEvent e) {
                         if (context.EXT_modelSelectionSupported) {
@@ -67,6 +71,7 @@ public class ModelSelector extends JPanel {
                         + "<br/>"
                         + "<br/>"
                         + "&nbsp;&nbsp;%s textures"
+                        + "<br/>"
                         + "&nbsp;&nbsp;%s groups"
                         + "<br/>"
                         + "&nbsp;&nbsp;%s materials"
@@ -79,6 +84,7 @@ public class ModelSelector extends JPanel {
                         model.getTextures().size()));
                 group.add(button);
                 holder.add(button);
+                holder.revalidate();
             }
         });
     }
@@ -86,12 +92,17 @@ public class ModelSelector extends JPanel {
     public void synchronize() {
         group = new ButtonGroup();
         holder.removeAll();
-        for (Resource<WavefrontObject> model : Amber.getResourceManager().getModels()) {
-            try {
-                addModel(model.get(), model.getName());
-            } catch (Exception ex) {
-                ErrorHandler.alert(ex);
+        new Thread("Model thumbnail generator") {
+            @Override
+            public void run() {
+                for (Resource<WavefrontObject> model : Amber.getResourceManager().getModels()) {
+                    try {
+                        addModel(model.get(), model.getName());
+                    } catch (Exception ex) {
+                        ErrorHandler.alert(ex);
+                    }
+                }
             }
-        }
+        }.start();
     }
 }

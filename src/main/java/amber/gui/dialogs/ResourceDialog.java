@@ -6,10 +6,10 @@ import amber.data.res.IResourceListener;
 import amber.data.res.Resource;
 import amber.data.res.Tileset;
 import amber.gl.model.obj.WavefrontObject;
-import amber.gui.editor.map.res.ModelSelector;
 import amber.gui.editor.map.res.ModelThumbnail;
 import amber.gui.misc.AudioPlayerPanel;
 import amber.swing.UIUtil;
+import java.io.File;
 import javax.sound.sampled.AudioFormat;
 
 import javax.swing.*;
@@ -161,7 +161,7 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
                     mod.setValueAt(model.getMaterials().size() + " materials", 4, 1);
                     UIUtil.adjustColumnPreferredWidths(modelDetailsTable);
                 }
-                
+
                 modelPreviewLabel.setText("");
                 WavefrontObject sheet = Amber.getResourceManager().getModel(name);
                 modelPreviewLabel.setIcon(sheet != null ? new ImageIcon(ModelThumbnail.getModelImage(sheet, 150, 150)) : null);
@@ -611,6 +611,11 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
         jScrollPane6.setViewportView(models);
 
         jButton15.setText(bundle.getString("ResourceDialog.jButton15.text")); // NOI18N
+        jButton15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton15ActionPerformed(evt);
+            }
+        });
 
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
@@ -762,7 +767,9 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     }//GEN-LAST:event_newClipButtonActionPerformed
 
     private void importTilesetDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importTilesetDirectoryActionPerformed
-        UIUtil.throwUnimplemented();
+        for (File f : ImportResourceDirectoryDialog.showResourceDirectoryDialog(Amber.getUI(), "png", "jpg", "jpeg", "gif", "bmp")) {
+            new NewTilesetDialog(Amber.getUI(), f).setVisible(true);
+        }
     }//GEN-LAST:event_importTilesetDirectoryActionPerformed
 
     private void tilesetsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_tilesetsValueChanged
@@ -774,7 +781,9 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     }//GEN-LAST:event_deleteTilesetButtonActionPerformed
 
     private void importClipDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importClipDirectoryActionPerformed
-        UIUtil.throwUnimplemented();
+        for (File f : ImportResourceDirectoryDialog.showResourceDirectoryDialog(Amber.getUI(), "wav", "aiff", "ogg", "mid", "midi")) {
+            new NewAudioDialog(Amber.getUI(), f).setVisible(true);
+        }
     }//GEN-LAST:event_importClipDirectoryActionPerformed
 
     private void deleteClipButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClipButtonActionPerformed
@@ -800,6 +809,12 @@ public class ResourceDialog extends javax.swing.JDialog implements IResourceList
     private void modelsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_modelsValueChanged
         updateModelPreview();
     }//GEN-LAST:event_modelsValueChanged
+
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+        for (File f : ImportResourceDirectoryDialog.showResourceDirectoryDialog(Amber.getUI(), "obj")) {
+            new NewModelDialog(Amber.getUI(), f).setVisible(true);
+        }
+    }//GEN-LAST:event_jButton15ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel audioDetailsGroup;
     private javax.swing.JPanel audioPlayGroup;

@@ -260,10 +260,11 @@ public class C0x01 extends Codec {
             if (layer instanceof Layer3D) {
                 Layer3D l3d = (Layer3D) layer;
                 int nz = 0;
-                for(SparseMatrix<TileModel> matrix : l3d.modelMatrix()) {
-                    for(TileModel u : matrix) {
-                        if(u != null)
+                for (SparseMatrix<TileModel> matrix : l3d.modelMatrix()) {
+                    for (TileModel u : matrix) {
+                        if (u != null) {
                             nz++;
+                        }
                     }
                 }
                 layers.writeInt(nz);
@@ -279,9 +280,11 @@ public class C0x01 extends Codec {
                         if (tile != null) {
                             WavefrontObject obj = tile.getModel();
                             if (!recordedModels.containsKey(obj)) {
-                                constants.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
-                                recordedModels.put(obj, recordedModels.size() + 1);
-                                constantsCount++;
+                                if (modelIds.containsKey(obj)) {
+                                    constants.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
+                                    recordedModels.put(obj, recordedModels.size() + 1);
+                                    constantsCount++;
+                                }
                             }
                             layers.writeShort(matrixIterator.realX())
                                     .writeShort(matrixIterator.realY())

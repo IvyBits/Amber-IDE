@@ -3,6 +3,7 @@ package amber.gui.dialogs;
 import amber.Amber;
 import amber.al.Audio;
 import amber.al.AudioIO;
+import amber.data.io.FileIO;
 import amber.data.state.Scope;
 import amber.data.state.State;
 import amber.gui.misc.ErrorHandler;
@@ -13,7 +14,6 @@ import amber.swing.UIUtil;
 import java.awt.GridBagLayout;
 import java.io.File;
 import javax.sound.sampled.AudioFormat;
-import javax.swing.JFileChooser;
 import javax.swing.table.TableModel;
 
 /**
@@ -43,6 +43,14 @@ public class NewAudioDialog extends javax.swing.JDialog {
 
         UIUtil.adjustColumnPreferredWidths(detailsTable);
         previewGroup.setLayout(new GridBagLayout());
+    }
+
+    public NewAudioDialog(java.awt.Frame parent, File clip) {
+        this(parent);
+        nameField.setText(FileIO.getFileName(clip));
+        audioLocationField.setText(clip.getAbsolutePath());
+        updatePreview();
+        checkCreateableStatus();
     }
 
     private void checkCreateableStatus() {

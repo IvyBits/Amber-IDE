@@ -1,6 +1,7 @@
 package amber.gui.dialogs;
 
 import amber.Amber;
+import amber.data.io.FileIO;
 import amber.data.res.Tileset;
 import amber.data.state.Scope;
 import amber.data.state.State;
@@ -39,6 +40,7 @@ public class NewTilesetDialog extends javax.swing.JDialog {
 
     public NewTilesetDialog(java.awt.Frame parent, File image) {
         this(parent);
+        nameField.setText(FileIO.getFileName(image));
         imageLocationField.setText(image.getAbsolutePath());
         updatePreview();
         checkCreateableStatus();
@@ -62,12 +64,14 @@ public class NewTilesetDialog extends javax.swing.JDialog {
                 try {
                     previewLabel.setText("");
                     previewLabel.setIcon(new ImageIcon(ImageIO.read(new File(imageLocationField.getText()))));
+                    return;
                 } catch (Exception e) {
-                    previewLabel.setIcon(null);
-                    previewLabel.setText("No preview available.");
-                    previewLabel.setSize(previewLabel.getPreferredSize());
-                    previewGroup.validate();
+                    e.printStackTrace();
                 }
+                previewLabel.setIcon(null);
+                previewLabel.setText("No preview available.");
+                previewLabel.setSize(previewLabel.getPreferredSize());
+                previewGroup.validate();
             }
         });
     }
