@@ -24,8 +24,10 @@ public class Eraser2D extends AbstractTool2D {
         boolean modified = false;
         for (int w = 0; w != size; w++) {
             for (int h = 0; h != size; h++) {
-                modified |= context.map.getLayer(context.layer).getTile(x + w, y + h, 0) != null;
-                context.map.getLayer(context.layer).setTile(x + w, y + h, 0, null);
+                if (isInBounds(x + w, y + h)) {
+                    modified |= context.map.getLayer(context.layer).getTile(x + w, y + h, 0) != null;
+                    context.map.getLayer(context.layer).setTile(x + w, y + h, 0, null);
+                }
             }
         }
         return modified;
