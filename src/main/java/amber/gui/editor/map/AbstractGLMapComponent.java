@@ -18,6 +18,8 @@ import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.PixelFormat;
 
+import javax.swing.*;
+
 /**
  *
  * @author Tudor
@@ -127,6 +129,10 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
 
     public boolean modified() {
         return modified;
+    }
+
+    public JComponent getStatusBar() {
+        return null;
     }
 
     public void save() {

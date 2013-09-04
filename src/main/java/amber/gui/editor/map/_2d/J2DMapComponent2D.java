@@ -161,12 +161,12 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     public Component getComponent() {
         return display;
     }
-    protected boolean info = true, grid = true;
+    protected boolean info = false, grid = true;
 
     @Override
     public JMenu[] getContextMenus() {
         return new JMenu[]{
-            new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
+            new MenuBuilder("View").addCheckbox("Info", false, new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
                     info ^= true;
                     repaint();
@@ -202,6 +202,13 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         modified = false;
     }
 
+    JLabel status = new JLabel();
+
+    @Override
+    public JComponent getStatusBar() {
+        return status;
+    }
+
     @Override
     public void paintComponent(Graphics g_) {
         int u = renderer.zoom();
@@ -232,6 +239,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             g.translate(0, -(getHeight() - context.map.getLength() * renderer.zoom()));
             g.drawString(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y), 4, 4 + g.getFontMetrics().getHeight());
         }
+        status.setText(String.format("Cursor: (%d, %d)", cursorPos.x, cursorPos.y));
     }
 
     protected void onKeyPress(KeyEvent e) {

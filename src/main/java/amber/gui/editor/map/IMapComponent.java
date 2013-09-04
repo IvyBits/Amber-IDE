@@ -1,7 +1,7 @@
 package amber.gui.editor.map;
 
 import java.awt.Component;
-import javax.swing.JMenu;
+import javax.swing.*;
 
 /**
  *
@@ -17,4 +17,5 @@ public interface IMapComponent {
 
     boolean modified();
     void save();
+    JComponent getStatusBar();
 }
