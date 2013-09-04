@@ -21,9 +21,9 @@ public class ImageViewerPanel extends FileViewerPanel {
         BufferedImage image;
         double u = 1;
         JScrollPane container;
-        final JPanel owner;
+        final ImageViewerPanel owner;
 
-        public ImageViewer(final JPanel owner, File file) throws IOException {
+        public ImageViewer(ImageViewerPanel owner, File file) throws IOException {
             this.owner = owner;
             image = ImageIO.read(file);
             container = new JScrollPane(this);
@@ -125,6 +125,8 @@ public class ImageViewerPanel extends FileViewerPanel {
                     }
                 }
             });
+
+            updateStatus();
         }
 
         private void updateZoom(double multiplier) {
@@ -136,6 +138,13 @@ public class ImageViewerPanel extends FileViewerPanel {
             container.revalidate();
             sx.setValue((int) ((sx.getValue() + vx) * multiplier) - sx.getVisibleAmount() / 2);
             sy.setValue((int) ((sy.getValue() + vy) * multiplier) - sx.getVisibleAmount() / 2);
+
+            updateStatus();
+        }
+
+        private void updateStatus() {
+            owner.status.setText(String.format("Image Size: %dx%d, Scaled Size: %dx%d (%.2f%%)", image.getWidth(),
+                    image.getHeight(), imageWidth(), imageHeight(), u * 100));
         }
 
         @Override
@@ -165,6 +174,7 @@ public class ImageViewerPanel extends FileViewerPanel {
     }
 
     ImageViewer viewer;
+    JLabel status = new JLabel("Loading image...");
 
     public ImageViewerPanel(File file) {
         super(file);
@@ -173,6 +183,8 @@ public class ImageViewerPanel extends FileViewerPanel {
             add((viewer = new ImageViewer(this, file)).getContainer(), BorderLayout.CENTER);
         } catch (Exception e) {
             add(wrap(new JLabel("Failed to load image.")), BorderLayout.CENTER);
+            e.printStackTrace();
+            status.setText("Failed to load image: " + e.getMessage());
         }
     }
 
@@ -186,5 +198,10 @@ public class ImageViewerPanel extends FileViewerPanel {
     @Override
     public JMenu[] getContextMenus() {
         return new JMenu[0];
+    }
+
+    @Override
+    public JComponent getStatusBar() {
+        return status;
     }
 }

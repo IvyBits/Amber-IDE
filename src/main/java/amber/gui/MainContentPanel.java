@@ -129,6 +129,7 @@ public class MainContentPanel extends javax.swing.JPanel {
                     for (int i = 0; i < oldMenuCount; ++i) {
                         menuBar.remove(menuBar.getMenuCount() - 2);
                     }
+                    statusBar.removeAll();
 
                     Component component = ((CloseableTabbedPane) e.getSource()).getSelectedComponent();
                     if (component instanceof FileViewerPanel) {
@@ -137,10 +138,15 @@ public class MainContentPanel extends javax.swing.JPanel {
                             menuBar.add(menu, menuBar.getComponentCount() - 1); // Help menu should always be last
                         }
                         oldMenuCount = menus.length;
+
+                        JComponent status = ((FileViewerPanel) component).getStatusBar();
+                        if (status != null)
+                            statusBar.add(status, BorderLayout.CENTER);
                     } else {
                         oldMenuCount = 0;
                     }
                     menuBar.revalidate();
+
                 }
             });
             int location = projectDivider.getDividerLocation();

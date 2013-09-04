@@ -4,9 +4,7 @@ import amber.data.io.FileIO;
 import amber.gui.misc.FileSystemIcon;
 import java.io.File;
 import java.util.HashMap;
-import javax.swing.Icon;
-import javax.swing.JMenu;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  *
@@ -36,6 +34,8 @@ public abstract class FileViewerPanel extends JPanel {
     }
 
     public void save() {}
+
+    public JComponent getStatusBar() { return null; }
     
     public static void registerPanel(Class<? extends FileViewerPanel> panel, String extension) {
         registerPanel(panel, new String[]{extension});
