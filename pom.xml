@@ -37,7 +37,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>                            
-                            <mainClass>amber.Amber</mainClass>                 
+                            <mainClass>tk.amberide.Amber</mainClass>                 
                         </manifest>
                     </archive>
                 </configuration>
