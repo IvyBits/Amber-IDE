@@ -1,5 +1,8 @@
 package tk.amberide.ide.gui.editor.map.tool._2d;
 
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
+import tk.amberide.engine.input.AbstractKeyboard;
 import tk.amberide.ide.gui.editor.map.MapContext;
 
 import java.awt.*;
@@ -8,9 +11,11 @@ import java.awt.image.BufferedImage;
 public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
     Point selectStart;
     Rectangle selection;
+    Object parent;
 
-    public Select2D(MapContext context) {
+    public Select2D(Object parent, MapContext context) {
         super(context);
+        this.parent = parent;
     }
 
     @Override
@@ -48,7 +53,6 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
 
     @Override
     public void mouseBegin(int x, int y) {
-        System.out.printf("Selection Start: (%d, %d)\n", x, y);
         selectStart = new Point(x, y);
         updateSelection(x, y);
     }
@@ -64,13 +68,28 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
         updateSelection(x, y);
     }
 
+    @Override
+    public void doKey(int keycode) {
+        super.doKey(keycode);
+        try {
+            AbstractKeyboard.create(AbstractKeyboard.AWT);
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (keycode == Keyboard.KEY_D && (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL))) {
+            context.selection = selection = new Rectangle();
+            if (parent instanceof Component)
+                ((Component) parent).repaint();
+        }
+    }
+
     protected void updateSelection(int x, int y) {
         int x1 = Math.min(selectStart.x, x);
         int y1 = Math.min(selectStart.y, y);
         int x2 = Math.max(selectStart.x, x);
         int y2 = Math.max(selectStart.y, y);
         context.selection = selection = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-        System.out.printf("Selection: (%4d, %4d) (%d, %d)\n", x, y, x2 - x1 + 1, y2 - y1 + 1);
     }
 
     @Override
