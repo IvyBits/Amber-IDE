@@ -4,6 +4,8 @@ import tk.amberide.ide.data.res.Tileset;
 import tk.amberide.engine.data.map.Flag;
 import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.gl.model.obj.WavefrontObject;
+
+import java.awt.*;
 import java.io.File;
 import java.util.Stack;
 
@@ -34,4 +36,5 @@ public class MapContext {
     public boolean EXT_modelSelectionSupported;
     public boolean EXT_cardinal = true;
     public boolean EXT_cardinalSupported;
+    public Rectangle selection;
 }

@@ -69,9 +69,8 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
         int y1 = Math.min(selectStart.y, y);
         int x2 = Math.max(selectStart.x, x);
         int y2 = Math.max(selectStart.y, y);
-        selection = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+        context.selection = selection = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
         System.out.printf("Selection: (%4d, %4d) (%d, %d)\n", x, y, x2 - x1 + 1, y2 - y1 + 1);
-
     }
 
     @Override
