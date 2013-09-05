@@ -42,6 +42,10 @@ public abstract class AbstractTool2D implements Tool2D {
             return null;
     }
 
+    public float getPreviewOpacity() {
+        return .7f;
+    }
+
     protected boolean isInBounds(int x, int y) {
         return !(x < 0 || x > context.map.getWidth() - 1 || y < 0 || y > context.map.getLength() - 1);
     }

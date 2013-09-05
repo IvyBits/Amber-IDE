@@ -1,8 +1,8 @@
 package tk.amberide.ide.gui.editor.map.tool._2d;
 
 import tk.amberide.ide.gui.editor.map.MapContext;
-import java.awt.Component;
-import java.awt.Dimension;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -22,4 +22,6 @@ public interface Tool2D {
     Component getContextComponent();
 
     BufferedImage getPreview();
+
+    float getPreviewOpacity();
 }

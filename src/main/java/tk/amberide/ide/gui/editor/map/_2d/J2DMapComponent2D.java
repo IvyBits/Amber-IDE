@@ -5,10 +5,7 @@ import tk.amberide.engine.data.map.codec.Codec;
 import tk.amberide.engine.gl.FrameTimer;
 import tk.amberide.ide.gui.editor.map.IMapComponent;
 import tk.amberide.ide.gui.editor.map.MapContext;
-import tk.amberide.ide.gui.editor.map.tool._2d.Brush2D;
-import tk.amberide.ide.gui.editor.map.tool._2d.Eraser2D;
-import tk.amberide.ide.gui.editor.map.tool._2d.Fill2D;
-import tk.amberide.ide.gui.editor.map.tool._2d.Tool2D;
+import tk.amberide.ide.gui.editor.map.tool._2d.*;
 import tk.amberide.ide.gui.misc.ErrorHandler;
 import tk.amberide.engine.input.awt.AWTInputMap;
 import tk.amberide.ide.swing.MenuBuilder;
@@ -22,13 +19,12 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import static tk.amberide.ide.gui.editor.map.MapContext.MODE_BRUSH;
-import static tk.amberide.ide.gui.editor.map.MapContext.MODE_ERASE;
-import static tk.amberide.ide.gui.editor.map.MapContext.MODE_FILL;
 import tk.amberide.ide.swing.misc.TransferableImage;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
+
+import static tk.amberide.ide.gui.editor.map.MapContext.*;
 
 /**
  * @author xiaomao
@@ -99,6 +95,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             public void mouseReleased(MouseEvent e) {
                 if (isDrag(e)) {
                     mouseDragged(e);
+                } else {
+                    onMouseDown(e);
                 }
             }
 
@@ -224,11 +222,20 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         if (cursorPos != null && currentTool != null) {
             Dimension size = currentTool.getDrawRectangleSize();
             if (size.height > 0 && size.width > 0) {
-                int x = cursorPos.x * u, y = context.map.getLength() * u - cursorPos.y * u - size.height * u;
-                int width = size.width * u, height = size.height * u;
+                int x, y, width, height;
+                if (currentTool instanceof Tool2DFeedbackProvider) {
+                    Point point = ((Tool2DFeedbackProvider) currentTool).getDrawRectLocation();
+                    x = point.x * u;
+                    y = context.map.getLength() * u - point.y * u - size.height * u;
+                } else {
+                    x = cursorPos.x * u;
+                    y = context.map.getLength() * u - cursorPos.y * u - size.height * u;
+                }
+                width = size.width * u;
+                height = size.height * u;
                 g.drawRect(x, y, width, height);
                 Composite old = g.getComposite();
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .7f));
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, currentTool.getPreviewOpacity()));
                 g.drawImage(currentTool.getPreview(), x, y, width, height, null);
                 g.setComposite(old);
             }
@@ -328,10 +335,31 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         onMouseMove(e.getX(), e.getY());
         if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED)
                 || (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
-            LevelMap pre = context.map.clone();
             Tool2D tool = currentTool();
+            if (tool == null)
+                return;
+            boolean feedback = tool instanceof Tool2DFeedbackProvider;
+            boolean shouldUndo = feedback ? ((Tool2DFeedbackProvider) tool).shouldUndo() : true;
+            LevelMap pre = null;
+            if (shouldUndo)
+                pre = context.map.clone();
+            if (feedback) {
+                switch (e.getID()) {
+                    case MouseEvent.MOUSE_PRESSED:
+                        ((Tool2DFeedbackProvider) tool).mouseBegin(cursorPos.x, cursorPos.y);
+                        break;
+                    case MouseEvent.MOUSE_RELEASED:
+                        ((Tool2DFeedbackProvider) tool).mouseUp(cursorPos.x, cursorPos.y);
+                        break;
+                    default:
+                        ((Tool2DFeedbackProvider) tool).mouseDown(cursorPos.x, cursorPos.y);
+                }
+                shouldUndo = ((Tool2DFeedbackProvider) tool).shouldUndo();
+            } else {
+                shouldUndo |= tool.apply(cursorPos.x, cursorPos.y);
+            }
 
-            if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
+            if (shouldUndo) {
                 context.undoStack.push(pre);
                 modified = true;
             }
@@ -350,6 +378,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected Tool2D brushTool = new Brush2D(context);
     protected Tool2D eraseTool = new Eraser2D(context);
     protected Tool2D fillTool = new Fill2D(context);
+    protected Tool2D selectTool = new Select2D(context);
 
     private Tool2D currentTool() {
         switch (context.drawMode) {
@@ -359,6 +388,8 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 return fillTool;
             case MODE_ERASE:
                 return eraseTool;
+            case MODE_SELECT:
+                return selectTool;
         }
         return null;
     }
