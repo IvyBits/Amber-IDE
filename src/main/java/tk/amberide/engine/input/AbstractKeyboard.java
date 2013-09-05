@@ -40,7 +40,7 @@ public final class AbstractKeyboard {
 
     protected static void ensureCreated() {
         if (!isCreated()) {
-            throw new IllegalStateException("AbstractMouse is not created");
+            throw new IllegalStateException("AbstractKeyboard is not created");
         }
     }
 
