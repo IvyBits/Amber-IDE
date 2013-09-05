@@ -332,7 +332,6 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
             Tool2D tool = currentTool();
 
             if (tool != null && tool.apply(cursorPos.x, cursorPos.y)) {
-                System.out.println("act");
                 context.undoStack.push(pre);
                 modified = true;
             }

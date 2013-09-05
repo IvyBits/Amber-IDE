@@ -250,7 +250,6 @@ public class ByteStream {
             // corrupt. Hence, we truncate the end.
             byte[] newBuf = new byte[_p];
             System.arraycopy(buffer, 0, newBuf, 0, _p);
-            // System.out.println("Reallocated " + this);
             // Set buffer to it so that we essentially return
             // a pointer.
             buffer = newBuf;

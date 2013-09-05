@@ -67,7 +67,6 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
     protected void pollInput() {
         try {
             if (!AbstractKeyboard.isCreated()) {
-                System.out.println("new keyboard");
                 AbstractKeyboard.create(AbstractKeyboard.AWT);
             }
             if (!AbstractMouse.isCreated()) {

@@ -91,9 +91,7 @@ public class Amber {
                 public void run() {
                     main = new IDE();
                     try {
-                        System.out.println("AAA");
                         restoreLastWorkspace();
-                        System.out.println("BBB");
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -126,7 +124,6 @@ public class Amber {
 
     private static void restoreLastWorkspace() throws Exception {
         IState lastProject = states.getState(Scope.GLOBAL, "LastProjectDirectory");
-        System.out.println(lastProject + " is null?");
         if (workspace == null && lastProject != null && lastProject.get() != null) {
             File root = new File((String) lastProject.get());
             System.out.println("Loaded project " + root);

@@ -114,7 +114,6 @@ public class ModelScene {
             }
 
             // If current material has texture, bind it
-            //System.out.println( m._name + "  -- texid: " + m._material._texId );
             if (texId > 0) {
                 glEnable(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, texId);

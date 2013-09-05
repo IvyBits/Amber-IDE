@@ -104,7 +104,6 @@ public class MainContentPanel extends javax.swing.JPanel {
             activeFilesTabbedPane = new CloseableTabbedPane();
             activeFilesTabbedPane.addTabCloseListener(new TabCloseListener() {
                 public boolean tabClosed(String title, Component comp, CloseableTabbedPane pane) {
-                    System.out.println("Tab closing...");
                     if (comp instanceof FileViewerPanel && !askToSaveFile(MainContentPanel.this, comp))
                         return false;
 

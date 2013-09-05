@@ -28,7 +28,6 @@ public class TileSheetRenderer extends JComponent {
     public TileSheetRenderer(final Tileset sheet, final TileSelector parent) {
         this.sheet = sheet;
         this.parent = parent;
-        System.out.println("New tilesheet renderer: " + sheet);
         MouseAdapter ma = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
