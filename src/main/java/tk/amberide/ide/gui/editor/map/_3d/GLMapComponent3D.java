@@ -206,6 +206,9 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                         }
                     });
                 }
+                break;
+            default:
+                currentTool().doKey(keycode);
         }
     }
 

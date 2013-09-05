@@ -19,6 +19,7 @@ import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
 import tk.amberide.engine.data.map.Angle;
+import tk.amberide.engine.data.map.TileType;
 
 /**
  *
@@ -29,7 +30,6 @@ public class Brush3D extends AbstractTool3D {
     protected EulerCamera camera;
     protected Angle angle = _180;
     protected ITesselator tess = new ImmediateTesselator();
-    protected int scroll = 0;
 
     public Brush3D(MapContext context, EulerCamera camera) {
         super(context);
@@ -38,13 +38,11 @@ public class Brush3D extends AbstractTool3D {
 
     @Override
     public void doScroll(int delta) {
-        scroll -= delta;
-        if (scroll >= 4) {
-            angle = angle == _45 ? _90 : (angle == _180 ? _45 : angle);
-            scroll = 0;
-        } else if (scroll <= -4) {
+        if (delta >= 1) {
             angle = angle == _45 ? _180 : (angle == _90 ? _45 : angle);
-            scroll = 0;
+
+        } else if (delta <= -1) {
+            angle = angle == _45 ? _90 : (angle == _180 ? _45 : angle);
         }
     }
 
@@ -131,7 +129,7 @@ public class Brush3D extends AbstractTool3D {
             Tile r = lay.getTile(x, y, z);
             if (tile != null) {
                 modified = r == null || !tile.equals(r.getSprite());
-                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal()));
+                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal() ? TileType.TILE_CORNER : TileType.TILE_NORMAL));
             } else {
                 modified = r != null;
                 lay.setTile(x, y, z, null);
@@ -194,10 +192,10 @@ public class Brush3D extends AbstractTool3D {
             glBegin(GL_LINE_LOOP);
             {
                 int w = context.tileSelection.length;
-                glVertex3f(0, 0+y1, 0);
-                glVertex3f(ix.x, ix.y+y2, 0);
-                glVertex3f(ix.x, ix.y+y3, w);
-                glVertex3f(0, 0+y4, w);
+                glVertex3f(0, 0 + y1, 0);
+                glVertex3f(ix.x, ix.y + y2, 0);
+                glVertex3f(ix.x, ix.y + y3, w);
+                glVertex3f(0, 0 + y4, w);
             }
             glEnd();
             glPopMatrix();

@@ -37,20 +37,31 @@ public class AWTMouse {
     public static void create() {
         Toolkit.getDefaultToolkit().addAWTEventListener(dispatch = new AWTEventListener() {
             public void eventDispatched(AWTEvent e) {
-                if (e instanceof MouseEvent) {
-                    MouseEvent event = (MouseEvent) e;
-                    events.push(event);
-                    switch (event.getID()) {
-                        case MouseEvent.MOUSE_PRESSED:
-                            buttonDownBuffer.add(AWTInputMap.map(event));
-                            break;
-                        case MouseEvent.MOUSE_RELEASED:
-                            buttonDownBuffer.remove(AWTInputMap.map(event));
-                            break;
+                if (e != null && e.getSource() instanceof Component && ((Component) e.getSource()).equals(focused())) {
+                    if (e instanceof MouseEvent) {
+                        MouseEvent event = (MouseEvent) e;
+                        events.push(event);
+                        switch (event.getID()) {
+                            case MouseEvent.MOUSE_PRESSED:
+                                buttonDownBuffer.add(AWTInputMap.map(event));
+                                break;
+                            case MouseEvent.MOUSE_RELEASED:
+                                buttonDownBuffer.remove(AWTInputMap.map(event));
+                                break;
+                        }
                     }
                 }
             }
         }, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_WHEEL_EVENT_MASK);
+    }
+
+    private static Component focused() {
+        for (final Window w : Window.getWindows()) {
+            if (w.isFocused()) {
+                return w.getFocusOwner();
+            }
+        }
+        return null;
     }
 
     public static void destroy() {
@@ -105,10 +116,11 @@ public class AWTMouse {
 
     public static int getEventDWheel() {
         ensureCreated();
-        if (currentEvent != null && currentEvent instanceof MouseWheelEvent) {    
+        if (currentEvent != null && currentEvent instanceof MouseWheelEvent) {
             MouseWheelEvent wheel = ((MouseWheelEvent) currentEvent);
             int delta = scroll - wheel.getWheelRotation(); // TODO: check, this doesn't seem to work on all comps.
             scroll = 0;
+            wheel.consume();
             return delta;
         }
         return 0;
@@ -203,21 +215,17 @@ public class AWTMouse {
                         parent.setCursor(Toolkit.getDefaultToolkit().
                                 createCustomCursor(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "blank cursor"));
                         grabbedParent = new WeakReference<Component>(parent);
-                        tk.amberide.ide.os.OS.println("Grabbed at ", grabEnter, "::", parent);
                         w.addFocusListener(new FocusAdapter() {
                             @Override
                             public void focusLost(FocusEvent e) {
-                                System.out.println("focus lost");
                                 setGrabbed(false);
                                 w.removeFocusListener(this);
                             }
                         });
                     }
                 } else if (isGrabbed()) {
-
                     Component parent = grabbedParent.get();
                     parent.setCursor(Cursor.getDefaultCursor());
-                    tk.amberide.ide.os.OS.println("Released ", parent);
                     try {
                         SwingUtilities.convertPointToScreen(grabEnter, parent);
                         new Robot().mouseMove(grabEnter.x, grabEnter.y);
@@ -227,7 +235,6 @@ public class AWTMouse {
                     grabbedParent = null;
                     grabEnter = null;
                 }
-
             }
         }
     }

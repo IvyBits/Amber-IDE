@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.WeakHashMap;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
+import tk.amberide.engine.data.map.TileType;
 
 /**
  * Renders tiles in immediate mode.
@@ -52,7 +53,7 @@ public class ImmediateTesselator implements ITesselator {
         float y1, y2, y3, y4;
         y1 = y2 = y3 = y4 = 0;
         Vector2f ix;
-        if (tile.isCorner()) {
+        if (tile.getType() == TileType.TILE_CORNER) {
             switch (tile.getDirection()) {
                 case NORTH_EAST:
                     y3++;

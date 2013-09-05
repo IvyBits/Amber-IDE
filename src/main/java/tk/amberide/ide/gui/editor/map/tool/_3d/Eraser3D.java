@@ -1,5 +1,6 @@
 package tk.amberide.ide.gui.editor.map.tool._3d;
 
+import org.lwjgl.input.Keyboard;
 import tk.amberide.engine.data.math.Angles;
 import tk.amberide.ide.data.res.Tileset.TileSprite;
 import tk.amberide.engine.gl.camera.EulerCamera;
@@ -20,11 +21,32 @@ public class Eraser3D extends Brush3D {
     }
 
     @Override
+    public void doScroll(int delta) {
+        size += delta;
+        size = Math.max(size, 1);
+    }
+    
+     @Override
+    public void doKey(int keycode) {
+        switch (keycode) {
+            case Keyboard.KEY_MULTIPLY:
+                size++;
+                break;
+            case Keyboard.KEY_DIVIDE:
+                if (size > 1) {
+                    size--;
+                }
+                break;
+        }
+    }
+
+    @Override
     public boolean apply(int x, int y, int z) {
         boolean modified = false;
         for (int sx = 0; sx != size; sx++) {
             for (int sy = 0; sy != size; sy++) {
-                boolean tiled = setAngledTile(x, y, (int) z, sx, sy, size, size, camera.getFacingDirection(), angle, new TileSprite[][]{{null}});
+                boolean tiled = setAngledTile(x, y, z, sx, sy, size, size,
+                        camera.getFacingDirection(), angle, new TileSprite[size][size]);
                 if (!modified) {
                     modified = tiled;
                 }

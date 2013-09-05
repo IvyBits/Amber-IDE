@@ -8,23 +8,23 @@ import tk.amberide.ide.data.res.Tileset;
  */
 public class Tile3D extends Tile {
 
-    private Direction dir;
-    private Angle angle;
-    private boolean corner;
+    protected Direction dir;
+    protected Angle angle;
+    protected TileType type;
 
-    public Tile3D(Tileset.TileSprite sprite, Direction dir, Angle angle, boolean corner) {
+    public Tile3D(Tileset.TileSprite sprite, Direction dir, Angle angle, TileType type) {
         super(sprite);
         this.dir = dir;
         this.angle = angle;
-        this.corner = corner;
+        this.type = type;
     }
 
-    public Tile3D(Tileset.TileSprite sprite, Direction dir, boolean corner) {
-        this(sprite, dir, Angle._180);
+    public Tile3D(Tileset.TileSprite sprite, Direction dir, TileType type) {
+        this(sprite, dir, Angle._180, type);
     }
 
     public Tile3D(Tileset.TileSprite sprite, Direction dir, Angle angle) {
-        this(sprite, dir, angle, false);
+        this(sprite, dir, angle, TileType.TILE_NORMAL);
     }
 
     public Tile3D(Tileset.TileSprite sprite, Direction dir) {
@@ -59,16 +59,12 @@ public class Tile3D extends Tile {
         this.angle = angle;
     }
 
-    public boolean isCorner() {
-        return corner;
-    }
-
-    public void setCorner(boolean corner) {
-        this.corner = corner;
+    public TileType getType() {
+        return type;
     }
 
     @Override
     public Tile3D clone() {
-        return new Tile3D(sprite, dir, angle, corner);
+        return new Tile3D(sprite, dir, angle, type);
     }
 }
