@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
-    Point selectStart, selectEnd;
+    Point selectStart;
     Rectangle selection;
 
     public Select2D(MapContext context) {
@@ -50,24 +50,28 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
     public void mouseBegin(int x, int y) {
         System.out.printf("Selection Start: (%d, %d)\n", x, y);
         selectStart = new Point(x, y);
-        selectEnd = new Point(x, y);
+        updateSelection(x, y);
     }
 
     @Override
     public void mouseUp(int x, int y) {
-        mouseDown(x, y);
+        updateSelection(x, y);
+        selectStart = null; // if you mess up it NPEs so you catch it
     }
 
     @Override
     public void mouseDown(int x, int y) {
-        selectEnd.x = x;
-        selectEnd.y = y;
-        int x1 = Math.min(selectStart.x, selectEnd.x);
-        int y1 = Math.min(selectStart.y, selectEnd.y);
-        int x2 = Math.max(selectStart.x, selectEnd.x);
-        int y2 = Math.max(selectStart.y, selectEnd.y);
+        updateSelection(x, y);
+    }
+
+    protected void updateSelection(int x, int y) {
+        int x1 = Math.min(selectStart.x, x);
+        int y1 = Math.min(selectStart.y, y);
+        int x2 = Math.max(selectStart.x, x);
+        int y2 = Math.max(selectStart.y, y);
         selection = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
         System.out.printf("Selection: (%4d, %4d) (%d, %d)\n", x, y, x2 - x1 + 1, y2 - y1 + 1);
+
     }
 
     @Override
