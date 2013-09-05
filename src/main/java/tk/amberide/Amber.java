@@ -70,8 +70,12 @@ public class Amber {
                 public void run() {
                     System.out.println("Shutting down...");
                     try {
-                        states.emitStates();
-                        resources.emitResources();
+                        if (states != null) {
+                            states.emitStates();
+                        }
+                        if (resources != null) {
+                            resources.emitResources();
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

@@ -37,7 +37,7 @@ public class IDE extends javax.swing.JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (content.getFilesTabbedPane() != null &&
+                if (content != null && content.getFilesTabbedPane() != null &&
                         !MainContentPanel.askToSaveFile(IDE.this, content.getFilesTabbedPane().getComponents()))
                     return;
                 setVisible(false);
