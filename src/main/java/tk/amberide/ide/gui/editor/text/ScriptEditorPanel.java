@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -31,6 +32,8 @@ import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.*;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jruby.Ruby;
+import tk.amberide.ide.data.io.XML;
+import tk.amberide.ide.swing.MenuBuilder;
 
 /**
  * @author Tudor
@@ -64,8 +67,8 @@ public class ScriptEditorPanel extends FileViewerPanel {
             put("htm", SYNTAX_STYLE_HTML);
         }
     };
-
     protected boolean modified = false;
+    protected static Pattern FORMATTABLE = Pattern.compile("(?:html|htm|xml)");
 
     /**
      * Creates new form ScriptEditorPanel
@@ -90,6 +93,14 @@ public class ScriptEditorPanel extends FileViewerPanel {
                 save();
             }
         });
+        if (formatSupported()) {
+            UIUtil.mapInput(this, JComponent.WHEN_IN_FOCUSED_WINDOW, KeyEvent.VK_F, InputEvent.ALT_MASK | KeyEvent.SHIFT_MASK, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    doFormat();
+                }
+            });
+        }
         String ext = FileIO.getFileExtension(file);
         toolbar.setVisible(ext.equals("rb"));
         editor.setSyntaxEditingStyle(SYNTAX_EXTENSIONS.containsKey(ext) ? SYNTAX_EXTENSIONS.get(ext) : SyntaxConstants.SYNTAX_STYLE_NONE);
@@ -132,9 +143,30 @@ public class ScriptEditorPanel extends FileViewerPanel {
         }
     }
 
+    private boolean formatSupported() {
+        return FORMATTABLE.matcher(FileIO.getFileExtension(file)).matches();
+    }
+
+    private void doFormat() {
+        String text = editor.getText();
+        editor.beginAtomicEdit();
+        text = XML.formatXML(text);
+        editor.setText(text);
+        editor.endAtomicEdit();
+    }
+
     @Override
     public JMenu[] getContextMenus() {
-        return new JMenu[0];
+        if (formatSupported()) {
+            return new JMenu[]{new MenuBuilder("Tools").addButton("Format", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        doFormat();
+                    }
+                }).create()};
+        } else {
+            return new JMenu[0];
+        }
     }
 
     @Override

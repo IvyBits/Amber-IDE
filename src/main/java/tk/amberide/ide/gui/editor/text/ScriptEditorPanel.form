@@ -101,7 +101,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="tk.amberide.ide.swing.misc.ThinSplitPane" name="jSplitPane1">
+    <Container class="amber.swing.misc.ThinSplitPane" name="jSplitPane1">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="null"/>
@@ -151,7 +151,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Container class="tk.amberide.ide.swing.tabs.CloseableTabbedPane" name="closeableTabbedPane">
+        <Container class="amber.swing.tabs.CloseableTabbedPane" name="closeableTabbedPane">
           <Properties>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[0, 0]"/>
