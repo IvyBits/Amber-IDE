@@ -148,6 +148,7 @@ public class Amber {
         main.loadProject(workspace);
         main.setTitle(String.format("Amber IDE (%s)", root.getAbsolutePath()));
         Storage.recentProjects.put(workspace.getRootDirectory().getAbsolutePath(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+        main.validate();
     }
 
     private static void setupLogging() throws IOException {
