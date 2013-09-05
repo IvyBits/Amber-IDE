@@ -326,6 +326,17 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                     repaint();
                     updateSize();
                     break;
+                default: {
+                    Tool2D tool = currentTool();
+                    if (tool != null) {
+                        tool.doKey(AWTInputMap.map(e));
+                    }
+                }
+            }
+        } else {
+            Tool2D tool = currentTool();
+            if (tool != null) {
+                tool.doKey(AWTInputMap.map(e));
             }
         }
     }
@@ -378,7 +389,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     protected Tool2D brushTool = new Brush2D(context);
     protected Tool2D eraseTool = new Eraser2D(context);
     protected Tool2D fillTool = new Fill2D(context);
-    protected Tool2D selectTool = new Select2D(context);
+    protected Tool2D selectTool = new Select2D(this, context);
 
     private Tool2D currentTool() {
         switch (context.drawMode) {
