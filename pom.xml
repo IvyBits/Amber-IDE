@@ -12,6 +12,7 @@
         <jruby.version>1.7.0.RC1</jruby.version>
         <xom.version>1.2.5</xom.version>
         <jorbis.version>0.0.17-2</jorbis.version>
+        <xstream.version>1.2.2</xstream.version>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>  
@@ -104,6 +105,11 @@
             <groupId>com.github.insubstantial</groupId>
             <artifactId>substance</artifactId>
             <version>7.2.1</version>
-        </dependency>                     
+        </dependency>         
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream.version}</version>
+        </dependency>                        
     </dependencies>   
 </project>

@@ -73,7 +73,7 @@ public class XMLStateManager extends AbstractStateManager {
             System.err.println("Failed to create states file...");
         }
         FileOutputStream fos = new FileOutputStream(output);
-        fos.write(XML.format(buffer.toString("UTF-8")).getBytes());
+        fos.write(buffer.toString("UTF-8").getBytes());
         fos.close();
     }
 
@@ -99,7 +99,7 @@ public class XMLStateManager extends AbstractStateManager {
                             if (f != null && Modifier.isStatic(f.getModifiers())) {
                                 Object data;
                                 try {
-                                    data = XML.fromXML(fieldState.getChildElements("java").get(0).toXML());
+                                    data = XML.fromXML(fieldState.getChild(0).toXML());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     continue;
@@ -116,9 +116,9 @@ public class XMLStateManager extends AbstractStateManager {
                     String name = state.getAttributeValue("name");
                     Object data;
                     try {
-                        data = XML.fromXML(state.getChildElements("java").get(0).toXML());
+                        data = XML.fromXML(state.getChild(0).toXML());
                     } catch (Exception e) {
-                        System.err.println("Failed to read state " + name + "!" + state.getChildElements("java").get(0).toXML());
+                        System.err.println("Failed to read state " + name + "!" + state.getChild(0).toXML());
                         e.printStackTrace();
                         continue;
                     }
