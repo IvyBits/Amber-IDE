@@ -1,6 +1,9 @@
 package tk.amberide.ide.gui.editor.map.tool._3d;
 
+import tk.amberide.engine.data.map.Direction;
+import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.Tile;
+import tk.amberide.engine.data.map.Tile3D;
 import tk.amberide.ide.data.res.Tileset;
 import tk.amberide.engine.gl.camera.EulerCamera;
 import tk.amberide.ide.gui.editor.map.MapContext;
@@ -19,45 +22,71 @@ public class Fill3D extends Brush3D {
         super(context, camera);
     }
 
-    @Override
-    public boolean apply(int x, int y, int z) {
-        boolean modified = false;
-        if (isInBounds(x, y)) {
-            Tileset.TileSprite target = spriteAt(x, y, z);
-            Stack<Point> stack = new Stack<Point>() {
-                Set<Point> visited = new HashSet<Point>();
+    protected class FloodFiller {
+        private final Fill3D tool;
+        private final Point start;
+        private final Layer layer;
+        private HashSet<Point> toFill = new HashSet<Point>();
+        int minX, minY, width, height, z;
+        Tileset.TileSprite[][] toFind;
 
-                @Override
-                public Point push(Point t) {
-                    return visited.add(t) ? super.push(t) : t;
-                }
-            };
+        public FloodFiller(Fill3D tool, Point start, int z) {
+            this.tool = tool;
+            this.start = start;
+            this.z = z;
+            minX = start.x;
+            minY = start.y;
+            width = tool.context.tileSelection.length;
+            height = tool.context.tileSelection[0].length;
+            layer = context.map.getLayer(context.layer);
 
-            stack.push(new Point(x, y));
-            while (!stack.empty()) {
-                Point p = stack.pop();
-                if (spriteAt(p.x, p.y, z) != target) {
+            toFind = new Tileset.TileSprite[width][height];
+            for (int x = 0; x < width; ++x)
+                for (int y = 0; y < height; ++y)
+                    toFind[x][y] = tool.spriteAt(start.x + x, start.y + y, z);
+        }
+
+        public void buildList() {
+            Stack<Point> toVisit = new Stack<Point>();
+            toVisit.push(start);
+            while (!toVisit.empty()) {
+                Point point = toVisit.pop();
+                if (!tool.isInBounds(point.x, point.y))
                     continue;
-                }
-                if (super.apply(p.x, p.y, z)) {
-                    modified = true;
-                }
-
-                if (target == spriteAt(p.x - 1, p.y, z)) {
-                    stack.push(new Point(p.x - 1, p.y));
-                }
-                if (target == spriteAt(p.x + 1, p.y, z)) {
-                    stack.push(new Point(p.x + 1, p.y));
-                }
-                if (target == spriteAt(p.x, p.y - 1, z)) {
-                    stack.push(new Point(p.x, p.y - 1));
-                }
-                if (target == spriteAt(p.x, p.y + 1, z)) {
-                    stack.push(new Point(p.x, p.y + 1));
-                }
+                if (tool.spriteAt(point.x, point.y, z) != toFind[((start.x - point.x) % width + width) % width][((start.y - point.y) % height + height) % height])
+                    continue;
+                if (!toFill.add(point))
+                    continue;
+                if (point.x < minX)
+                    minX = point.x;
+                if (point.y < minY)
+                    minY = point.y;
+                toVisit.push(new Point(point.x - 1, point.y));
+                toVisit.push(new Point(point.x, point.y + 1));
+                toVisit.push(new Point(point.x + 1, point.y));
+                toVisit.push(new Point(point.x, point.y - 1));
             }
         }
-        return modified;
+
+        public boolean fill() {
+            boolean modified = false;
+            for (Point point : toFill) {
+                int x = point.x, y = point.y;
+                Tileset.TileSprite sprite = context.tileSelection[(x - minX) % width][ (y - minY) % height];
+                if (!modified) {
+                    Tile old = layer.getTile(x, y, 0);
+                    modified = old == null || !sprite.equals(old.getSprite());
+                }
+                layer.setTile(x, y, z, new Tile3D(sprite, tool.camera.getFacingDirection()));
+            }
+            return modified;
+        }
+    }
+
+    public boolean apply(int x, int y, int z) {
+        FloodFiller filler = new FloodFiller(this, new Point(x, y), z);
+        filler.buildList();
+        return filler.fill();
     }
 
     private Tileset.TileSprite spriteAt(int x, int y, int z) {
