@@ -1,5 +1,6 @@
 package tk.amberide.ide.gui.editor.map._3d;
 
+import tk.amberide.engine.renderer.GLMapRenderer3D;
 import tk.amberide.Amber;
 import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.Layer3D;
@@ -76,7 +77,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             .build();
     protected TrueTypeFont font;
     protected Sprite compassRose;
-    protected ITesselator tess = new ImmediateTesselator();
+    protected GLMapRenderer3D renderer;
     protected Panel display = new Panel(new BorderLayout());
 
     public GLMapComponent3D(LevelMap map) throws LWJGLException {
@@ -88,6 +89,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         context.EXT_cardinalSupported = true;
         context.EXT_modelSelectionSupported = true;
         display.add(this);
+        renderer = new GLMapRenderer3D(map);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             public void hierarchyChanged(HierarchyEvent e) {
                 // Hierarchy change can signify the AWTGLCanvas destroying the original GL context,
                 // so we have to clear the now invalid texture cache.
-                tess.invalidate();
+                renderer.invalidate();
                 compassRose = null;
                 AbstractKeyboard.destroy(); // Prevent double events
                 AbstractMouse.destroy();
@@ -241,15 +243,10 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
 
         cam.applyTranslations();
-        glEnable(GL_DEPTH_TEST);
-
-        List<Layer> layers = context.map.getLayers();
-        // Fix for z-buffer fighting        
-        glPolygonOffset(1, 1);
-
-        for (int i = 0; i != layers.size(); i++) {
-            drawLayer(layers.get(i));
+        if (renderer.getMap() != context.map) {
+            renderer = new GLMapRenderer3D(context.map);
         }
+        renderer.render();
 
         glDisable(GL_TEXTURE_2D);
         drawGrid();
@@ -298,39 +295,6 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             e.printStackTrace();
         }
         timer.updateFPS();
-    }
-
-    protected void drawLayer(Layer layer) {
-        SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
-        SparseVector<SparseMatrix<TileModel>> modelVector = layer instanceof Layer3D ? ((Layer3D) layer).modelMatrix()
-                : new SparseVector<SparseMatrix<TileModel>>();
-        tess.startTileBatch();
-        SparseVector.SparseVectorIterator tileIterator = tileVector.iterator();
-        while (tileIterator.hasNext()) {
-            SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
-            while (matrixIterator.hasNext()) {
-                Tile3D t = (Tile3D) matrixIterator.next();
-                if (t != null) {
-                    tess.drawTile3D(t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
-                }
-            }
-        }
-        tess.endTileBatch();
-
-        tess.startModelBatch();
-        SparseVector.SparseVectorIterator modelIterator = modelVector.iterator();
-        while (modelIterator.hasNext()) {
-            SparseMatrix<TileModel> matrix = (SparseMatrix<TileModel>) modelIterator.next();
-            SparseMatrix.SparseMatrixIterator matrixIterator = matrix.iterator();
-            int z = modelIterator.realIndex();
-            while (matrixIterator.hasNext()) {
-                TileModel t = (TileModel) matrixIterator.next();
-                if (t != null) {
-                    tess.drawModel3D(t, matrixIterator.realX(), matrixIterator.realY(), z);
-                }
-            }
-        }
-        tess.endModelBatch();
     }
 
     protected void drawGrid() {
