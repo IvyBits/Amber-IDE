@@ -23,6 +23,8 @@ import tk.amberide.ide.swing.misc.TransferableImage;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
+import org.lwjgl.LWJGLException;
+import tk.amberide.engine.input.AbstractKeyboard;
 
 import static tk.amberide.ide.gui.editor.map.MapContext.*;
 
@@ -140,6 +142,12 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
 
         context.map = map;
         updateSize();
+
+        addHierarchyListener(new HierarchyListener() {
+            public void hierarchyChanged(HierarchyEvent e) {
+                AbstractKeyboard.destroy();
+            }
+        });
     }
 
     private void updateSize() {
@@ -171,7 +179,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
                 }
             }).addCheckbox("Grid", true, new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
-                    grid ^= true;
+                    renderer.drawGrid(grid ^= true);
                     repaint();
                 }
             }).create()
@@ -182,24 +190,29 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     public boolean modified() {
         return modified;
     }
+    private boolean saving;
 
     @Override
     public void save() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    FileOutputStream fos = new FileOutputStream(context.outputFile);
-                    Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                    fos.close();
-                } catch (Exception ex) {
-                    ErrorHandler.alert(ex);
+        if (!saving) {
+            saving = true;
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        FileOutputStream fos = new FileOutputStream(context.outputFile);
+                        Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
+                        fos.close();
+                        saving = false;
+                    } catch (Exception ex) {
+                        ErrorHandler.alert(ex);
+                        saving = false;
+                    }
                 }
-            }
-        }.start();
-        modified = false;
+            }.start();
+            modified = false;
+        }
     }
-
     JLabel status = new JLabel();
 
     @Override
@@ -220,7 +233,7 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         g.setColor(Color.BLACK);
         Tool2D currentTool = currentTool();
         if (cursorPos != null && currentTool != null) {
-            Dimension size = currentTool.getDrawRectangleSize();
+            Dimension size = currentTool.getPreviewBorderSize();
             if (size.height > 0 && size.width > 0) {
                 int x, y, width, height;
                 if (currentTool instanceof Tool2DFeedbackProvider) {
@@ -250,6 +263,14 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
     }
 
     protected void onKeyPress(KeyEvent e) {
+        try {
+            if (!AbstractKeyboard.isCreated()) {
+                AbstractKeyboard.create(AbstractKeyboard.AWT);
+            }
+        } catch (LWJGLException ex) {
+            ex.printStackTrace();
+            return;
+        }
         int delta = Math.min(timer.getDelta() / 5, 200);
         if (e.getModifiersEx() == 0) {
             switch (e.getKeyCode()) {
@@ -347,13 +368,15 @@ public class J2DMapComponent2D extends JComponent implements IMapComponent {
         if ((SwingUtilities.isLeftMouseButton(e) && e.getID() == MouseEvent.MOUSE_PRESSED)
                 || (e.getID() == MouseEvent.MOUSE_DRAGGED && moved)) {
             Tool2D tool = currentTool();
-            if (tool == null)
+            if (tool == null) {
                 return;
+            }
             boolean feedback = tool instanceof Tool2DFeedbackProvider;
             boolean shouldUndo = feedback ? ((Tool2DFeedbackProvider) tool).shouldUndo() : true;
             LevelMap pre = null;
-            if (shouldUndo)
+            if (shouldUndo) {
                 pre = context.map.clone();
+            }
             if (feedback) {
                 switch (e.getID()) {
                     case MouseEvent.MOUSE_PRESSED:

@@ -76,9 +76,9 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
             ex.printStackTrace();
             return;
         }
-        
+
         doScroll(AbstractMouse.getDWheel());
-        
+
         while (AbstractKeyboard.next()) {
             if (getEventKeyState()) {
                 int key;
@@ -133,21 +133,27 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
     public JComponent getStatusBar() {
         return null;
     }
+    private boolean saving;
 
     public void save() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    FileOutputStream fos = new FileOutputStream(context.outputFile);
-                    Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
-                    fos.close();
-                } catch (Exception ex) {
-                    ErrorHandler.alert(ex);
+        if (!saving) {
+            saving = true;
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        FileOutputStream fos = new FileOutputStream(context.outputFile);
+                        Codec.getLatestCodec().compileMap(context.map, new DataOutputStream(fos));
+                        fos.close();
+                        saving = false;
+                    } catch (Exception ex) {
+                        ErrorHandler.alert(ex);
+                        saving = false;
+                    }
                 }
-            }
-        }.start();
-        modified = false;
+            }.start();
+            modified = false;
+        }
     }
 
     protected boolean isInBounds(int x, int y) {
