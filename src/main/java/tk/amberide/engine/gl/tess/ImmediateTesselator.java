@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.WeakHashMap;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.vector.Vector2f;
-import tk.amberide.engine.data.map.TileType;
 
 /**
  * Renders tiles in immediate mode.
@@ -33,7 +32,11 @@ public class ImmediateTesselator implements ITesselator {
         atl = getTexture(tile);
 
         glPushMatrix();
-        float[] tr = new float[]{x, z, y, 0};
+        float[] tr = {x, z, y, 0};
+        float[] t0 = {0, 1};
+        float[] t1 = {0, 0};
+        float[] t2 = {1, 0};
+        float[] t3 = {1, 1};
 
         switch (tile.getDirection().toCardinal()) {
             case SOUTH:
@@ -52,25 +55,51 @@ public class ImmediateTesselator implements ITesselator {
         }
         float y1, y2, y3, y4;
         y1 = y2 = y3 = y4 = 0;
-        Vector2f ix;
-        if (tile.getType() == TileType.TILE_CORNER) {
-            switch (tile.getDirection()) {
-                case NORTH_EAST:
-                    y3++;
-                    break;
-                case NORTH_WEST:
-                    y2++;
-                    break;
-                case SOUTH_EAST:
-                    y1++;
-                    break;
-                case SOUTH_WEST:
-                    y4++;
-                    break;
-            }
-            ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
-        } else {
-            ix = Angles.circleIntercept(tile.getAngle().intValue(), 0, 0, 1);
+        Vector2f ix = null;
+        switch (tile.getType()) {
+            case TILE_CORNER:
+                switch (tile.getDirection()) {
+                    case NORTH_EAST:
+                    case SOUTH_WEST:
+                        y3++;
+                        break;
+                    case NORTH_WEST:
+                    case SOUTH_EAST:
+                        y2++;
+                        break;
+                }
+                ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
+                break;
+            case TILE_CORNER_INVERSED:
+                switch (tile.getDirection()) {
+                    case NORTH_EAST:
+                        y4++;
+                        y3++;
+                        y2++;
+                        t3 = new float[]{0, 0};
+                        break;
+                    case NORTH_WEST:
+                        y2++;
+                        y4++;
+                        y1++;
+                        t0 = new float[]{0, 0};
+                        break;
+                    case SOUTH_EAST:
+                        y1++;
+                        y2++;
+                        y3++;
+                        break;
+                    case SOUTH_WEST:
+                        y4++;
+                        y3++;
+                        y2++;
+                        break;
+                }
+                ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
+                break;
+            case TILE_NORMAL:
+                ix = Angles.circleIntercept(tile.getAngle().intValue(), 0, 0, 1);
+                break;
         }
         glTranslatef(tr[0], tr[1], tr[2]);
 
@@ -83,23 +112,23 @@ public class ImmediateTesselator implements ITesselator {
         glBegin(GL_TRIANGLES);
         {
             //0      
-            atl.atlasCoord(0, 1);
+            atl.atlasCoord(t0[0], t0[1]);
             glVertex3f(0, y1, 0);
             //1  
-            atl.atlasCoord(0, 0);
+            atl.atlasCoord(t1[0], t1[1]);
             glVertex3f(ix.x, ix.y + y2, 0);
             //2
-            atl.atlasCoord(1, 0);
+            atl.atlasCoord(t2[0], t2[1]);
             glVertex3f(ix.x, ix.y + y3, 1);
 
             //3
-            atl.atlasCoord(1, 1);
+            atl.atlasCoord(t3[0], t3[1]);
             glVertex3f(0, y4, 1);
             //2
-            atl.atlasCoord(1, 0);
+            atl.atlasCoord(t2[0], t2[1]);
             glVertex3f(ix.x, ix.y + y3, 1);
             //0     
-            atl.atlasCoord(0, 1);
+            atl.atlasCoord(t0[0], t0[1]);
             glVertex3f(0, y1, 0);
         }
         glEnd();
@@ -147,10 +176,10 @@ public class ImmediateTesselator implements ITesselator {
     }
 
     public void endTileBatch() {
+        glPopMatrix();
         if (atl != null) {
             atl.unbind();
         }
-        glPopMatrix();
     }
 
     public void startModelBatch() {
