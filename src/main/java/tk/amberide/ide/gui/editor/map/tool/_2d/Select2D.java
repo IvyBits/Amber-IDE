@@ -1,6 +1,5 @@
 package tk.amberide.ide.gui.editor.map.tool._2d;
 
-import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import tk.amberide.engine.input.AbstractKeyboard;
 import tk.amberide.ide.gui.editor.map.MapContext;
@@ -35,7 +34,7 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
     }
 
     @Override
-    public Dimension getDrawRectangleSize() {
+    public Dimension getPreviewBorderSize() {
         return selection == null ? new Dimension() : selection.getSize();
     }
 
@@ -70,13 +69,7 @@ public class Select2D extends AbstractTool2D implements Tool2DFeedbackProvider {
 
     @Override
     public void doKey(int keycode) {
-        super.doKey(keycode);
-        try {
-            AbstractKeyboard.create(AbstractKeyboard.AWT);
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-            return;
-        }
+        super.doKey(keycode);       
         if (keycode == Keyboard.KEY_D && (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL))) {
             context.selection = selection = new Rectangle();
             if (parent instanceof Component)

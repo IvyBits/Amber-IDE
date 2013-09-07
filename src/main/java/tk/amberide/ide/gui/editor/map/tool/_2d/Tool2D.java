@@ -12,14 +12,14 @@ import java.awt.image.BufferedImage;
 public interface Tool2D {
 
     boolean apply(int x, int y);
-    
+
     void setContext(MapContext context);
-    
+
     void doKey(int keycode);
- 
-    Dimension getDrawRectangleSize();
-    
+
     Component getContextComponent();
+
+    Dimension getPreviewBorderSize();
 
     BufferedImage getPreview();
 

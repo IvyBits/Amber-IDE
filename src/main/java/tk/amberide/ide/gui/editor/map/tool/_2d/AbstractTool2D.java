@@ -22,7 +22,7 @@ public abstract class AbstractTool2D implements Tool2D {
         this.context = context;
     }
 
-    public Dimension getDrawRectangleSize() {
+    public Dimension getPreviewBorderSize() {
         return context.tileSelection != null ? new Dimension(context.tileSelection.length, context.tileSelection[0].length) : new Dimension(0, 0);
     }
 
@@ -32,7 +32,7 @@ public abstract class AbstractTool2D implements Tool2D {
     public BufferedImage getPreview() {
         Tileset.TileSprite[][] tiles = context.tileSelection;
         if (tiles != null && tiles.length > 0 && tiles[0].length > 0) {
-            Dimension size = getDrawRectangleSize(), tileSize = tiles[0][0].getSize();
+            Dimension size = getPreviewBorderSize(), tileSize = tiles[0][0].getSize();
             BufferedImage tileset = tiles[0][0].getTileset().getImage();
             Point start = tiles[0][0].getStart(), end = (Point) tiles[tiles.length - 1][tiles[0].length - 1].getStart().clone();
             end.translate(tileSize.width, tileSize.height);

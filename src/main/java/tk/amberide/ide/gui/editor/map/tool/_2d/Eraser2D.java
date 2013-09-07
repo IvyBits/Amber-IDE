@@ -48,7 +48,7 @@ public class Eraser2D extends AbstractTool2D {
     }
 
     @Override
-    public Dimension getDrawRectangleSize() {
+    public Dimension getPreviewBorderSize() {
         return new Dimension(size, size);
     }
 
