@@ -76,9 +76,9 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
             ex.printStackTrace();
             return;
         }
-        while (AbstractMouse.next()) {
-            doScroll(AbstractMouse.getEventDWheel());
-        }
+        
+        doScroll(AbstractMouse.getDWheel());
+        
         while (AbstractKeyboard.next()) {
             if (getEventKeyState()) {
                 int key;

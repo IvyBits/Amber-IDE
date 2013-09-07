@@ -104,13 +104,13 @@ public class AbstractMouse {
         return -1;
     }
 
-    public static int getEventDWheel() {
+    public static int getDWheel() {
         ensureCreated();
         switch (type) {
             case NATIVE:
-                return Mouse.getEventDWheel();
+                return Mouse.getDWheel();
             case AWT:
-                return AWTMouse.getEventDWheel();
+                return AWTMouse.getDWheel();
         }
         return 0;
     }

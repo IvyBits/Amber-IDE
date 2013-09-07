@@ -37,6 +37,9 @@ public class AWTMouse {
     public static void create() {
         Toolkit.getDefaultToolkit().addAWTEventListener(dispatch = new AWTEventListener() {
             public void eventDispatched(AWTEvent e) {
+                if (e instanceof MouseWheelEvent) {
+                    scroll -= ((MouseWheelEvent) e).getWheelRotation(); // TODO: check, this doesn't seem to work on all comps.
+                }
                 if (e != null && e.getSource() instanceof Component && ((Component) e.getSource()).equals(focused())) {
                     if (e instanceof MouseEvent) {
                         MouseEvent event = (MouseEvent) e;
@@ -114,16 +117,11 @@ public class AWTMouse {
         return -1;
     }
 
-    public static int getEventDWheel() {
+    public static int getDWheel() {
         ensureCreated();
-        if (currentEvent != null && currentEvent instanceof MouseWheelEvent) {
-            MouseWheelEvent wheel = ((MouseWheelEvent) currentEvent);
-            int delta = scroll - wheel.getWheelRotation(); // TODO: check, this doesn't seem to work on all comps.
-            scroll = 0;
-            wheel.consume();
-            return delta;
-        }
-        return 0;
+        int delta = scroll;
+        scroll = 0;
+        return delta;
     }
 
     public static int getEventButton() {
