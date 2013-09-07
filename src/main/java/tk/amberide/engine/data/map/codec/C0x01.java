@@ -6,7 +6,7 @@ import tk.amberide.ide.data.res.Tileset.TileSprite;
 import tk.amberide.engine.data.io.ByteStream;
 import tk.amberide.engine.data.map.Direction;
 import static tk.amberide.engine.data.map.Direction.*;
-import tk.amberide.engine.data.map.InvalidMapException;
+import tk.amberide.engine.data.map.exc.InvalidMapException;
 import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.LevelMap;

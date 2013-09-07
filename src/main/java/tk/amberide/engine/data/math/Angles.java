@@ -1,5 +1,9 @@
 package tk.amberide.engine.data.math;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.tan;
+import static java.lang.Math.toRadians;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -30,12 +34,20 @@ public class Angles {
 
         return horizontal ? new Vector2f(originX + delta, originY + tan) : new Vector2f(originX + tan, originY + delta);
     }
+    
+    public static Vector2f circleIntercept0(float a, float originX, float originY, int u) {
+        return new Vector2f((float)max(min(u * tan(toRadians(a)), u), -u), 
+                (float)max(min(u/tan(toRadians(a)), u), -u));
+    }
+
 
     public static void main(String[] args) {
         for (int i = 0; i != 360; i += 15) {
             System.out.print(i + ": ");
             Vector2f point = circleIntercept(i, 0, 0, 2);
             System.out.println(point.x + ", " + point.y);
+            point = circleIntercept0(i, 0, 0, 2);
+            System.out.println("     " + point.x + ", " + point.y);
         }
     }
 }

@@ -28,7 +28,7 @@ package tk.amberide.engine.gl.camera;
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
-import tk.amberide.engine.data.map.Direction;
+import static tk.amberide.engine.data.map.Direction.*;
 import tk.amberide.engine.input.AbstractKeyboard;
 import tk.amberide.engine.input.AbstractMouse;
 import org.lwjgl.opengl.GLContext;
@@ -38,6 +38,7 @@ import static java.lang.Math.*;
 import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.ARBDepthClamp.GL_DEPTH_CLAMP;
 import static org.lwjgl.opengl.GL11.*;
+import tk.amberide.engine.data.map.Direction;
 
 /**
  * A camera set in 3D perspective. The camera uses Euler angles internally, so
@@ -172,21 +173,29 @@ public final class EulerCamera {
     }
 
     public Direction getFacingDirection() {
+        // From CommandBook
         double rot = (yaw - 90) % 360;
         if (rot < 0) {
             rot += 360.0;
         }
-
-        if (0 <= rot && rot < 67.5) {
-            return Direction.NORTH;
-        } else if (67.5 <= rot && rot < 157.5) {
-            return Direction.EAST;
-        } else if (157.5 <= rot && rot < 247.5) {
-            return Direction.SOUTH;
-        } else if (247.5 <= rot && rot < 337.5) {
-            return Direction.WEST;
+        if (0 <= rot && rot < 22.5) {
+            return NORTH;
+        } else if (22.5 <= rot && rot < 67.5) {
+            return NORTH_EAST;
+        } else if (67.5 <= rot && rot < 112.5) {
+            return EAST;
+        } else if (112.5 <= rot && rot < 157.5) {
+            return SOUTH_EAST;
+        } else if (157.5 <= rot && rot < 202.5) {
+            return SOUTH;
+        } else if (202.5 <= rot && rot < 247.5) {
+            return SOUTH_WEST;
+        } else if (247.5 <= rot && rot < 292.5) {
+            return WEST;
+        } else if (292.5 <= rot && rot < 337.5) {
+            return NORTH_WEST;
         } else if (337.5 <= rot && rot < 360.0) {
-            return Direction.NORTH;
+            return NORTH;
         } else {
             throw new IllegalStateException("illegal yaw: " + rot);
         }

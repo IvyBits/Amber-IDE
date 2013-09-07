@@ -50,8 +50,9 @@ public class ArrayTextureAtlas implements ITextureAtlas {
      */
     public void unbind() {
         if (bound != null) {
-            bound.unbind();
+            bound.unbind();            
         }
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     /**

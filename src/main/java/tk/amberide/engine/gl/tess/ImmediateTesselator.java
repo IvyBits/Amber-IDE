@@ -79,10 +79,10 @@ public class ImmediateTesselator implements ITesselator {
                         t3 = new float[]{0, 0};
                         break;
                     case NORTH_WEST:
-                        y2++;
-                        y4++;
                         y1++;
-                        t0 = new float[]{0, 0};
+                        y2++;
+                        y3++;
+                        //t0 = new float[]{0, 0};
                         break;
                     case SOUTH_EAST:
                         y1++;

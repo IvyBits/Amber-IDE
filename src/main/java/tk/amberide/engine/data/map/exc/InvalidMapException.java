@@ -1,4 +1,4 @@
-package tk.amberide.engine.data.map;
+package tk.amberide.engine.data.map.exc;
 
 import java.io.IOException;
 

@@ -57,6 +57,7 @@ public class RectangleTextureAtlas implements ITextureAtlas {
             bound = 0;
         }
         glDisable(GL_TEXTURE_RECTANGLE_ARB);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     /**

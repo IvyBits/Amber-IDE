@@ -48,37 +48,48 @@ public class XMLResourceManager extends AbstractResourceManager {
             for (int i = 0; i < tileNodes.size(); i++) {
                 Element sheet = tileNodes.get(i);
                 String name = sheet.getAttributeValue("name");
-                File source = FileIO.getFilesByName(name, imgDir)[0];
-                BufferedImage img;
                 try {
-                    img = ImageIO.read(source);
+                    File source = FileIO.getFilesByName(name, imgDir)[0];
+                    BufferedImage img;
+                    try {
+                        img = ImageIO.read(source);
+                    } catch (Exception e) {
+                        System.err.println("failed to read " + name);
+                        e.printStackTrace();
+                        continue;
+                    }
+                    importTileset(name, new Tileset.Parser(
+                            new Dimension(
+                            parseInt(sheet.getAttributeValue("tile-width")),
+                            parseInt(sheet.getAttributeValue("tile-height"))),
+                            parseInt(sheet.getAttributeValue("margin")),
+                            parseInt(sheet.getAttributeValue("spacing")))
+                            .parse(img), source);
                 } catch (Exception e) {
-                    System.err.println("failed to read " + name);
                     e.printStackTrace();
-                    continue;
                 }
-                importTileset(name, new Tileset.Parser(
-                        new Dimension(
-                        parseInt(sheet.getAttributeValue("tile-width")),
-                        parseInt(sheet.getAttributeValue("tile-height"))),
-                        parseInt(sheet.getAttributeValue("margin")),
-                        parseInt(sheet.getAttributeValue("spacing")))
-                        .parse(img), source);
-
             }
             Elements audioNodes = root.getChildElements("audio").get(0).getChildElements();
             for (int i = 0; i != audioNodes.size(); i++) {
                 String name = audioNodes.get(i).getAttributeValue("name");
-                File source = FileIO.getFilesByName(name, audioDir)[0];
-                importAudio(name, AudioIO.read(source), source);
+                try {
+                    File source = FileIO.getFilesByName(name, audioDir)[0];
+                    importAudio(name, AudioIO.read(source), source);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             Elements modelNodes = root.getChildElements("models").get(0).getChildElements();
             for (int i = 0; i != modelNodes.size(); i++) {
                 String name = modelNodes.get(i).getAttributeValue("name");
-                File source = new File(modelDir, name + File.separator + name + ".obj");
-                System.out.println("Loaded model " + source);
-                importModel(name, new WavefrontObject(source), source);
+                try {
+                    File source = new File(modelDir, name + File.separator + name + ".obj");
+                    System.out.println("Loaded model " + source);
+                    importModel(name, new WavefrontObject(source), source);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
