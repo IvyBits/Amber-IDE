@@ -69,10 +69,12 @@ public class Brush3D extends AbstractTool3D {
                     Layer l = context.map.getLayer(context.layer);
                     if (l instanceof Layer3D) {
                         Layer3D l3d = (Layer3D) l;
-                        TileModel p = l3d.getModel(x, y, z);
-                        if (isInBounds(x, y) && p == null || p.getModel() != context.EXT_modelSelection) {
-                            l3d.setModel(x, y, z, new TileModel(context.EXT_modelSelection));
-                            modified = true;
+                        if (isInBounds(x, y)) {
+                            TileModel p = l3d.getModel(x, y, z);
+                            if (p == null || p.getModel() != context.EXT_modelSelection) {
+                                l3d.setModel(x, y, z, new TileModel(context.EXT_modelSelection));
+                                modified = true;
+                            }
                         }
                     }
                 }
@@ -129,7 +131,13 @@ public class Brush3D extends AbstractTool3D {
             Tile r = lay.getTile(x, y, z);
             if (tile != null) {
                 modified = r == null || !tile.equals(r.getSprite());
-                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal() ? TileType.TILE_CORNER : TileType.TILE_NORMAL));
+                TileType type;
+                if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                    type = AbstractKeyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? TileType.TILE_CORNER_INVERSED : TileType.TILE_CORNER;
+                } else {
+                    type = TileType.TILE_NORMAL;
+                }
+                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, type));
             } else {
                 modified = r != null;
                 lay.setTile(x, y, z, null);
