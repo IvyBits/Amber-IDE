@@ -6,16 +6,16 @@
     <artifactId>Amber-IDE</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    
+ 
     <properties>
         <lwjgl.version>2.9.0</lwjgl.version>
         <jruby.version>1.7.0.RC1</jruby.version>
         <xom.version>1.2.5</xom.version>
         <jorbis.version>0.0.17-2</jorbis.version>
         <xstream.version>1.2.2</xstream.version>
-        
+ 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>  
+    </properties>
 
     <name>Amber-IDE</name>
     <url>http://amberide.tk</url>
@@ -28,17 +28,17 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>                   
+                    <showWarnings>true</showWarnings> 
                     <fork>true</fork>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>${artifactId}-${version}</finalName>        
-                    <attach>true</attach>                    
+                    <finalName>${project.artifactId}-${project.version}</finalName>
+                    <attach>true</attach>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <archive>
-                        <manifest>                            
-                            <mainClass>tk.amberide.Amber</mainClass>                 
+                        <manifest>
+                            <mainClass>tk.amberide.Amber</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -53,8 +53,8 @@
             </plugin>
         </plugins>
     </build>
-    
-    <dependencies>   
+ 
+    <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -74,11 +74,11 @@
                 <exclusion>
                     <groupId>org.lwjgl.lwjgl</groupId>
                     <artifactId>lwjgl-platform</artifactId>
-                </exclusion>       
+                </exclusion> 
                 <exclusion>
                     <groupId>net.java.jinput</groupId>
                     <artifactId>jinput</artifactId>
-                </exclusion>     
+                </exclusion> 
             </exclusions>
         </dependency>
         <dependency>
@@ -105,11 +105,11 @@
             <groupId>com.github.insubstantial</groupId>
             <artifactId>substance</artifactId>
             <version>7.2.1</version>
-        </dependency>         
+        </dependency>
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>${xstream.version}</version>
-        </dependency>                        
-    </dependencies>   
+        </dependency>
+    </dependencies>
 </project>
