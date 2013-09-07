@@ -111,7 +111,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         glShadeModel(GL_SMOOTH);
-        glEnable(GL_POLYGON_OFFSET_FILL);
+        //glEnable(GL_POLYGON_OFFSET_FILL);
 
         timer.start();
 
@@ -251,7 +251,9 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             drawLayer(layers.get(i));
         }
 
+        glDisable(GL_TEXTURE_2D);
         drawGrid();
+        glEnable(GL_TEXTURE_2D);
 
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
         GLColor.BLACK.bind();
