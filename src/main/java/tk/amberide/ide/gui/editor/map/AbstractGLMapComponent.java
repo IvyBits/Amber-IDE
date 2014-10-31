@@ -1,6 +1,5 @@
 package tk.amberide.ide.gui.editor.map;
 
-import com.sun.glass.ui.Window;
 import tk.amberide.ide.os.OS;
 import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.data.map.codec.Codec;
