@@ -11,6 +11,8 @@ import tk.amberide.ide.os.filechooser.IFileDialog;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -150,16 +152,16 @@ public class NewTilesetDialog extends javax.swing.JDialog {
 
         nameField.setText(bundle.getString("NewTilesetDialog.nameField.text")); // NOI18N
         nameField.setHint(bundle.getString("NewTilesetDialog.nameField.hint")); // NOI18N
-        nameField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        nameField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
                 nameFieldActionPerformed(evt);
             }
         });
 
         imageLocationField.setText(bundle.getString("NewTilesetDialog.imageLocationField.text")); // NOI18N
         imageLocationField.setHint(bundle.getString("NewTilesetDialog.imageLocationField.hint")); // NOI18N
-        imageLocationField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        imageLocationField.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent evt) {
                 imageLocationFieldActionPerformed(evt);
             }
         });
@@ -391,11 +393,11 @@ public class NewTilesetDialog extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed
 
-    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+    private void nameFieldActionPerformed(KeyEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
         checkCreateableStatus();
     }//GEN-LAST:event_nameFieldActionPerformed
 
-    private void imageLocationFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imageLocationFieldActionPerformed
+    private void imageLocationFieldActionPerformed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imageLocationFieldActionPerformed
         updatePreview();
         checkCreateableStatus();
     }//GEN-LAST:event_imageLocationFieldActionPerformed

@@ -7,7 +7,9 @@ import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.data.map.Tile;
 import tk.amberide.engine.data.map.Tile3D;
+
 import static tk.amberide.engine.data.map.Angle.*;
+
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.engine.data.sparse.SparseMatrix;
 import tk.amberide.engine.data.sparse.SparseVector;
@@ -16,20 +18,25 @@ import tk.amberide.engine.data.math.vec.Vec3d;
 import tk.amberide.engine.input.AbstractKeyboard;
 import tk.amberide.engine.gl.FrameTimer;
 import tk.amberide.engine.gl.GLColor;
+
 import static tk.amberide.engine.gl.GLE.*;
+
 import tk.amberide.engine.gl.Sprite;
 import tk.amberide.engine.gl.TrueTypeFont;
 import tk.amberide.engine.gl.camera.EulerCamera;
 import tk.amberide.engine.gl.tess.ImmediateTesselator;
 import tk.amberide.engine.gl.tess.ITesselator;
 import tk.amberide.ide.gui.editor.map.AbstractGLMapComponent;
+
 import static tk.amberide.ide.gui.editor.map.MapContext.*;
+
 import tk.amberide.ide.gui.editor.map.tool._3d.Brush3D;
 import tk.amberide.ide.gui.editor.map.tool._3d.Eraser3D;
 import tk.amberide.ide.gui.editor.map.tool._3d.Fill3D;
 import tk.amberide.ide.gui.editor.map.tool._3d.Tool3D;
 import tk.amberide.engine.input.AbstractMouse;
 import tk.amberide.ide.swing.MenuBuilder;
+
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
@@ -41,12 +48,16 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+
 import static org.lwjgl.opengl.GL11.*;
 import static tk.amberide.engine.input.AbstractKeyboard.*;
 import static tk.amberide.engine.input.AbstractMouse.*;
+
 import tk.amberide.ide.swing.misc.TransferableImage;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Panel;
@@ -57,11 +68,11 @@ import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import javax.swing.UIManager;
+
 import org.lwjgl.BufferUtils;
 import tk.amberide.engine.data.map.Angle;
 
 /**
- *
  * @author Tudor
  */
 public class GLMapComponent3D extends AbstractGLMapComponent {
@@ -132,9 +143,16 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     @Override
     protected void pollInput() {
         super.pollInput();
+        if (!isFocusOwner()) {
+            while (AbstractKeyboard.next()) ;
+            while (AbstractMouse.next()) ;
+            return;
+        }
+
         if (isGrabbed()) {
             cam.processMouse(1, 80, -80);
         }
+
         if (!(AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL))) {
             // Frame-rate independant movement        
             float dxyz = (float) timer.getDelta() * 8f * 0.1f;
@@ -160,7 +178,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                     modified = true;
                 }
             } else if (isButtonDown(1)) {
-                if (isKeyDown(Keyboard.KEY_LCONTROL)) {
+                if (AbstractKeyboard.isKeyDown(Keyboard.KEY_RCONTROL) || AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
                     AbstractMouse.setGrabbed(true);
                 } else {
                     AbstractMouse.setGrabbed(false);
@@ -329,6 +347,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
     public Component getComponent() {
         return display;
     }
+
     protected Tool3D brushTool = new Brush3D(context, cam);
     protected Tool3D eraseTool = new Eraser3D(context, cam);
     protected Tool3D fillTool = new Fill3D(context, cam);
@@ -344,29 +363,30 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         }
         return null;
     }
+
     protected boolean info = true, compass = true, wireframe = false, grid = true;
 
     public JMenu[] getContextMenus() {
         return new JMenu[]{new MenuBuilder("View").addCheckbox("Info", true, new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    info = !info;
-                    repaint();
-                }
-            }).addCheckbox("Grid", true, new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    grid = !grid;
-                    repaint();
-                }
-            }).addCheckbox("Compass", true, new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    compass = !compass;
-                    repaint();
-                }
-            }).addCheckbox("Wireframe", false, new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    wireframe = !wireframe;
-                    repaint();
-                }
-            }).create()};
+            public void actionPerformed(ActionEvent e) {
+                info = !info;
+                repaint();
+            }
+        }).addCheckbox("Grid", true, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                grid = !grid;
+                repaint();
+            }
+        }).addCheckbox("Compass", true, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                compass = !compass;
+                repaint();
+            }
+        }).addCheckbox("Wireframe", false, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                wireframe = !wireframe;
+                repaint();
+            }
+        }).create()};
     }
 }

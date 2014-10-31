@@ -1,5 +1,6 @@
 package tk.amberide.ide.gui.editor.map;
 
+import com.sun.glass.ui.Window;
 import tk.amberide.ide.os.OS;
 import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.data.map.codec.Codec;
@@ -9,7 +10,8 @@ import static tk.amberide.engine.input.AbstractKeyboard.getEventKey;
 import static tk.amberide.engine.input.AbstractKeyboard.getEventKeyState;
 import static tk.amberide.engine.input.AbstractKeyboard.isKeyDown;
 import tk.amberide.engine.input.AbstractMouse;
-import java.awt.Component;
+
+import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import org.lwjgl.LWJGLException;
@@ -47,7 +49,7 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
             public void run() {
                 running = true;
                 while (running) {
-                    if (isShowing() && isFocusOwner()) {
+                    if (isShowing()) {
                         repaint();
                         Display.sync(120);
                     } else {
@@ -74,6 +76,10 @@ public abstract class AbstractGLMapComponent extends AWTGLCanvas implements IMap
             }
         } catch (LWJGLException ex) {
             ex.printStackTrace();
+            return;
+        }
+
+        if(!isFocusOwner()) {
             return;
         }
 

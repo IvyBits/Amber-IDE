@@ -4,6 +4,9 @@ import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.LevelMap;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 /**
  *
  * @author Tudor
@@ -19,6 +22,12 @@ public class NewLayerDialog extends javax.swing.JDialog {
         super(parent);
         initComponents();
         this.map = map;
+        nameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                checkCreateableStatus();
+            }
+        });
     }
 
     private void checkCreateableStatus() {

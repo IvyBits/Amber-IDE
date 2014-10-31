@@ -52,8 +52,6 @@ public final class Natives {
         }
         if (amberOs.length() > 0)
             System.setProperty("amber.os.librarypath", CACHE_DIR + File.separator + amberOs);
-        else
-            System.setProperty("amber.os.librarypath", null);
     }
 
     private static void unpack(String path) {
