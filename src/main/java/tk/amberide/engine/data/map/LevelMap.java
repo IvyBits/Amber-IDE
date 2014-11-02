@@ -57,4 +57,12 @@ public class LevelMap implements Cloneable {
     public int getLength() {
         return length;
     }
+
+    @Override
+    public String toString() {
+        return "LevelMap{" +
+                "width=" + width +
+                ", length=" + length +
+                '}';
+    }
 }

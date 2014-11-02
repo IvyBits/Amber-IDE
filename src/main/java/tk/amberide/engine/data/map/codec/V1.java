@@ -70,12 +70,12 @@ public class V1 extends Codec {
         for (int i = 0; i != layersCount; i++) {
             String name = buffer.readUTF();
             Layer level = new Layer(name, map);
-            int size = buffer.readInt();
-            if (size == 0) {
+            int layerCnt = buffer.readInt();
+            if (layerCnt == 0) {
                 map.addLayer(level);
                 continue;
             }
-            for (int s = 0; s != size; s++) {
+            for (int s = 0; s != layerCnt; s++) {
                 byte matrix = buffer.readByte();
                 int z = buffer.readInt();
                 switch (matrix) {
@@ -134,10 +134,11 @@ public class V1 extends Codec {
         ByteStream constants = ByteStream.writeStream();
         ByteStream layers = ByteStream.writeStream();
 
+        layers.writeShort(map.getLayers().size());
         for (Layer layer : map.getLayers()) {
             layers.writeUTF(layer.getName());
-
             layers.writeInt(layer.tileMatrix().nonZeroEntries());
+
             SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
             while (tileIterator.hasNext()) {
                 SparseMatrix<Tile> matrix = (SparseMatrix<Tile>) tileIterator.next();
@@ -258,7 +259,6 @@ public class V1 extends Codec {
 
         buffer.writeShort(constantsCount);
         buffer.writeBytes(constants.getBuffer());
-        buffer.writeShort(map.getLayers().size());
         buffer.writeBytes(layers.getBuffer());
 
         out.write(buffer.getBuffer());

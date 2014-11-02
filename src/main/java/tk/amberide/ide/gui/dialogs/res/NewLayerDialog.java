@@ -144,6 +144,7 @@ public class NewLayerDialog extends javax.swing.JDialog {
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         Layer l = new Layer(nameField.getText(), map);
+        System.out.println("NewLayerDialog created " + l);
         map.addLayer(l);
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed

@@ -162,7 +162,7 @@ public class SparseVector<T> implements Iterable<T>, Cloneable {
     public int nonZeroEntries() {
         int nz = 0;
         for (Object e : data) {
-            if (data != null) {
+            if (e != null) {
                 nz++;
             }
         }

@@ -88,4 +88,12 @@ public class Layer implements Cloneable {
     public String getName() {
         return name; // Temporary
     }
+
+    @Override
+    public String toString() {
+        return "Layer{" +
+                "name='" + name + '\'' +
+                ", map=" + map +
+                '}';
+    }
 }

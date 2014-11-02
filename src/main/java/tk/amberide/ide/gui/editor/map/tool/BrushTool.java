@@ -131,9 +131,9 @@ public class BrushTool extends AbstractTool {
             if (tile != null) {
                 modified = r == null || !tile.equals(r.getSprite());
                 TileType type;
-                if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                if (AbstractKeyboard.isKeyDown(Keyboard.KEY_Z)) {
                     type =  TileType.TILE_CORNER;
-                } else if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LMENU)) {
+                } else if (AbstractKeyboard.isKeyDown(Keyboard.KEY_X)) {
                     type = TileType.TILE_CORNER_INVERSED;
                 } else {
                     type = TileType.TILE_NORMAL;
