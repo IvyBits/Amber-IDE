@@ -1,34 +1,33 @@
 package tk.amberide.engine.data.map.codec;
 
 import tk.amberide.Amber;
+import tk.amberide.engine.data.map.*;
 import tk.amberide.ide.data.res.Tileset;
 import tk.amberide.ide.data.res.Tileset.TileSprite;
 import tk.amberide.engine.data.io.ByteStream;
-import tk.amberide.engine.data.map.Direction;
+
 import static tk.amberide.engine.data.map.Direction.*;
+
 import tk.amberide.engine.data.map.exc.InvalidMapException;
-import tk.amberide.engine.data.map.Layer;
-import tk.amberide.engine.data.map.Layer3D;
-import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.data.map.LevelMap.Type;
+
 import static tk.amberide.engine.data.map.LevelMap.Type.*;
-import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile3D;
-import tk.amberide.engine.data.map.Angle;
 import static tk.amberide.engine.data.map.Angle.*;
-import tk.amberide.engine.data.map.TileModel;
+import static tk.amberide.engine.data.map.TileType.*;
+import static tk.amberide.engine.data.map.TileType.TILE_CORNER_INVERSED;
 import static tk.amberide.engine.data.map.codec.C0x01.Opcode1.*;
+
 import tk.amberide.ide.data.res.Resource;
 import tk.amberide.engine.data.sparse.SparseMatrix;
 import tk.amberide.engine.data.sparse.SparseVector;
 import tk.amberide.engine.gl.model.obj.WavefrontObject;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
 /**
- *
  * @author Tudor
  */
 public class C0x01 extends Codec {
@@ -43,13 +42,6 @@ public class C0x01 extends Codec {
         byte TAG_MODEL = 0x03;
         byte MATRIX_SPARSE = 0x01;
         byte MATRIX_DENSE = 0x02;
-        byte DIRECTION_NORTH = 0x01;
-        byte DIRECTION_EAST = 0x02;
-        byte DIRECTION_SOUTH = 0x03;
-        byte DIRECTION_WEST = 0x04;
-        byte ANGLE_180 = 0x01;
-        byte ANGLE_90 = 0x02;
-        byte ANGLE_45 = 0x03;
     }
 
     @Override
@@ -90,12 +82,9 @@ public class C0x01 extends Codec {
         }
 
         short layersCount = buffer.readShort();
-        int width, height;
         for (int i = 0; i != layersCount; i++) {
             String name = buffer.readUTF();
-            width = buffer.readShort();
-            height = buffer.readShort();
-            Layer level = type == _2D ? new Layer(name, width, height) : new Layer3D(name, width, height);
+            Layer level = type == _2D ? new Layer(name, map) : new Layer3D(name, map);
             int size = buffer.readInt();
             if (size == 0) {
                 map.addLayer(level);
@@ -113,7 +102,7 @@ public class C0x01 extends Codec {
                         if (id > 0) {
                             Tile t;
                             if (type == _3D) {
-                                t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()));
+                                t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()), typeOf(buffer.readByte()));
                             } else {
                                 t = new Tile(sprites.get(id));
                             }
@@ -121,13 +110,13 @@ public class C0x01 extends Codec {
                         }
                     }
                 } else if (matrix == MATRIX_DENSE) {
-                    for (int x = 0; x != width; x++) {
-                        for (int y = 0; y != height; y++) {
+                    for (int x = 0; x != map.getWidth(); x++) {
+                        for (int y = 0; y != map.getLength(); y++) {
                             short id = buffer.readShort();
                             if (id > 0) {
                                 Tile t;
                                 if (type == _3D) {
-                                    t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()));
+                                    t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()), typeOf(buffer.readByte()));
                                 } else {
                                     t = new Tile(sprites.get(id));
                                 }
@@ -136,7 +125,7 @@ public class C0x01 extends Codec {
                         }
                     }
                 } else {
-                    throw new InvalidMapException("invalid matrix type " + matrix + " at index " + s);
+                    System.err.println("invalid matrix type " + matrix + " at index " + s);
                 }
             }
 
@@ -172,8 +161,6 @@ public class C0x01 extends Codec {
 
         for (Layer layer : map.getLayers()) {
             layers.writeUTF(layer.getName());
-            layers.writeShort(layer.getWidth());
-            layers.writeShort(layer.getLength());
 
             layers.writeInt(layer.tileMatrix().nonZeroEntries());
             SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
@@ -183,8 +170,8 @@ public class C0x01 extends Codec {
                 // tiles in the current plane.
                 // We can also use this phase to compile tile IDs
                 int full = 0;
-                for (int x = 0; x != layer.getWidth(); x++) {
-                    for (int y = 0; y != layer.getLength(); y++) {
+                for (int x = 0; x != map.getWidth(); x++) {
+                    for (int y = 0; y != map.getLength(); y++) {
                         Tile t = matrix.get(x, y);
                         if (t != null) {
                             full++;
@@ -207,7 +194,7 @@ public class C0x01 extends Codec {
                 int z = tileIterator.realIndex();
 
                 // Now we fetch the total amount of cells on the current plane.
-                int totalTiles = layer.getWidth() * layer.getLength();
+                int totalTiles = map.getWidth() * map.getLength();
                 // To store in a sparse format, we need 3 pieces of information:
                 // * tile id
                 // * x coordinate
@@ -225,8 +212,8 @@ public class C0x01 extends Codec {
 
                 if (sparse) {
                     layers.writeInt(full);
-                    for (int x = 0; x != layer.getWidth(); x++) {
-                        for (int y = 0; y != layer.getLength(); y++) {
+                    for (int x = 0; x != map.getWidth(); x++) {
+                        for (int y = 0; y != map.getLength(); y++) {
                             Tile t = layer.getTile(x, y, z);
                             int id = t != null ? recordedTiles.get(t.getSprite()) : 0;
                             if (id > 0) {
@@ -236,6 +223,7 @@ public class C0x01 extends Codec {
                                 if (type == _3D) {
                                     layers.writeByte(tagByteOf(((Tile3D) t).getDirection()));
                                     layers.writeByte(tagByteOf(((Tile3D) t).getAngle()));
+                                    layers.writeByte(tagByteOf(((Tile3D) t).getType()));
                                 }
                             }
                         }
@@ -243,14 +231,15 @@ public class C0x01 extends Codec {
                 } else {
                     // Iterate over every row and save each tile id
                     // sequentially.
-                    for (int x = 0; x != layer.getWidth(); x++) {
-                        for (int y = 0; y != layer.getLength(); y++) {
+                    for (int x = 0; x != map.getWidth(); x++) {
+                        for (int y = 0; y != map.getLength(); y++) {
                             Tile t = layer.getTile(x, y, z);
                             int id = t != null ? recordedTiles.get(t.getSprite()) : 0;
                             layers.writeShort(id);
                             if (id > 0 && type == _3D) {
                                 layers.writeByte(tagByteOf(((Tile3D) t).getDirection()));
                                 layers.writeByte(tagByteOf(((Tile3D) t).getAngle()));
+                                layers.writeByte(tagByteOf(((Tile3D) t).getType()));
                             }
                         }
                     }
@@ -305,54 +294,26 @@ public class C0x01 extends Codec {
     }
 
     protected byte tagByteOf(Direction dir) {
-        switch (dir) {
-            case NORTH:
-                return DIRECTION_NORTH;
-            case EAST:
-                return DIRECTION_EAST;
-            case SOUTH:
-                return DIRECTION_SOUTH;
-            case WEST:
-                return DIRECTION_WEST;
-        }
-        return DIRECTION_EAST; // Impossible
+        return (byte) dir.ordinal();
     }
 
     protected byte tagByteOf(Angle angle) {
-        switch (angle) {
-            case _180:
-                return ANGLE_180;
-            case _90:
-                return ANGLE_90;
-            case _45:
-                return ANGLE_45;
-        }
-        return ANGLE_180; // Impossible
+        return (byte) angle.ordinal();
     }
 
     protected Direction directionOf(byte tag) {
-        switch (tag) {
-            case DIRECTION_NORTH:
-                return NORTH;
-            case DIRECTION_EAST:
-                return EAST;
-            case DIRECTION_SOUTH:
-                return SOUTH;
-            case DIRECTION_WEST:
-                return WEST;
-        }
-        return EAST; // Impossible
+        return Direction.values()[tag];
     }
 
     protected Angle angleOf(byte tag) {
-        switch (tag) {
-            case ANGLE_180:
-                return _180;
-            case ANGLE_90:
-                return _90;
-            case ANGLE_45:
-                return _45;
-        }
-        return _180; // Impossible
+        return Angle.values()[tag];
+    }
+
+    protected byte tagByteOf(TileType type) {
+        return (byte) type.ordinal();
+    }
+
+    private TileType typeOf(byte tag) {
+        return TileType.values()[tag];
     }
 }

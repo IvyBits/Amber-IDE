@@ -166,7 +166,7 @@ public class MapEditorPanel extends FileViewerPanel {
         UIUtil.groupButtons(brushButton, fillButton, eraseButton, selectButton);
 
         UIUtil.adjustColumnPreferredWidths(table);
-        UIUtil.makeDnD(table);
+        //UIUtil.makeDnD(table);
 
         for (int l = map.getLayers().size(); l != 0; l--) {
             ((DefaultTableModel) table.getModel()).addRow(new Object[]{map.getLayer(l - 1).getName(), true});

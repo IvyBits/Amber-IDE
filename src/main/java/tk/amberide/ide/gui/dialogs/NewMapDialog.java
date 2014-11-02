@@ -198,8 +198,7 @@ public class NewMapDialog extends javax.swing.JDialog {
                         type);
                 map.addLayer(new Layer(
                         "background",
-                        (Integer) mapWidthSpinner.getValue(),
-                        (Integer) mapHeightSpinner.getValue()));
+                        map));
                 FileOutputStream fos = new FileOutputStream(output);
                 Codec.CODECS.get(Codec.CURRENT_VERSION).compileMap(map, new DataOutputStream(fos));
                 Amber.openFileTab(output);

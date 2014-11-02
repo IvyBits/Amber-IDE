@@ -133,7 +133,9 @@ public class Brush3D extends AbstractTool3D {
                 modified = r == null || !tile.equals(r.getSprite());
                 TileType type;
                 if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                    type = AbstractKeyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? TileType.TILE_CORNER_INVERSED : TileType.TILE_CORNER;
+                    type =  TileType.TILE_CORNER;
+                } else if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LMENU)) {
+                    type = TileType.TILE_CORNER_INVERSED;
                 } else {
                     type = TileType.TILE_NORMAL;
                 }

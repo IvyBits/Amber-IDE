@@ -53,76 +53,22 @@ public class NewLayerDialog extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        mapSizeGroup = new javax.swing.JPanel();
-        mapWidthSpinner = new javax.swing.JSpinner();
-        mapWidthLabel = new javax.swing.JLabel();
-        mapHeightLabel = new javax.swing.JLabel();
-        mapHeightSpinner = new javax.swing.JSpinner();
-        jButton1 = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
         createButton = new javax.swing.JButton();
         mapGroup = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
         nameField = new tk.amberide.ide.swing.textbox.HintTextField();
-
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setModal(true);
         setResizable(false);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("amber/Bundle"); // NOI18N
-        mapSizeGroup.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("NewMapDialog.mapSizeGroup.border.title"))); // NOI18N
 
-        mapWidthSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), null, null, Integer.valueOf(1)));
-        mapWidthSpinner.setEditor(new javax.swing.JSpinner.NumberEditor(mapWidthSpinner, ""));
-
-        mapWidthLabel.setText(bundle.getString("NewMapDialog.mapWidthLabel.text")); // NOI18N
-
-        mapHeightLabel.setText(bundle.getString("NewMapDialog.mapHeightLabel.text")); // NOI18N
-        mapHeightLabel.setToolTipText("");
-
-        mapHeightSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
-
-        javax.swing.GroupLayout mapSizeGroupLayout = new javax.swing.GroupLayout(mapSizeGroup);
-        mapSizeGroup.setLayout(mapSizeGroupLayout);
-        mapSizeGroupLayout.setHorizontalGroup(
-            mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mapSizeGroupLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mapWidthLabel)
-                    .addComponent(mapHeightLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(mapWidthSpinner)
-                    .addComponent(mapHeightSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)))
-        );
-        mapSizeGroupLayout.setVerticalGroup(
-            mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mapSizeGroupLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(mapWidthLabel)
-                    .addComponent(mapWidthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mapSizeGroupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(mapHeightLabel)
-                    .addComponent(mapHeightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
-        );
-
-        jButton1.setText("Cancel");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
@@ -168,16 +114,15 @@ public class NewLayerDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(createButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mapSizeGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mapGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(createButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cancelButton))
+                        .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(mapGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -186,10 +131,9 @@ public class NewLayerDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(mapGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mapSizeGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(cancelButton)
                     .addComponent(createButton))
                 .addGap(6, 6, 6))
         );
@@ -200,27 +144,20 @@ public class NewLayerDialog extends javax.swing.JDialog {
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         Layer l = map.getType() == LevelMap.Type._2D ? 
-                new Layer(nameField.getText(), (Integer) mapWidthSpinner.getValue(), (Integer) mapHeightSpinner.getValue()) :
-                new Layer3D(nameField.getText(), (Integer) mapWidthSpinner.getValue(), (Integer) mapHeightSpinner.getValue());
+                new Layer(nameField.getText(), map) :
+                new Layer3D(nameField.getText(), map);
         map.addLayer(l);
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton createButton;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JList jList1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton cancelButton;
     private javax.swing.JPanel mapGroup;
-    private javax.swing.JLabel mapHeightLabel;
-    private javax.swing.JSpinner mapHeightSpinner;
-    private javax.swing.JPanel mapSizeGroup;
-    private javax.swing.JLabel mapWidthLabel;
-    private javax.swing.JSpinner mapWidthSpinner;
     private tk.amberide.ide.swing.textbox.HintTextField nameField;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables

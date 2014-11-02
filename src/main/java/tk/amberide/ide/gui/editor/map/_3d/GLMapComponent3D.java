@@ -228,13 +228,13 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
                 }
                 break;
             default:
-                currentTool().doKey(keycode);
+                if (currentTool() != null) currentTool().doKey(keycode);
         }
     }
 
     @Override
     protected void doScroll(int delta) {
-        currentTool().doScroll(delta);
+        if (currentTool() != null) currentTool().doScroll(delta);
     }
 
     /**
@@ -273,7 +273,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         glPushAttrib(GL_CURRENT_BIT | GL_LINE_BIT);
         GLColor.BLACK.bind();
         glLineWidth(2);
-        if (!AbstractMouse.isGrabbed()) {
+        if (!AbstractMouse.isGrabbed() && currentTool() != null) {
             currentTool().draw((int) cursorPos.x, (int) cursorPos.y, (int) cursorPos.z);
         }
         glPopAttrib();

@@ -61,6 +61,10 @@ public class ImmediateTesselator implements ITesselator {
                 switch (tile.getDirection()) {
                     case NORTH_EAST:
                     case SOUTH_WEST:
+                        t2 = new float[]{0, 0};
+                        t3 = new float[]{1, 0};
+                        t0 = new float[]{1, 1};
+                        t1 = new float[]{0, 1};
                         y3++;
                         break;
                     case NORTH_WEST:
@@ -82,7 +86,7 @@ public class ImmediateTesselator implements ITesselator {
                         y1++;
                         y2++;
                         y3++;
-                        //t0 = new float[]{0, 0};
+                        //t3 = new float[]{0, 1};
                         break;
                     case SOUTH_EAST:
                         y1++;
@@ -93,6 +97,7 @@ public class ImmediateTesselator implements ITesselator {
                         y4++;
                         y3++;
                         y2++;
+                        t3 = new float[]{0, 0};
                         break;
                 }
                 ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
@@ -127,7 +132,7 @@ public class ImmediateTesselator implements ITesselator {
             //2
             atl.atlasCoord(t2[0], t2[1]);
             glVertex3f(ix.x, ix.y + y3, 1);
-            //0     
+            //0
             atl.atlasCoord(t0[0], t0[1]);
             glVertex3f(0, y1, 0);
         }
