@@ -11,16 +11,14 @@ public class LevelMap implements Cloneable {
     public static final short MAP_VERSION = 0x01;
     private LinkedList<Layer> layers = new LinkedList<Layer>();
     private int width, length;
-    private final Type type;
 
-    public LevelMap(int width, int length, Type type) {
+    public LevelMap(int width, int length) {
         this.width = width;
         this.length = length;
-        this.type = type;
     }
 
     public LevelMap clone() {
-        LevelMap clone = new LevelMap(width, length, type);
+        LevelMap clone = new LevelMap(width, length);
         clone.layers = new LinkedList<Layer>();
         for (int i = 0; i != layers.size(); i++) {
             clone.layers.add(layers.get(i).clone());
@@ -58,14 +56,5 @@ public class LevelMap implements Cloneable {
 
     public int getLength() {
         return length;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public enum Type {
-
-        _2D, _3D;
     }
 }

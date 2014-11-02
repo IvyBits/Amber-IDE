@@ -2,7 +2,7 @@ package tk.amberide.engine.gl.tess;
 
 import tk.amberide.engine.data.math.Angles;
 import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile3D;
+import tk.amberide.engine.data.map.Tile;
 import static tk.amberide.engine.data.map.Angle.*;
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.ide.data.res.Tileset;
@@ -28,7 +28,7 @@ public class ImmediateTesselator implements ITesselator {
     protected WeakHashMap<WavefrontObject, ModelScene> modelCache = new WeakHashMap<WavefrontObject, ModelScene>();
     protected ITextureAtlas atl;
 
-    public void drawTile3D(Tile3D tile, float x, float y, float z) {
+    public void drawTile(Tile tile, float x, float y, float z) {
         atl = getTexture(tile);
 
         glPushMatrix();
@@ -140,42 +140,6 @@ public class ImmediateTesselator implements ITesselator {
         glPopMatrix();
     }
 
-    public void drawTile2D(Tile tile, float x, float y) {
-        atl = getTexture(tile);
-
-        Point start = tile.getSprite().getStart();
-        Dimension size = tile.getSprite().getSize();
-
-        atl.bindTextureRegion(start.x, start.y, size.width, size.height);
-
-        float dx = x * 32;
-        float dy = y * 32;
-
-        glBegin(GL_TRIANGLES);
-        {
-            //0
-            atl.atlasCoord(0, 1);
-            glVertex2f(dx, dy);
-            //1
-            atl.atlasCoord(0, 0);
-            glVertex2f(dx, dy + 32);
-            //2
-            atl.atlasCoord(1, 0);
-            glVertex2f(dx + 32, dy + 32);
-
-            //3 
-            atl.atlasCoord(1, 1);
-            glVertex2f(dx + 32, dy);
-            //2
-            atl.atlasCoord(1, 0);
-            glVertex2f(dx + 32, dy + 32);
-            //0
-            atl.atlasCoord(0, 1);
-            glVertex2f(dx, dy);
-        }
-        glEnd();
-    }
-
     public void startTileBatch() {
         glPushMatrix();
     }
@@ -191,7 +155,7 @@ public class ImmediateTesselator implements ITesselator {
         glPushMatrix();
     }
 
-    public void drawModel3D(TileModel model, float x, float y, float z) {
+    public void drawModel(TileModel model, float x, float y, float z) {
         ModelScene scene = getModel(model);
         if (scene != null) {
             glPushMatrix();

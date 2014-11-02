@@ -1,4 +1,4 @@
-package tk.amberide.ide.gui.editor.map.tool._3d;
+package tk.amberide.ide.gui.editor.map.tool;
 
 import org.lwjgl.input.Keyboard;
 import tk.amberide.engine.data.math.Angles;
@@ -12,11 +12,11 @@ import org.lwjgl.util.vector.Vector2f;
  *
  * @author Tudor
  */
-public class Eraser3D extends Brush3D {
+public class EraserTool extends BrushTool {
 
     private int size = 1;
 
-    public Eraser3D(MapContext context, EulerCamera camera) {
+    public EraserTool(MapContext context, EulerCamera camera) {
         super(context, camera);
     }
 

@@ -6,16 +6,9 @@ import tk.amberide.ide.data.res.Tileset;
 import tk.amberide.ide.data.res.Tileset.TileSprite;
 import tk.amberide.engine.data.io.ByteStream;
 
-import static tk.amberide.engine.data.map.Direction.*;
-
 import tk.amberide.engine.data.map.exc.InvalidMapException;
-import tk.amberide.engine.data.map.LevelMap.Type;
 
-import static tk.amberide.engine.data.map.LevelMap.Type.*;
-import static tk.amberide.engine.data.map.Angle.*;
-import static tk.amberide.engine.data.map.TileType.*;
-import static tk.amberide.engine.data.map.TileType.TILE_CORNER_INVERSED;
-import static tk.amberide.engine.data.map.codec.C0x01.Opcode1.*;
+import static tk.amberide.engine.data.map.codec.V1.Tag.*;
 
 import tk.amberide.ide.data.res.Resource;
 import tk.amberide.engine.data.sparse.SparseMatrix;
@@ -30,13 +23,10 @@ import java.util.HashMap;
 /**
  * @author Tudor
  */
-public class C0x01 extends Codec {
+public class V1 extends Codec {
 
-    public interface Opcode1 {
-
+    public interface Tag {
         short MAP_MAGIC = 0x1337;
-        byte MAP_2D = 0x01;
-        byte MAP_3D = 0x02;
         byte TAG_TILESHEET = 0x01;
         byte TAG_AUDIO = 0x02;
         byte TAG_MODEL = 0x03;
@@ -49,12 +39,7 @@ public class C0x01 extends Codec {
         if (buffer.readShort() != MAP_MAGIC) {
             throw new InvalidMapException("magic number != " + MAP_MAGIC);
         }
-        byte bt = buffer.readByte();
-        if (bt != MAP_2D && bt != MAP_3D) {
-            throw new InvalidMapException("invalid map type");
-        }
-        Type type = bt == MAP_2D ? _2D : _3D;
-        LevelMap map = new LevelMap(buffer.readShort(), buffer.readShort(), type);
+        LevelMap map = new LevelMap(buffer.readShort(), buffer.readShort());
 
         HashMap<Short, Tileset.TileSprite> sprites = new HashMap<Short, Tileset.TileSprite>();
         HashMap<Short, WavefrontObject> models = new HashMap<Short, WavefrontObject>();
@@ -84,7 +69,7 @@ public class C0x01 extends Codec {
         short layersCount = buffer.readShort();
         for (int i = 0; i != layersCount; i++) {
             String name = buffer.readUTF();
-            Layer level = type == _2D ? new Layer(name, map) : new Layer3D(name, map);
+            Layer level = new Layer(name, map);
             int size = buffer.readInt();
             if (size == 0) {
                 map.addLayer(level);
@@ -93,50 +78,42 @@ public class C0x01 extends Codec {
             for (int s = 0; s != size; s++) {
                 byte matrix = buffer.readByte();
                 int z = buffer.readInt();
-                if (matrix == MATRIX_SPARSE) {
-                    int full = buffer.readInt();
-                    for (int f = 0; f != full; f++) {
-                        int x = buffer.readShort();
-                        int y = buffer.readShort();
-                        short id = buffer.readShort();
-                        if (id > 0) {
-                            Tile t;
-                            if (type == _3D) {
-                                t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()), typeOf(buffer.readByte()));
-                            } else {
-                                t = new Tile(sprites.get(id));
-                            }
-                            level.setTile(x, y, z, t);
-                        }
-                    }
-                } else if (matrix == MATRIX_DENSE) {
-                    for (int x = 0; x != map.getWidth(); x++) {
-                        for (int y = 0; y != map.getLength(); y++) {
+                switch (matrix) {
+                    case MATRIX_SPARSE:
+                        int full = buffer.readInt();
+                        for (int f = 0; f != full; f++) {
+                            int x = buffer.readShort();
+                            int y = buffer.readShort();
                             short id = buffer.readShort();
                             if (id > 0) {
-                                Tile t;
-                                if (type == _3D) {
-                                    t = new Tile3D(sprites.get(id), directionOf(buffer.readByte()), angleOf(buffer.readByte()), typeOf(buffer.readByte()));
-                                } else {
-                                    t = new Tile(sprites.get(id));
-                                }
+                                Tile t = new Tile(sprites.get(id), Direction.values()[buffer.readByte()], Angle.values()[buffer.readByte()], TileType.values()[buffer.readByte()]);
                                 level.setTile(x, y, z, t);
                             }
                         }
-                    }
-                } else {
-                    System.err.println("invalid matrix type " + matrix + " at index " + s);
+                        break;
+                    case MATRIX_DENSE:
+                        for (int x = 0; x != map.getWidth(); x++) {
+                            for (int y = 0; y != map.getLength(); y++) {
+                                short id = buffer.readShort();
+                                if (id > 0) {
+                                    Tile t = new Tile(sprites.get(id), Direction.values()[buffer.readByte()], Angle.values()[buffer.readByte()], TileType.values()[buffer.readByte()]);
+                                    level.setTile(x, y, z, t);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        System.err.println("invalid matrix type " + matrix + " at index " + s);
+                        break;
                 }
             }
 
-            if (type == _3D) {
-                int modelCount = buffer.readInt();
-                for (int m = 0; m != modelCount; m++) {
-                    ((Layer3D) level).setModel(buffer.readShort(),
-                            buffer.readShort(),
-                            buffer.readShort(),
-                            new TileModel(models.get(buffer.readShort())));
-                }
+            int modelCount = buffer.readInt();
+            for (int m = 0; m != modelCount; m++) {
+                level.setModel(buffer.readShort(),
+                        buffer.readShort(),
+                        buffer.readShort(),
+                        new TileModel(models.get(buffer.readShort())));
             }
             map.addLayer(level);
         }
@@ -147,8 +124,6 @@ public class C0x01 extends Codec {
     public void compileMap(LevelMap map, DataOutputStream out) throws IOException {
         ByteStream buffer = ByteStream.writeStream();
         buffer.writeShort(MAP_MAGIC);
-        Type type;
-        buffer.writeByte((type = map.getType()) == _2D ? MAP_2D : MAP_3D);
         buffer.writeShort(map.getWidth());
         buffer.writeShort(map.getLength());
 
@@ -208,7 +183,8 @@ public class C0x01 extends Codec {
                 // We also need to write the plane z-coord, in case a layer was
                 // skipped, or the format is not in sequential order.
 
-                layers.writeByte(sparse ? MATRIX_SPARSE : MATRIX_DENSE).writeInt(z);
+                layers.writeByte(sparse ? MATRIX_SPARSE : MATRIX_DENSE);
+                layers.writeInt(z);
 
                 if (sparse) {
                     layers.writeInt(full);
@@ -220,11 +196,9 @@ public class C0x01 extends Codec {
                                 layers.writeShort(x)
                                         .writeShort(y)
                                         .writeShort(id);
-                                if (type == _3D) {
-                                    layers.writeByte(tagByteOf(((Tile3D) t).getDirection()));
-                                    layers.writeByte(tagByteOf(((Tile3D) t).getAngle()));
-                                    layers.writeByte(tagByteOf(((Tile3D) t).getType()));
-                                }
+                                layers.writeByte(t.getDirection().ordinal());
+                                layers.writeByte(t.getAngle().ordinal());
+                                layers.writeByte(t.getType().ordinal());
                             }
                         }
                     }
@@ -236,50 +210,47 @@ public class C0x01 extends Codec {
                             Tile t = layer.getTile(x, y, z);
                             int id = t != null ? recordedTiles.get(t.getSprite()) : 0;
                             layers.writeShort(id);
-                            if (id > 0 && type == _3D) {
-                                layers.writeByte(tagByteOf(((Tile3D) t).getDirection()));
-                                layers.writeByte(tagByteOf(((Tile3D) t).getAngle()));
-                                layers.writeByte(tagByteOf(((Tile3D) t).getType()));
+                            if (id > 0) {
+                                layers.writeByte(t.getDirection().ordinal());
+                                layers.writeByte(t.getAngle().ordinal());
+                                layers.writeByte(t.getType().ordinal());
                             }
                         }
                     }
                 }
             }
 
-            if (layer instanceof Layer3D) {
-                Layer3D l3d = (Layer3D) layer;
-                int nz = 0;
-                for (SparseMatrix<TileModel> matrix : l3d.modelMatrix()) {
-                    for (TileModel u : matrix) {
-                        if (u != null) {
-                            nz++;
-                        }
+            int nz = 0;
+            for (SparseMatrix<TileModel> matrix : layer.modelMatrix()) {
+                for (TileModel u : matrix) {
+                    if (u != null) {
+                        nz++;
                     }
                 }
-                layers.writeInt(nz);
-                SparseVector.SparseVectorIterator modelIterator = l3d.modelMatrix().iterator();
-                HashMap<WavefrontObject, String> modelIds = new HashMap<WavefrontObject, String>();
-                for (Resource<WavefrontObject> models : Amber.getResourceManager().getModels()) {
-                    modelIds.put(models.get(), models.getName());
-                }
-                while (modelIterator.hasNext()) {
-                    SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<WavefrontObject>) modelIterator.next()).iterator();
-                    while (matrixIterator.hasNext()) {
-                        TileModel tile = (TileModel) matrixIterator.next();
-                        if (tile != null) {
-                            WavefrontObject obj = tile.getModel();
-                            if (!recordedModels.containsKey(obj)) {
-                                if (modelIds.containsKey(obj)) {
-                                    constants.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
-                                    recordedModels.put(obj, recordedModels.size() + 1);
-                                    constantsCount++;
-                                }
+            }
+            layers.writeInt(nz);
+            SparseVector.SparseVectorIterator modelIterator = layer.modelMatrix().iterator();
+            HashMap<WavefrontObject, String> modelIds = new HashMap<WavefrontObject, String>();
+            for (Resource<WavefrontObject> models : Amber.getResourceManager().getModels()) {
+                modelIds.put(models.get(), models.getName());
+            }
+            while (modelIterator.hasNext()) {
+                SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<WavefrontObject>) modelIterator.next()).iterator();
+                while (matrixIterator.hasNext()) {
+                    TileModel tile = (TileModel) matrixIterator.next();
+                    if (tile != null) {
+                        WavefrontObject obj = tile.getModel();
+                        if (!recordedModels.containsKey(obj)) {
+                            if (modelIds.containsKey(obj)) {
+                                constants.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
+                                recordedModels.put(obj, recordedModels.size() + 1);
+                                constantsCount++;
                             }
-                            layers.writeShort(matrixIterator.realX())
-                                    .writeShort(matrixIterator.realY())
-                                    .writeShort(modelIterator.realIndex()) // z
-                                    .writeShort(recordedModels.get(obj));
                         }
+                        layers.writeShort(matrixIterator.realX())
+                                .writeShort(matrixIterator.realY())
+                                .writeShort(modelIterator.realIndex()) // z
+                                .writeShort(recordedModels.get(obj));
                     }
                 }
             }
@@ -293,27 +264,4 @@ public class C0x01 extends Codec {
         out.write(buffer.getBuffer());
     }
 
-    protected byte tagByteOf(Direction dir) {
-        return (byte) dir.ordinal();
-    }
-
-    protected byte tagByteOf(Angle angle) {
-        return (byte) angle.ordinal();
-    }
-
-    protected Direction directionOf(byte tag) {
-        return Direction.values()[tag];
-    }
-
-    protected Angle angleOf(byte tag) {
-        return Angle.values()[tag];
-    }
-
-    protected byte tagByteOf(TileType type) {
-        return (byte) type.ordinal();
-    }
-
-    private TileType typeOf(byte tag) {
-        return TileType.values()[tag];
-    }
 }

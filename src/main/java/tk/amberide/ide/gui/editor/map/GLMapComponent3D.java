@@ -1,18 +1,11 @@
-package tk.amberide.ide.gui.editor.map._3d;
+package tk.amberide.ide.gui.editor.map;
 
 import tk.amberide.engine.renderer.GLMapRenderer3D;
 import tk.amberide.Amber;
-import tk.amberide.engine.data.map.Layer;
-import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.LevelMap;
-import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile3D;
 
 import static tk.amberide.engine.data.map.Angle.*;
 
-import tk.amberide.engine.data.map.TileModel;
-import tk.amberide.engine.data.sparse.SparseMatrix;
-import tk.amberide.engine.data.sparse.SparseVector;
 import tk.amberide.engine.data.math.vec.Ray;
 import tk.amberide.engine.data.math.vec.Vec3d;
 import tk.amberide.engine.input.AbstractKeyboard;
@@ -24,16 +17,13 @@ import static tk.amberide.engine.gl.GLE.*;
 import tk.amberide.engine.gl.Sprite;
 import tk.amberide.engine.gl.TrueTypeFont;
 import tk.amberide.engine.gl.camera.EulerCamera;
-import tk.amberide.engine.gl.tess.ImmediateTesselator;
-import tk.amberide.engine.gl.tess.ITesselator;
-import tk.amberide.ide.gui.editor.map.AbstractGLMapComponent;
 
 import static tk.amberide.ide.gui.editor.map.MapContext.*;
 
-import tk.amberide.ide.gui.editor.map.tool._3d.Brush3D;
-import tk.amberide.ide.gui.editor.map.tool._3d.Eraser3D;
-import tk.amberide.ide.gui.editor.map.tool._3d.Fill3D;
-import tk.amberide.ide.gui.editor.map.tool._3d.Tool3D;
+import tk.amberide.ide.gui.editor.map.tool.BrushTool;
+import tk.amberide.ide.gui.editor.map.tool.EraserTool;
+import tk.amberide.ide.gui.editor.map.tool.FillTool;
+import tk.amberide.ide.gui.editor.map.tool.Tool;
 import tk.amberide.engine.input.AbstractMouse;
 import tk.amberide.ide.swing.MenuBuilder;
 
@@ -44,7 +34,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
@@ -53,7 +42,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 
 import static org.lwjgl.opengl.GL11.*;
-import static tk.amberide.engine.input.AbstractKeyboard.*;
 import static tk.amberide.engine.input.AbstractMouse.*;
 
 import tk.amberide.ide.swing.misc.TransferableImage;
@@ -124,7 +112,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         glShadeModel(GL_SMOOTH);
-        //glEnable(GL_POLYGON_OFFSET_FILL);
+        glEnable(GL_POLYGON_OFFSET_FILL);
 
         timer.start();
 
@@ -348,11 +336,11 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
         return display;
     }
 
-    protected Tool3D brushTool = new Brush3D(context, cam);
-    protected Tool3D eraseTool = new Eraser3D(context, cam);
-    protected Tool3D fillTool = new Fill3D(context, cam);
+    protected Tool brushTool = new BrushTool(context, cam);
+    protected Tool eraseTool = new EraserTool(context, cam);
+    protected Tool fillTool = new FillTool(context, cam);
 
-    private Tool3D currentTool() {
+    private Tool currentTool() {
         switch (context.drawMode) {
             case MODE_BRUSH:
                 return brushTool;

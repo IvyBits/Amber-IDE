@@ -17,7 +17,7 @@ public abstract class Codec {
     public static Map<Byte, Codec> CODECS = new HashMap<Byte, Codec>();
 
     static {
-        CODECS.put((byte) 0x01, new C0x01());
+        CODECS.put((byte) 0x01, new V1());
     }
 
     public static Codec getLatestCodec() {

@@ -1,7 +1,7 @@
 package tk.amberide.ide.gui.dialogs.res;
 
 import tk.amberide.engine.data.map.Layer;
-import tk.amberide.engine.data.map.Layer3D;
+import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.LevelMap;
 
 import java.awt.event.KeyAdapter;
@@ -143,9 +143,7 @@ public class NewLayerDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
-        Layer l = map.getType() == LevelMap.Type._2D ? 
-                new Layer(nameField.getText(), map) :
-                new Layer3D(nameField.getText(), map);
+        Layer l = new Layer(nameField.getText(), map);
         map.addLayer(l);
         dispose();
     }//GEN-LAST:event_createButtonActionPerformed

@@ -1,4 +1,4 @@
-package tk.amberide.ide.gui.editor.map.tool._3d;
+package tk.amberide.ide.gui.editor.map.tool;
 
 import tk.amberide.ide.gui.editor.map.MapContext;
 
@@ -6,11 +6,11 @@ import tk.amberide.ide.gui.editor.map.MapContext;
  *
  * @author Tudor
  */
-public abstract class AbstractTool3D implements Tool3D {
+public abstract class AbstractTool implements Tool {
 
     protected MapContext context;
 
-    public AbstractTool3D(MapContext context) {
+    public AbstractTool(MapContext context) {
         setContext(context);
     }
 

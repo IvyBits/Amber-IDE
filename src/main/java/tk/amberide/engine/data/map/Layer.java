@@ -10,6 +10,7 @@ import tk.amberide.engine.data.sparse.SparseVector;
 public class Layer implements Cloneable {
     protected SparseVector<SparseMatrix<Tile>> tiles = new SparseVector<SparseMatrix<Tile>>();
     protected SparseVector<SparseMatrix<Flag>> flags = new SparseVector<SparseMatrix<Flag>>();
+    protected SparseVector<SparseMatrix<TileModel>> models = new SparseVector<SparseMatrix<TileModel>>();
     protected String name;
     protected final LevelMap map;
 
@@ -22,7 +23,25 @@ public class Layer implements Cloneable {
         Layer clone = new Layer(name, map);
         clone.tiles = tiles.clone();
         clone.flags = flags.clone();
+        clone.models = models.clone();
         return clone;
+    }
+
+    public TileModel getModel(int x, int y, int z) {
+        SparseMatrix<TileModel> alt = models.get(z);
+        return alt == null ? null : alt.get(x, y);
+    }
+
+    public void setModel(int x, int y, int z, TileModel m) {
+        SparseMatrix<TileModel> alt = models.get(z);
+        if (alt == null) {
+            models.set(z, alt = new SparseMatrix<TileModel>(Math.max(map.getWidth(), map.getLength())));
+        }
+        alt.put(x, y, m);
+    }
+
+    public SparseVector<SparseMatrix<TileModel>> modelMatrix() {
+        return models;
     }
 
     public Tile getTile(int x, int y, int z) {

@@ -2,8 +2,6 @@ package tk.amberide.ide.gui.editor.map;
 
 import tk.amberide.ide.gui.editor.map.res.TileSelector;
 import tk.amberide.ide.gui.editor.map.res.ModelSelector;
-import tk.amberide.ide.gui.editor.map._3d.GLMapComponent3D;
-import tk.amberide.ide.gui.editor.map._2d.J2DMapComponent2D;
 import tk.amberide.Amber;
 import tk.amberide.engine.al.Audio;
 import tk.amberide.ide.data.res.Tileset;
@@ -53,7 +51,7 @@ public class MapEditorPanel extends FileViewerPanel {
         super(mapFile);
         initComponents();
         map = Codec.CODECS.get(Codec.CURRENT_VERSION).loadMap(new DataInputStream(new FileInputStream(mapFile)));
-        renderer = map.getType() == LevelMap.Type._2D ? new J2DMapComponent2D(map) : new GLMapComponent3D(map);
+        renderer = new GLMapComponent3D(map);
         renderer.getMapContext().outputFile = mapFile;
         cardinalityButton.setVisible(renderer.getMapContext().EXT_cardinalSupported);
         tilePanel.setLayout(new BorderLayout());

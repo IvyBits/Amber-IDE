@@ -3,10 +3,8 @@ package tk.amberide.engine.renderer;
 import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import tk.amberide.engine.data.map.Layer;
-import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.LevelMap;
 import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile3D;
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.engine.data.sparse.SparseMatrix;
 import tk.amberide.engine.data.sparse.SparseVector;
@@ -30,7 +28,7 @@ public class GLMapRenderer3D {
         glEnable(GL_DEPTH_TEST);
 
         List<Layer> layers = map.getLayers();
-        // Fix for z-buffer fighting        
+        // Fix for z-buffer fighting
         glPolygonOffset(1, 1);
 
         for (int i = 0; i != layers.size(); i++) {
@@ -48,16 +46,16 @@ public class GLMapRenderer3D {
 
     protected void drawLayer(Layer layer) {
         SparseVector<SparseMatrix<Tile>> tileVector = layer.tileMatrix();
-        SparseVector<SparseMatrix<TileModel>> modelVector = layer instanceof Layer3D ? ((Layer3D) layer).modelMatrix()
+        SparseVector<SparseMatrix<TileModel>> modelVector = layer instanceof Layer ? ((Layer) layer).modelMatrix()
                 : new SparseVector<SparseMatrix<TileModel>>();
         tess.startTileBatch();
         SparseVector.SparseVectorIterator tileIterator = tileVector.iterator();
         while (tileIterator.hasNext()) {
             SparseMatrix.SparseMatrixIterator matrixIterator = ((SparseMatrix<Tile>) tileIterator.next()).iterator();
             while (matrixIterator.hasNext()) {
-                Tile3D t = (Tile3D) matrixIterator.next();
+                Tile t = (Tile) matrixIterator.next();
                 if (t != null) {
-                    tess.drawTile3D(t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
+                    tess.drawTile(t, matrixIterator.realX(), matrixIterator.realY(), tileIterator.realIndex());
                 }
             }
         }
@@ -72,7 +70,7 @@ public class GLMapRenderer3D {
             while (matrixIterator.hasNext()) {
                 TileModel t = (TileModel) matrixIterator.next();
                 if (t != null) {
-                    tess.drawModel3D(t, matrixIterator.realX(), matrixIterator.realY(), z);
+                    tess.drawModel(t, matrixIterator.realX(), matrixIterator.realY(), z);
                 }
             }
         }

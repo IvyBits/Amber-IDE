@@ -1,10 +1,9 @@
-package tk.amberide.ide.gui.editor.map.tool._3d;
+package tk.amberide.ide.gui.editor.map.tool;
 
 import tk.amberide.engine.data.map.Direction;
 import tk.amberide.engine.data.map.Layer;
-import tk.amberide.engine.data.map.Layer3D;
 import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile3D;
+
 import static tk.amberide.engine.data.map.Angle.*;
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.engine.data.math.Angles;
@@ -25,13 +24,13 @@ import tk.amberide.engine.data.map.TileType;
  *
  * @author Tudor
  */
-public class Brush3D extends AbstractTool3D {
+public class BrushTool extends AbstractTool {
 
     protected EulerCamera camera;
     protected Angle angle = _180;
     protected ITesselator tess = new ImmediateTesselator();
 
-    public Brush3D(MapContext context, EulerCamera camera) {
+    public BrushTool(MapContext context, EulerCamera camera) {
         super(context);
         this.camera = camera;
     }
@@ -67,8 +66,8 @@ public class Brush3D extends AbstractTool3D {
             case MapContext.EXT_TYPE_MODEL:
                 if (context.EXT_modelSelection != null) {
                     Layer l = context.map.getLayer(context.layer);
-                    if (l instanceof Layer3D) {
-                        Layer3D l3d = (Layer3D) l;
+                    if (l instanceof Layer) {
+                        Layer l3d = (Layer) l;
                         if (isInBounds(x, y)) {
                             TileModel p = l3d.getModel(x, y, z);
                             if (p == null || p.getModel() != context.EXT_modelSelection) {
@@ -139,7 +138,7 @@ public class Brush3D extends AbstractTool3D {
                 } else {
                     type = TileType.TILE_NORMAL;
                 }
-                lay.setTile(x, y, z, new Tile3D(tile, dir, angle, type));
+                lay.setTile(x, y, z, new Tile(tile, dir, angle, type));
             } else {
                 modified = r != null;
                 lay.setTile(x, y, z, null);
@@ -152,7 +151,7 @@ public class Brush3D extends AbstractTool3D {
         if (context.drawType == MapContext.EXT_TYPE_MODEL && context.EXT_modelSelection != null) {
             glPushAttrib(GL_CURRENT_BIT | GL_POLYGON_BIT);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            tess.drawModel3D(new TileModel(context.EXT_modelSelection), x, z, y);
+            tess.drawModel(new TileModel(context.EXT_modelSelection), x, z, y);
             glPopAttrib();
         } else if (context.tileSelection != null) {
             glPushMatrix();

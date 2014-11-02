@@ -19,18 +19,16 @@ import javax.swing.JOptionPane;
 public class NewMapDialog extends javax.swing.JDialog {
 
     private File dir;
-    private LevelMap.Type type;
 
     /**
      * Creates new form NewMapDialog
      */
-    public NewMapDialog(java.awt.Frame parent, File dir, LevelMap.Type type) {
+    public NewMapDialog(java.awt.Frame parent, File dir) {
         super(parent);
         initComponents();
         this.dir = dir;
-        this.type = type;
 
-        setTitle("New " + (type == LevelMap.Type._2D ? "2D" : "3D") + " map...");
+        setTitle("New map...");
     }
 
     /**
@@ -194,8 +192,7 @@ public class NewMapDialog extends javax.swing.JDialog {
             if (output.createNewFile()) {
                 LevelMap map = new LevelMap(
                         (Integer) mapWidthSpinner.getValue(),
-                        (Integer) mapHeightSpinner.getValue(),
-                        type);
+                        (Integer) mapHeightSpinner.getValue());
                 map.addLayer(new Layer(
                         "background",
                         map));

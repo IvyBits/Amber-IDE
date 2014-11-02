@@ -1,4 +1,4 @@
-package tk.amberide.ide.gui.editor.map.tool._3d;
+package tk.amberide.ide.gui.editor.map.tool;
 
 import tk.amberide.ide.gui.editor.map.MapContext;
 import java.awt.Component;
@@ -7,7 +7,7 @@ import java.awt.Component;
  *
  * @author Tudor
  */
-public interface Tool3D {
+public interface Tool {
 
     boolean apply(int x, int y, int z);
 

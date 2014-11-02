@@ -32,7 +32,7 @@ public class FileTreeExplorer extends FileTreeAdapter {
     }
 
     private boolean open(TreePath path) {
-        if(path == null)
+        if (path == null)
             return false;
         File file = ((FileTreeNode) path.getLastPathComponent()).getFile();
         if (!file.isDirectory() && Amber.getWorkspace().getOpenedFiles().add(file.getAbsolutePath())) {
@@ -93,21 +93,13 @@ public class FileTreeExplorer extends FileTreeAdapter {
             if (file.isDirectory()) {
                 JMenu newMenu = new JMenu("New");
                 {
-                    JMenu maps = new JMenu("Map");
-                    {
-                        maps.add(new JMenuItem("2D Map")).addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent evt) {
-                                new NewMapDialog(Amber.getUI(), file, LevelMap.Type._2D).setVisible(true);
-                                tree.synchronize();
-                            }
-                        });
-                        maps.add(new JMenuItem("3D Map")).addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent evt) {
-                                new NewMapDialog(Amber.getUI(), file, LevelMap.Type._3D).setVisible(true);
-                                tree.synchronize();
-                            }
-                        });
-                    }
+                    JMenuItem maps = new JMenuItem("Map");
+                    maps.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) {
+                            new NewMapDialog(Amber.getUI(), file).setVisible(true);
+                            tree.synchronize();
+                        }
+                    });
                     newMenu.add(maps);
 
                     newMenu.add(new JMenuItem("File")).addActionListener(new ActionListener() {
