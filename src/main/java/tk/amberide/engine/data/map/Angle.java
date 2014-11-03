@@ -6,7 +6,7 @@ package tk.amberide.engine.data.map;
  */
 public enum Angle {
 
-    _45(45), _90(90), _180(0);
+    SLANTED(45), VERTICAL(90), HORIZONTAL(0);
     private int angle;
 
     Angle(int angle) {

@@ -122,22 +122,23 @@ public class V1 extends Codec {
 
     @Override
     public void compileMap(LevelMap map, DataOutputStream out) throws IOException {
-        ByteStream buffer = ByteStream.writeStream();
-        buffer.writeShort(MAP_MAGIC);
-        buffer.writeShort(map.getWidth());
-        buffer.writeShort(map.getLength());
+        ByteStream mapBuffer = ByteStream.writeStream();
+        mapBuffer.writeShort(MAP_MAGIC);
+        mapBuffer.writeShort(map.getWidth());
+        mapBuffer.writeShort(map.getLength());
 
         HashMap<Tileset.TileSprite, Integer> recordedTiles = new HashMap<Tileset.TileSprite, Integer>();
         HashMap<WavefrontObject, Integer> recordedModels = new HashMap<WavefrontObject, Integer>();
 
         int constantsCount = 0;
-        ByteStream constants = ByteStream.writeStream();
-        ByteStream layers = ByteStream.writeStream();
+        ByteStream constantBuffer = ByteStream.writeStream();
+        ByteStream mapLayerBuffer = ByteStream.writeStream();
 
-        layers.writeShort(map.getLayers().size());
+        mapLayerBuffer.writeShort(map.getLayers().size());
         for (Layer layer : map.getLayers()) {
-            layers.writeUTF(layer.getName());
-            layers.writeInt(layer.tileMatrix().nonZeroEntries());
+            ByteStream layerBuffer = ByteStream.writeStream();
+
+            int totFull = 0;
 
             SparseVector.SparseVectorIterator tileIterator = layer.tileMatrix().iterator();
             while (tileIterator.hasNext()) {
@@ -154,7 +155,7 @@ public class V1 extends Codec {
                             Tileset.TileSprite spr = t.getSprite();
                             // This is not a recorded tile, so we should save it.
                             if (!recordedTiles.containsKey(spr)) {
-                                constants.writeByte(TAG_TILESHEET).writeShort(recordedTiles.size() + 1).writeUTF(spr.getId());
+                                constantBuffer.writeByte(TAG_TILESHEET).writeShort(recordedTiles.size() + 1).writeUTF(spr.getId());
                                 recordedTiles.put(spr, recordedTiles.size() + 1);
                                 constantsCount++;
                             }
@@ -166,6 +167,7 @@ public class V1 extends Codec {
                     // There are no tiles in this plane, it can be ignored
                     continue;
                 }
+                totFull++;
 
                 int z = tileIterator.realIndex();
 
@@ -184,22 +186,22 @@ public class V1 extends Codec {
                 // We also need to write the plane z-coord, in case a layer was
                 // skipped, or the format is not in sequential order.
 
-                layers.writeByte(sparse ? MATRIX_SPARSE : MATRIX_DENSE);
-                layers.writeInt(z);
+                layerBuffer.writeByte(sparse ? MATRIX_SPARSE : MATRIX_DENSE);
+                layerBuffer.writeInt(z);
 
                 if (sparse) {
-                    layers.writeInt(full);
+                    layerBuffer.writeInt(full);
                     for (int x = 0; x != map.getWidth(); x++) {
                         for (int y = 0; y != map.getLength(); y++) {
                             Tile t = layer.getTile(x, y, z);
                             int id = t != null ? recordedTiles.get(t.getSprite()) : 0;
                             if (id > 0) {
-                                layers.writeShort(x)
+                                layerBuffer.writeShort(x)
                                         .writeShort(y)
                                         .writeShort(id);
-                                layers.writeByte(t.getDirection().ordinal());
-                                layers.writeByte(t.getAngle().ordinal());
-                                layers.writeByte(t.getType().ordinal());
+                                layerBuffer.writeByte(t.getDirection().ordinal());
+                                layerBuffer.writeByte(t.getAngle().ordinal());
+                                layerBuffer.writeByte(t.getType().ordinal());
                             }
                         }
                     }
@@ -210,11 +212,11 @@ public class V1 extends Codec {
                         for (int y = 0; y != map.getLength(); y++) {
                             Tile t = layer.getTile(x, y, z);
                             int id = t != null ? recordedTiles.get(t.getSprite()) : 0;
-                            layers.writeShort(id);
+                            layerBuffer.writeShort(id);
                             if (id > 0) {
-                                layers.writeByte(t.getDirection().ordinal());
-                                layers.writeByte(t.getAngle().ordinal());
-                                layers.writeByte(t.getType().ordinal());
+                                layerBuffer.writeByte(t.getDirection().ordinal());
+                                layerBuffer.writeByte(t.getAngle().ordinal());
+                                layerBuffer.writeByte(t.getType().ordinal());
                             }
                         }
                     }
@@ -229,7 +231,7 @@ public class V1 extends Codec {
                     }
                 }
             }
-            layers.writeInt(nz);
+            layerBuffer.writeInt(nz);
             SparseVector.SparseVectorIterator modelIterator = layer.modelMatrix().iterator();
             HashMap<WavefrontObject, String> modelIds = new HashMap<WavefrontObject, String>();
             for (Resource<WavefrontObject> models : Amber.getResourceManager().getModels()) {
@@ -243,25 +245,30 @@ public class V1 extends Codec {
                         WavefrontObject obj = tile.getModel();
                         if (!recordedModels.containsKey(obj)) {
                             if (modelIds.containsKey(obj)) {
-                                constants.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
+                                constantBuffer.writeByte(TAG_MODEL).writeShort(recordedModels.size() + 1).writeUTF(modelIds.get(obj));
                                 recordedModels.put(obj, recordedModels.size() + 1);
                                 constantsCount++;
                             }
                         }
-                        layers.writeShort(matrixIterator.realX())
+                        layerBuffer.writeShort(matrixIterator.realX())
                                 .writeShort(matrixIterator.realY())
                                 .writeShort(modelIterator.realIndex()) // z
                                 .writeShort(recordedModels.get(obj));
                     }
                 }
             }
+
+            mapLayerBuffer.writeUTF(layer.getName());
+            mapLayerBuffer.writeInt(totFull);
+            System.out.println(totFull);
+            mapLayerBuffer.writeBytes(layerBuffer.getBuffer());
         }
 
-        buffer.writeShort(constantsCount);
-        buffer.writeBytes(constants.getBuffer());
-        buffer.writeBytes(layers.getBuffer());
+        mapBuffer.writeShort(constantsCount);
+        mapBuffer.writeBytes(constantBuffer.getBuffer());
+        mapBuffer.writeBytes(mapLayerBuffer.getBuffer());
 
-        out.write(buffer.getBuffer());
+        out.write(mapBuffer.getBuffer());
     }
 
 }

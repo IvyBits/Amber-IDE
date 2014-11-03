@@ -67,7 +67,7 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
 
     protected FrameTimer timer = new FrameTimer();
     protected Vec3d cursorPos = new Vec3d();
-    protected Angle currentAngle = _180;
+    protected Angle currentAngle = HORIZONTAL;
     protected EulerCamera cam = new EulerCamera.Builder()
             .setPosition(0, 3, 0)
             .setFieldOfView(60)

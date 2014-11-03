@@ -2,19 +2,23 @@ package tk.amberide.engine.gl.tess;
 
 import tk.amberide.engine.data.math.Angles;
 import tk.amberide.engine.data.map.Tile;
-import tk.amberide.engine.data.map.Tile;
+
 import static tk.amberide.engine.data.map.Angle.*;
+
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.ide.data.res.Tileset;
 import tk.amberide.engine.gl.atlas.ITextureAtlas;
 import tk.amberide.engine.gl.atlas.TextureAtlasFactory;
 import tk.amberide.engine.gl.model.ModelScene;
 import tk.amberide.engine.gl.model.obj.WavefrontObject;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
 import java.util.WeakHashMap;
+
 import static org.lwjgl.opengl.GL11.*;
+
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -32,7 +36,7 @@ public class ImmediateTesselator implements ITesselator {
         atl = getTexture(tile);
 
         glPushMatrix();
-        float[] tr = {x, z, y, 0};
+        float tx = x, ty = y, rot = 0;
         float[] t0 = {0, 1};
         float[] t1 = {0, 0};
         float[] t2 = {1, 0};
@@ -40,17 +44,17 @@ public class ImmediateTesselator implements ITesselator {
 
         switch (tile.getDirection().toCardinal()) {
             case SOUTH:
-                tr[0]++;
-                tr[2]++;
-                tr[3] = 180;
+                tx += 1;
+                ty += 1;
+                rot = 180;
                 break;
             case WEST:
-                tr[2]++;
-                tr[3] = 90;
+                ty += 1;
+                rot = 90;
                 break;
             case EAST:
-                tr[0]++;
-                tr[3] = 270;
+                tx += 1;
+                rot = 270;
                 break;
         }
         float y1, y2, y3, y4;
@@ -72,7 +76,7 @@ public class ImmediateTesselator implements ITesselator {
                         y2++;
                         break;
                 }
-                ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
+                ix = Angles.circleIntercept(HORIZONTAL.intValue(), 0, 0, 1);
                 break;
             case TILE_CORNER_INVERSED:
                 switch (tile.getDirection()) {
@@ -90,20 +94,20 @@ public class ImmediateTesselator implements ITesselator {
                         y3++;
                         break;
                 }
-                ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);
+                ix = Angles.circleIntercept(HORIZONTAL.intValue(), 0, 0, 1);
                 break;
             case TILE_NORMAL:
                 ix = Angles.circleIntercept(tile.getAngle().intValue(), 0, 0, 1);
                 break;
         }
-        glTranslatef(tr[0], tr[1], tr[2]);
+        glTranslatef(tx, z, ty);
 
         Point start = tile.getSprite().getStart();
         Dimension size = tile.getSprite().getSize();
 
         atl.bindTextureRegion(start.x, start.y, size.height, size.width);
 
-        glRotatef(tr[3], 0, 1, 0);
+        glRotatef(rot, 0, 1, 0);
         glBegin(GL_TRIANGLES);
         {
             //0      

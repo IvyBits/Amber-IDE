@@ -29,7 +29,7 @@ import tk.amberide.engine.data.map.TileType;
 public class BrushTool extends AbstractTool {
 
     protected EulerCamera camera;
-    protected Angle angle = _180;
+    protected Angle angle = HORIZONTAL;
     protected ITesselator tess = new ImmediateTesselator();
 
     public BrushTool(MapContext context, EulerCamera camera) {
@@ -40,10 +40,10 @@ public class BrushTool extends AbstractTool {
     @Override
     public void doScroll(int delta) {
         if (delta >= 1) {
-            angle = angle == _45 ? _180 : (angle == _90 ? _45 : angle);
+            angle = angle == SLANTED ? HORIZONTAL : (angle == VERTICAL ? SLANTED : angle);
 
         } else if (delta <= -1) {
-            angle = angle == _45 ? _90 : (angle == _180 ? _45 : angle);
+            angle = angle == SLANTED ? VERTICAL : (angle == HORIZONTAL ? SLANTED : angle);
         }
     }
 
@@ -88,7 +88,7 @@ public class BrushTool extends AbstractTool {
     protected final boolean setAngledTile(int x, int y, int z, int sx, int sy, int h, int w, Direction dir, Angle angle, Tileset.TileSprite[][] sel) {
         // It works, that's all you need to know.
         switch (angle) {
-            case _180:
+            case HORIZONTAL:
                 switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x + sy, y + sx, z, sel[sx][h - sy - 1], dir, angle);
@@ -99,7 +99,7 @@ public class BrushTool extends AbstractTool {
                     case WEST:
                         return setTile(sx + x, sy + y - h + 1, z, sel[sx][sy], dir, angle);
                 }
-            case _90:
+            case VERTICAL:
                 switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
@@ -110,7 +110,7 @@ public class BrushTool extends AbstractTool {
                     case WEST:
                         return setTile(sx + x, y, z + sy, sel[sx][h - sy - 1], dir, angle);
                 }
-            case _45:
+            case SLANTED:
                 switch (dir.toCardinal()) {
                     case NORTH:
                         return setTile(x + sy, y + sx, z + sy, sel[sx][h - sy - 1], dir, angle);
@@ -157,24 +157,24 @@ public class BrushTool extends AbstractTool {
             glPopAttrib();
         } else if (context.tileSelection != null) {
             glPushMatrix();
-            float[] tr = new float[]{x, y, z, 0};
+            float tx = x, tz = z, rot = 0;
 
             switch (camera.getFacingDirection().toCardinal()) {
                 case SOUTH:
-                    tr[0]++;
-                    tr[2]++;
-                    tr[3] = 180;
+                    tx+=1;
+                    tz+=1;
+                    rot = 180;
                     break;
                 case WEST:
-                    tr[2]++;
-                    tr[3] = 90;
+                    tz+=1;
+                    rot = 90;
                     break;
                 case EAST:
-                    tr[0]++;
-                    tr[3] = 270;
+                    tx+=1;
+                    rot = 270;
                     break;
             }
-            glTranslatef(tr[0], tr[1], tr[2]);
+            glTranslatef(tx, (float) y, tz);
             float y1, y2, y3, y4;
             y1 = y2 = y3 = y4 = 0;
             Vector2f ix;
@@ -190,7 +190,7 @@ public class BrushTool extends AbstractTool {
                         y2++;
                         break;
                 }
-                ix = Angles.circleIntercept(_180.intValue(), 0, 0, context.tileSelection[0].length);
+                ix = Angles.circleIntercept(HORIZONTAL.intValue(), 0, 0, context.tileSelection[0].length);
             } else if (isKeyDown(KEY_X) && !isKeyDown(KEY_Z) && !dir.cardinal()) {
                 switch (dir) {
                     case NORTH_EAST:
@@ -206,11 +206,11 @@ public class BrushTool extends AbstractTool {
                         y3++;
                         break;
                 }
-                ix = Angles.circleIntercept(_180.intValue(), 0, 0, context.tileSelection[0].length);
+                ix = Angles.circleIntercept(HORIZONTAL.intValue(), 0, 0, context.tileSelection[0].length);
             } else {
                 ix = Angles.circleIntercept(angle.intValue(), 0, 0, context.tileSelection[0].length);
             }
-            glRotatef(tr[3], 0, 1, 0);
+            glRotatef(rot, 0, 1, 0);
 
             glBegin(GL_LINE_LOOP);
             {

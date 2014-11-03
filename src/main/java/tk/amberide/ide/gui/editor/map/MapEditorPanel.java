@@ -178,7 +178,12 @@ public class MapEditorPanel extends FileViewerPanel {
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         renderer.getMapContext().layer = table.getRowCount() - table.getSelectedRow() - 1;
-                        System.out.println("chose layer " + renderer.getMapContext().map.getLayer(renderer.getMapContext().layer).getName());
+                        try {
+                            System.out.println("chose layer " + renderer.getMapContext().map.getLayer(renderer.getMapContext().layer).getName());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                            System.out.println(renderer.getMapContext().map.getLayers());
+                        }
                     }
                 });
             }

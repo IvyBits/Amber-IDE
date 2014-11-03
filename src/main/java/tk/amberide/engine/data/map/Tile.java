@@ -30,7 +30,7 @@ public class Tile implements Cloneable {
     }
 
     public Tile(Tileset.TileSprite sprite, Direction dir, TileType type) {
-        this(sprite, dir, Angle._180, type);
+        this(sprite, dir, Angle.HORIZONTAL, type);
     }
 
     public Tile(Tileset.TileSprite sprite, Direction dir, Angle angle) {
@@ -38,7 +38,7 @@ public class Tile implements Cloneable {
     }
 
     public Tile(Tileset.TileSprite sprite, Direction dir) {
-        this(sprite, dir, Angle._180);
+        this(sprite, dir, Angle.HORIZONTAL);
     }
 
     /**
