@@ -77,27 +77,17 @@ public class ImmediateTesselator implements ITesselator {
             case TILE_CORNER_INVERSED:
                 switch (tile.getDirection()) {
                     case NORTH_EAST:
+                    case SOUTH_WEST:
                         y4++;
                         y3++;
                         y2++;
                         t3 = new float[]{0, 0};
                         break;
                     case NORTH_WEST:
-                        y1++;
-                        y2++;
-                        y3++;
-                        //t3 = new float[]{0, 1};
-                        break;
                     case SOUTH_EAST:
                         y1++;
                         y2++;
                         y3++;
-                        break;
-                    case SOUTH_WEST:
-                        y4++;
-                        y3++;
-                        y2++;
-                        t3 = new float[]{0, 0};
                         break;
                 }
                 ix = Angles.circleIntercept(_180.intValue(), 0, 0, 1);

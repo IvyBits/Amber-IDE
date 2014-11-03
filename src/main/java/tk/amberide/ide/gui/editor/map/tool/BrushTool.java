@@ -5,6 +5,7 @@ import tk.amberide.engine.data.map.Layer;
 import tk.amberide.engine.data.map.Tile;
 
 import static tk.amberide.engine.data.map.Angle.*;
+
 import tk.amberide.engine.data.map.TileModel;
 import tk.amberide.engine.data.math.Angles;
 import tk.amberide.ide.data.res.Tileset;
@@ -12,16 +13,17 @@ import tk.amberide.engine.gl.camera.EulerCamera;
 import tk.amberide.engine.gl.tess.ITesselator;
 import tk.amberide.engine.gl.tess.ImmediateTesselator;
 import tk.amberide.ide.gui.editor.map.MapContext;
-import tk.amberide.engine.input.AbstractKeyboard;
+
 import java.awt.Component;
-import org.lwjgl.input.Keyboard;
+
 import static org.lwjgl.opengl.GL11.*;
+import static tk.amberide.engine.input.AbstractKeyboard.*;
+
 import org.lwjgl.util.vector.Vector2f;
 import tk.amberide.engine.data.map.Angle;
 import tk.amberide.engine.data.map.TileType;
 
 /**
- *
  * @author Tudor
  */
 public class BrushTool extends AbstractTool {
@@ -131,9 +133,9 @@ public class BrushTool extends AbstractTool {
             if (tile != null) {
                 modified = r == null || !tile.equals(r.getSprite());
                 TileType type;
-                if (AbstractKeyboard.isKeyDown(Keyboard.KEY_Z)) {
-                    type =  TileType.TILE_CORNER;
-                } else if (AbstractKeyboard.isKeyDown(Keyboard.KEY_X)) {
+                if (isKeyDown(KEY_Z) && !isKeyDown(KEY_X)) {
+                    type = TileType.TILE_CORNER;
+                } else if (isKeyDown(KEY_X) && !isKeyDown(KEY_Z)) {
                     type = TileType.TILE_CORNER_INVERSED;
                 } else {
                     type = TileType.TILE_NORMAL;
@@ -177,19 +179,31 @@ public class BrushTool extends AbstractTool {
             y1 = y2 = y3 = y4 = 0;
             Vector2f ix;
             Direction dir = camera.getFacingDirection();
-            if (AbstractKeyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !dir.cardinal()) {
+            if (isKeyDown(KEY_Z) && !isKeyDown(KEY_X) && !dir.cardinal()) {
                 switch (dir) {
                     case NORTH_EAST:
+                    case SOUTH_WEST:
                         y3++;
                         break;
                     case NORTH_WEST:
+                    case SOUTH_EAST:
                         y2++;
                         break;
-                    case SOUTH_EAST:
-                        y4++;
-                        break;
+                }
+                ix = Angles.circleIntercept(_180.intValue(), 0, 0, context.tileSelection[0].length);
+            } else if (isKeyDown(KEY_X) && !isKeyDown(KEY_Z) && !dir.cardinal()) {
+                switch (dir) {
+                    case NORTH_EAST:
                     case SOUTH_WEST:
+                        y4++;
+                        y3++;
+                        y2++;
+                        break;
+                    case NORTH_WEST:
+                    case SOUTH_EAST:
                         y1++;
+                        y2++;
+                        y3++;
                         break;
                 }
                 ix = Angles.circleIntercept(_180.intValue(), 0, 0, context.tileSelection[0].length);

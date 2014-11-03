@@ -270,12 +270,14 @@ public class GLMapComponent3D extends AbstractGLMapComponent {
             glePushOrthogonalMode(0, getWidth(), 0, getHeight());
             if (compass) {
                 if (compassRose == null) {
-                    compassRose = new Sprite("icon/MapEditor.Compass-Rose.png");
+                    compassRose = new Sprite("icon/MapEditor.Compass-Rose-small.png");
                 }
                 glPushMatrix();
-                glTranslatef(getWidth() / 2 + getWidth() / 3.5f, getHeight() / 2 + getHeight() / 3.5f, 0);
+                glTranslatef(getWidth() / 2 + getWidth() / 3f, getHeight() / 2 + getHeight() / 3.5f, 0);
                 glRotatef(cam.yaw() - 90, 0, 0, 1);
                 float ratio = ((float) getWidth()) / ((float) getHeight()) * .7f;
+                //System.out.println(ratio);
+                ratio = 0.7f;
                 glScalef(ratio, ratio, ratio);
                 compassRose.draw(compassRose.getWidth() / 2, -compassRose.getHeight() / 2);
                 glPopMatrix();
