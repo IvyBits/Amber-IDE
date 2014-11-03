@@ -27,6 +27,7 @@ public class V1 extends Codec {
 
     public interface Tag {
         short MAP_MAGIC = 0x1337;
+        int MAP_VERSION = 0x01;
         byte TAG_TILESHEET = 0x01;
         byte TAG_AUDIO = 0x02;
         byte TAG_MODEL = 0x03;
@@ -39,6 +40,9 @@ public class V1 extends Codec {
         if (buffer.readShort() != MAP_MAGIC) {
             throw new InvalidMapException("magic number != " + MAP_MAGIC);
         }
+        int v;
+        if ((v = buffer.readInt()) != MAP_VERSION)
+            throw new InvalidMapException("wrong map version " + v);
         LevelMap map = new LevelMap(buffer.readShort(), buffer.readShort());
 
         HashMap<Short, Tileset.TileSprite> sprites = new HashMap<Short, Tileset.TileSprite>();
@@ -124,6 +128,7 @@ public class V1 extends Codec {
     public void compileMap(LevelMap map, DataOutputStream out) throws IOException {
         ByteStream mapBuffer = ByteStream.writeStream();
         mapBuffer.writeShort(MAP_MAGIC);
+        mapBuffer.writeInt(MAP_VERSION);
         mapBuffer.writeShort(map.getWidth());
         mapBuffer.writeShort(map.getLength());
 
